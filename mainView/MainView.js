@@ -1,74 +1,81 @@
 import React, {useState} from 'react';
 import { View, StyleSheet } from 'react-native';
-import { SquareButton, SearchInput}  from './SquareButton';
-import MainViewModel from './MainViewModel';
+import { SquareButton, BubbleButton}  from './SquareButton';
+import MainViewModel from './MainViewModel'; 
+import { NavigationContainer } from '@react-navigation/native';
+import CustomTabBar from '../CustomTabBar/CustomTabBar.js';
+
 
 const MainView = () => {
   const { searchQuery, setSearchQuery, handleSearch } = MainViewModel();
 
   return (
-    <View style={styles.container}>
+    <NavigationContainer>
+      <View style={styles.container}>
       <ButtonsView  
-      searchQuery={searchQuery} 
-      setSearchQuery={setSearchQuery} 
-      onButtonPress={handleSearch} 
+        searchQuery={searchQuery} 
+        setSearchQuery={setSearchQuery} 
+        onButtonPress={handleSearch} 
       />
+      </View>
+    <CustomTabBar />
+  </NavigationContainer>
+  );
+};
+
+
+//MARK:- bottomView
+const ButtonsView = ({ searchQuery, setSearchQuery, onButtonPress }) => {
+  return (
+    <View style={styles.BtnContainer}>
+      <View style={styles.TopBtnContainer}>
+        <SquareButton
+          onPress={() => setSearchQuery(searchQuery)}
+          title="대화목록 보기"
+          imageSource={require('../assets/images/primary.png')}  // 프로젝트 루트를 기준으로 한 상대 경로
+        />
+        <SquareButton
+          onPress={onButtonPress}
+          title="오늘의 포춘쿠키"
+          imageSource={require('../assets/images/primary.png')}  // 프로젝트 루트를 기준으로 한 상대 경로
+        />
+      </View>
+      <BubbleButton
+        onPress={onButtonPress}
+        bubbleText="오늘은 어떤 꿈을 꾸셨나요?"
+        buttonText="꾸미와 이야기하기"
+        bubbleImageSource={require('../assets/images/TalkBtn.png')}  // 프로젝트 루트를 기준으로 한 상대 경로
+      />
+      <View style={styles.square}></View>
     </View>
   );
 };
 
 
 
-//MARK:- bottomView
-const ButtonsView = ({ searchQuery, setSearchQuery, onButtonPress}) => {
-    return (
-        <View style={styles.BtnContainer}>
-          <View style={styles.SearchBtnContainer}>
-                <SearchInput 
-                    placeholder="꾸미에게 물어보기"
-                    onChangeText={setSearchQuery}
-                    value={searchQuery}
-                    onButtonPress={onButtonPress}
-                />
-          </View>
-         <View style={styles.buttonContainer}>
-            <SquareButton title="오늘의 일기" onPress={() => alert('오늘의 일기 버튼')} />
-            <SquareButton title="감정 지도" onPress={() => alert('감정지도 버튼')} />
-            <SquareButton title="포춘 쿠키" onPress={() => alert('포춘쿠키 버튼')} />
-         </View>
-      </View>
-    );
-  };
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    alignItems: 'center'
   },
   BtnContainer: {
-    maxWidth: 500,
-    maxHeight: 400,
-    marginBottom: 200,
+    flex: 1,
   },
-  buttonContainer: {
+  TopBtnContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    marginTop: 50,
+    marginBottom: 60,
+    width: '100%'
   },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    margin: 10,
-}, 
-SearchBtnContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  marginRight: 10,
-  marginBottom: 50,
-}
+  square: {
+    width: 207,
+    height: 246,
+    backgroundColor: '#D9D9D9',
+    marginLeft: 115
+  }
 });
 
 export default MainView;
