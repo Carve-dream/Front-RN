@@ -1,39 +1,54 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // 뒤로가기 아이콘 사용을 위해 추가
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+
 
 //상단바
-const TopBar = () =>{
-    return (
-        <View style={styles.topBar}> 
-            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                <Icon name="arrow-back" size={24} color="black" />
-            </TouchableOpacity>
+const TopBar = ({ navigation, title }) => {
+  return (
+    <View style={styles.topBar}>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Image source={require('../assets/images/back.png')} style={styles.back} />
+      </TouchableOpacity>
 
-            <View style={styles.headerContainer}>
-                <Text style={styles.headerText}>가상 심리학자 꾸미</Text>
-            </View>
-        </View>
-    );
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>{title}</Text>
+      </View>
+      {/* 메뉴 버튼 */}
+      <TouchableOpacity style={styles.menuButton} onPress={() => console.log('메뉴 버튼이 눌렸습니다.')}>
+        <Image source={require('../assets/images/close.png')} style={styles.close} />
+      </TouchableOpacity>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-    topBar: {
-      alignItems: 'center',
-      backgroundColor: '#f0f0f0',
-      flexDirection: 'row',
-      justifyContent: 'center',
-      padding: 10,
-    },
-    headerContainer: {
-      alignItems: 'center',
-      flex: 1,
-      marginRight: 25,
-      padding: 10,
-    },
-    headerText: {
-      fontSize: 20,
-    },
-  });
+  topBar: {
+    alignItems: 'center',
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    justifyContent: 'center', // 좌우 여백이 동일하도록 설정. menu기능 뺄 경우 center로 수정.
+    padding: 10,
+  },
+  headerContainer: {
+    alignItems: 'center',
+    flex: 1,
+    padding: 10,
+  },
+  headerText: {
+    fontSize: 18,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    color: '#464E82',
+  },
+  back:{
+    width: 30,
+    height: 30,
+  },
+  close: {
+    width: 23,
+    height: 23,
+    marginRight: 5,
+  },
+});
 
 export default TopBar;

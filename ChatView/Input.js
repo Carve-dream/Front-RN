@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { TextInput, View, Text, TouchableOpacity,  StyleSheet } from 'react-native';
+import { TextInput, View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 // 메세지 보내기 입력창 
 const Input = ({ sendMessage }) => {
@@ -17,12 +18,12 @@ const Input = ({ sendMessage }) => {
         <View style={styles.inputContainer}>
             <TextInput
                 style={styles.input}
-                placeholder="꾸미에게 메세지 보내기"
+                placeholder="꾸미에게 물어보세요"
                 value={messageText}
                 onChangeText={setMessageText}
             />
             <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-                <Text>➤</Text>
+                <Image source={require('../assets/cursor.png')} style={styles.sendButton} />
             </TouchableOpacity>
         </View>
 
@@ -30,11 +31,8 @@ const Input = ({ sendMessage }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
     inputContainer: {
-        backgroundColor: '#f0f0f0',
+        backgroundColor: '#C1C7F8',
         flexDirection: 'row',
         padding: 10,
     },
@@ -43,11 +41,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderRadius: 5,
         height: 40,
-        marginRight: 10,
+        marginRight: 5,
         paddingHorizontal: 10,
     },
     sendButton: {
-        padding: 10,
+        marginTop: -2,
+        paddingBottom: 3,
     },
 })
 
