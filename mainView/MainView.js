@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
 import { View, StyleSheet } from 'react-native';
 import { SquareButton, BubbleButton}  from './SquareButton';
-import MainViewModel from './MainViewModel'; 
 import { NavigationContainer } from '@react-navigation/native';
+import MainViewModel from './MainViewModel'; 
 import CustomTabBar from '../CustomTabBar/CustomTabBar.js';
+import { LinearGradient } from 'expo-linear-gradient';
 
 
 const MainView = () => {
@@ -11,18 +12,22 @@ const MainView = () => {
 
   return (
     <NavigationContainer>
-      <View style={styles.container}>
-      <ButtonsView  
-        searchQuery={searchQuery} 
-        setSearchQuery={setSearchQuery} 
-        onButtonPress={handleSearch} 
-      />
-      </View>
-    <CustomTabBar />
-  </NavigationContainer>
+      <LinearGradient
+        colors={['rgba(41, 32, 100, 0.80)', 'rgba(203, 157, 221, 0.80)', 'rgba(244, 191, 168, 0.80)', 'rgba(255, 255, 255, 0.80)']}
+        style={styles.linearGradient}
+      >
+        <View style={styles.container}>
+          <ButtonsView
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            onButtonPress={handleSearch}
+          />
+        </View>
+        <CustomTabBar />
+      </LinearGradient>
+    </NavigationContainer>
   );
 };
-
 
 //MARK:- bottomView
 const ButtonsView = ({ searchQuery, setSearchQuery, onButtonPress }) => {
@@ -58,6 +63,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center'
+  },
+  linearGradient: {
+    flex: 1,
+    position: 'relative',
+    width: 430,
+    height: 932
   },
   BtnContainer: {
     flex: 1,
