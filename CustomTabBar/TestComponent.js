@@ -70,8 +70,8 @@ const MyPageScreen = () => {
 const styles = StyleSheet.create({
     container: {
       width: 200, 
+      height: 40,
       alignItems: 'center', 
-      justifyContent: 'center', 
       padding: 10, 
       borderWidth: 1, 
       borderColor: '#ccc', 

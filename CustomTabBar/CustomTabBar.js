@@ -1,83 +1,75 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Image, Text, TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import { HomeScreen, DreamListScreen, EmptyScreen, EmotionMapScreen, MyPageScreen } from './TestComponent';
-
 const Tab = createBottomTabNavigator();
+const screenWidth = Dimensions.get('window').width; 
 
-const CustomTabBarButton = ({ children, onPress }) => (
+
+const CustomTabBarButton = ({ children, onPress, style }) => (
   <TouchableOpacity
-    style={{
-      top: -30,
+    style={[{
+      top: 40,
       justifyContent: 'center',
       alignItems: 'center',
       ...styles.shadow,
-      width: 70,
-      height: 70,
+      width: 56,
+      height: 56,
       borderRadius: 35,
-      backgroundColor: 'gray',
+      backgroundColor: 'white',
       shadowColor: '#000',
       shadowOpacity: 0.1,
       shadowRadius: 3.5,
-      elevation: 5
-    }}
+      elevation: 5,
+    }, style]}
     onPress={onPress}
   >
     {children}
   </TouchableOpacity>
 );
-
-const CustomTabBar = () => {
+ 
+const CustomTabBar = () => { 
     return (
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          headerShown: false,
-          tabBarStyle: {
-            backgroundColor: '#D9D9D9',
-            height: 90,
-            paddingBottom: 10,
-            paddingHorizontal: 10,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-evenly',
-            flexDirection: 'row',
-            width: '100%',
-          },
-          tabBarIcon: ({ focused }) => {
-            let icon;
-            if (route.name === '홈') {
-              icon = require('../assets/images/home.png');
-            } else if (route.name === '꿈일기 목록') {
-              icon = require('../assets/images/note.png');
-            } else if (route.name === '일기작성') {
-              icon = require('../assets/images/plus.png');
-            } else if (route.name === '감정지도') {
-              icon = require('../assets/images/chart.png');
-            } else if (route.name === '마이페이지') {
-              icon = require('../assets/images/myPage.png');
-            }
-            return (
-              <View style={{ marginBottom: 5 }}> 
-                <Image source={icon} resizeMode="contain" style={{ width: 30, height: 30 }} />
+      <View style={{ height: 130 }}>
+        <Tab.Navigator
+          screenOptions={({ route }) => ({
+            headerShown: false,
+            tabBarStyle: [styles.tabBar, styles.shadow],
+            tabBarShowLabel: false, 
+            tabBarIcon: ({ focused }) => {
+              const icons = {
+                '홈': focused ? require('../assets/images/homePush.png') : require('../assets/images/home.png'),
+                '꿈일기 목록': focused ? require('../assets/images/notePush.png') : require('../assets/images/note.png'),
+                '일기작성': focused ? require('../assets/images/plus.png') : require('../assets/images/plus.png'),
+                '감정지도': focused ? require('../assets/images/chartPush.png') : require('../assets/images/chart.png'),
+                '마이페이지': focused ? require('../assets/images/myPage.png') : require('../assets/images/myPage.png')
+              };
+              const iconSize = route.name === '일기작성' ? { width: 35, height: 35 } : { width: 35, height: 35 };
+              const iconStyle = route.name === '일기작성' ? { marginTop: -55 } : {};
+              return (
+                <View style={styles.iconContainer}>
+                  <View style={styles.menuCtn}>
+                    <Image source={icons[route.name]} style={[styles.icon , iconSize,iconStyle]} resizeMode="contain" />
+                    {route.name !== '일기작성' && <Text style={styles.iconLabel}>{route.name}</Text>}
+                  </View>
               </View>
-            );
-          },
-          tabBarLabelStyle: { // 타이틀 텍스트의 스타일 설정
-            fontSize: 10, 
-            color: '#434343' 
-          },
-          tabBarButton: (props) => (
-            route.name === '일기작성' ? <CustomTabBarButton {...props} /> : <TouchableOpacity {...props} />
-          ),
-        })}
-      >
-        <Tab.Screen name="홈" component={HomeScreen} options={{ title: '홈' }} />
-        <Tab.Screen name="꿈일기 목록" component={DreamListScreen} options={{ title: '꿈일기 목록' }} />
-        <Tab.Screen name="일기작성" component={EmptyScreen} options={{ title: '' }} />
-        <Tab.Screen name="감정지도" component={EmotionMapScreen} options={{ title: '감정지도' }} />
-        <Tab.Screen name="마이페이지" component={MyPageScreen} options={{ title: '마이페이지' }} />
-      </Tab.Navigator>
+              
+              );
+            },
+            tabBarButton: (props) => (
+              route.name === '일기작성' ?
+              <CustomTabBarButton {...props} style={{ top: 40 }} /> : // 위치 조정 가능
+              <TouchableOpacity {...props} />
+            ),
+          })}
+        >
+          <Tab.Screen name="홈" children={() => { console.log('홈 버튼이 눌렸습니다.'); return null; }} />
+          <Tab.Screen name="꿈일기 목록" children={() => { console.log('꿈일기 목록 버튼이 눌렸습니다.'); return null; }} />
+          <Tab.Screen name="일기작성" children={() => { console.log('일기 작성 버튼이 눌렸습니다.'); return null; }} />
+          <Tab.Screen name="감정지도" children={() => { console.log('감정지도 버튼이 눌렸습니다.'); return null; }} />
+          <Tab.Screen name="마이페이지" children={() => { console.log('마이페이지 버튼이 눌렸습니다.'); return null; }} />
+        </Tab.Navigator>
+        </View>
     );
   };
 
@@ -87,6 +79,38 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.5,
     elevation: 5
+  },
+  tabBar: {
+    backgroundColor: '#464E82',
+    height: 130,
+    width: screenWidth,
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    borderRadius: 15,
+  },
+  icon: {
+    width: 36,
+    height: 36,
+    marginBottom: 5
+  },
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    maxWidth: 384,
+    maxHeight: 54,
+    marginTop: 55
+  },
+  iconLabel: {
+    fontSize: 10,
+    color: 'white',
+    fontWeight: '400',
+    alignItems: 'center',
+  },
+  menuCtn: {
+    width: 50,
+    maxHeight: 52,
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 });
 
