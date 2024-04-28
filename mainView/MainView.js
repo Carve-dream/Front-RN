@@ -1,25 +1,35 @@
 import React, {useState} from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Image, Dimensions } from 'react-native';
 import { SquareButton, BubbleButton}  from './SquareButton';
-import MainViewModel from './MainViewModel'; 
 import { NavigationContainer } from '@react-navigation/native';
+import MainViewModel from './MainViewModel'; 
 import CustomTabBar from '../CustomTabBar/CustomTabBar.js';
+import { LinearGradient } from 'expo-linear-gradient';
 
+const screenWidth = Dimensions.get('window').width; // 전체 화면 너비 가져오기
+const screenHeight = Dimensions.get('window').height; // 전체 화면 높이 가져오기
 
 const MainView = () => {
   const { searchQuery, setSearchQuery, handleSearch } = MainViewModel();
 
   return (
     <NavigationContainer>
-      <View style={styles.container}>
-      <ButtonsView  
-        searchQuery={searchQuery} 
-        setSearchQuery={setSearchQuery} 
-        onButtonPress={handleSearch} 
-      />
-      </View>
-    <CustomTabBar />
-  </NavigationContainer>
+      <LinearGradient
+        colors={['rgba(41, 32, 100, 0.80)', 'rgba(203, 157, 221, 0.80)', 'rgba(244, 191, 168, 0.80)', 'rgba(255, 255, 255, 0.80)']}
+        style={styles.linearGradient}
+      >
+        <View style={styles.container}>
+          <ButtonsView
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            onButtonPress={handleSearch}
+          />
+          </View>
+          <View style={styles.customTabBarContainer}>
+            <CustomTabBar />
+          </View>
+      </LinearGradient>
+    </NavigationContainer>
   );
 };
 
@@ -30,23 +40,22 @@ const ButtonsView = ({ searchQuery, setSearchQuery, onButtonPress }) => {
     <View style={styles.BtnContainer}>
       <View style={styles.TopBtnContainer}>
         <SquareButton
-          onPress={() => setSearchQuery(searchQuery)}
-          title="대화목록 보기"
-          imageSource={require('../assets/images/primary.png')}  // 프로젝트 루트를 기준으로 한 상대 경로
-        />
-        <SquareButton
           onPress={onButtonPress}
           title="오늘의 포춘쿠키"
-          imageSource={require('../assets/images/primary.png')}  // 프로젝트 루트를 기준으로 한 상대 경로
+          imageSource={require('../assets/images/cookie.png')}  
         />
       </View>
+      <View style={styles.ggumiContainer}>
       <BubbleButton
         onPress={onButtonPress}
         bubbleText="오늘은 어떤 꿈을 꾸셨나요?"
         buttonText="꾸미와 이야기하기"
-        bubbleImageSource={require('../assets/images/TalkBtn.png')}  // 프로젝트 루트를 기준으로 한 상대 경로
+        bubbleImageSource={require('../assets/images/TalkBtn.png')} 
       />
-      <View style={styles.square}></View>
+      <View style={styles.square}>
+        <Image source = {require('../assets/images/ggumi.png')}/>
+      </View>
+      </View>
     </View>
   );
 };
@@ -57,24 +66,44 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    zIndex: 1,
+    marginBottom: 150
+  },
+  customTabBarContainer: {
+    position: 'absolute',
+    bottom: 0,
+    zIndex: 0, 
+  },
+  linearGradient: {
+    flex: 1,
+    position: 'relative',
+    width: screenWidth,
+    height: screenHeight,
   },
   BtnContainer: {
-    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   TopBtnContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
     marginTop: 50,
-    marginBottom: 60,
-    width: '100%'
+    width: '100%',
+    marginBottom: 140,
+    marginLeft: 190
+  },
+  ggumiContainer : {
+    maxHeight: 436,
+    maxWidth: 258,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 44,
+    paddingTop: 140
   },
   square: {
     width: 207,
     height: 246,
-    backgroundColor: '#D9D9D9',
-    marginLeft: 115
+    alignSelf: 'center' 
   }
 });
 

@@ -49,12 +49,11 @@ const SearchInput = ({ placeholder, onChangeText, value, onButtonPress }) => {
 
 const styles = StyleSheet.create({
     button: {
-      width: 140,
+      width: 154,
       height:40,
-      backgroundColor: '#D9D9D9',
+      backgroundColor: 'white',
       justifyContent: 'center',
       alignItems: 'center',
-      margin: 40,
       borderRadius: 10
     },
     buttonContent: {
@@ -63,13 +62,14 @@ const styles = StyleSheet.create({
         margin: 5
       },
       buttonImage: {
-        width: 25,
+        width: 42,
         height: 25,
-        marginRight: 17
+        marginRight: 6
       },
       buttonText: {
       fontSize: 14,
-      color: '#424242', 
+      color: '#464E82',
+      fontWeight: '600'
     },
     input: {
         height: 50,
@@ -105,22 +105,24 @@ const styles = StyleSheet.create({
         alignItems: 'center',
       },
       bubbleText: {
-        color: '#424242',
+        color: '#333333',
         fontSize: 16,
         position: 'absolute',
         top: 12, 
         textAlign: 'center',
+        fontWeight: '600'
       },
       talkButton: {
         marginTop: 10,
-        backgroundColor: '#89898B', 
+        backgroundColor: '#EF82A1', 
         paddingHorizontal: 30,
         paddingVertical: 7,
-        borderRadius: 10,
+        borderRadius: 8,
       }, 
       talkButtonText: {
         fontSize: 16,
-        color: '#F2F2F2', // 글씨색은 상황에 맞게 조정
+        color: '#F2F2F2', 
+        fontWeight: '700',
       },
   });
   
