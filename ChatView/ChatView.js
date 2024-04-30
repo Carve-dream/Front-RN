@@ -108,15 +108,7 @@ const ChatView = ({ navigation, name }) => {
   }
 
   // FlatList ref 생성
-
   const flatListRef = useRef();
-
-  // FlatList를 자동 스크롤하는 함수
-  // useEffect(() => {
-  //   if (flatListRef.current) {
-  //     setTimeout(() => flatListRef.current.scrollToEnd({ animated: true }), 1000); // 100ms 후에 스크롤
-  //   }
-  // }, [messages]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -145,8 +137,8 @@ const ChatView = ({ navigation, name }) => {
           }}
           style={styles.chatContainer}
           contentContainerStyle={{ paddingBottom: 30 }}
-          onContentSizeChange={() => flatListRef.current.scrollToEnd({ animated: true })}
-          onLayout={() => flatListRef.current.scrollToEnd({ animated: true })}
+          onContentSizeChange={() => setTimeout(()=>flatListRef.current.scrollToEnd({ animated: true }), 1)}
+          onLayout={() => setTimeout(()=>flatListRef.current.scrollToEnd({ animated: true }), 1)}
         />
 
         {/* 메세지 보내기 입력창 */}
