@@ -4,6 +4,7 @@ import { SquareButton, BubbleButton}  from './SquareButton';
 import MainViewModel from './MainViewModel'; 
 import CustomTabBar from '../../CustomTabBar/CustomTabBar.js';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
 
 const screenWidth = Dimensions.get('window').width; // 전체 화면 너비 가져오기
 const screenHeight = Dimensions.get('window').height; // 전체 화면 높이 가져오기
@@ -32,20 +33,29 @@ const MainView = () => {
 };
 
 
+
 //MARK:- bottomView
 const ButtonsView = ({ searchQuery, setSearchQuery, onButtonPress }) => {
+  const navigation = useNavigation();
+
+  const handleChatNavigation = () => {
+    navigation.navigate('ChatView'); // 네비게이션 스택에 정의된 정확한 화면 이름 사용
+  };
+  const handleFortuneCookiePress = () => {
+    navigation.navigate('CookieView');
+  };
   return (
     <View style={styles.BtnContainer}>
       <View style={styles.TopBtnContainer}>
         <SquareButton
-          onPress={onButtonPress}
+          onPress={handleFortuneCookiePress}
           title="오늘의 포춘쿠키"
           imageSource={require('../../assets/images/cookie.png')}  
         />
       </View>
       <View style={styles.ggumiContainer}>
       <BubbleButton
-        onPress={onButtonPress}
+        onPress={handleChatNavigation}
         bubbleText="오늘은 어떤 꿈을 꾸셨나요?"
         buttonText="꾸미와 이야기하기"
         bubbleImageSource={require('../../assets/images/TalkBtn.png')} 
@@ -107,7 +117,7 @@ const styles = StyleSheet.create({
     maxWidth: 258,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: 44,
+    paddingBottom: 47,
     paddingTop: 140
   },
   square: {
