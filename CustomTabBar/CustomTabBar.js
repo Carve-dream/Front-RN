@@ -5,6 +5,7 @@ const screenWidth = Dimensions.get('window').width;
 
 
 const CustomTabBarButton = ({ children, onPress, style }) => (
+  
   <TouchableOpacity
     style={[{
       top:10,
@@ -27,10 +28,16 @@ const CustomTabBarButton = ({ children, onPress, style }) => (
 );
  
 const CustomTabBar = ({ state, descriptors, navigation }) => {
+
   if (!state || !descriptors || !navigation) {
     return null;
   }
+  const currentRoute = state.routes[state.index].name;
 
+  if (currentRoute === 'ChatView') {
+    return null; // ChatView일 때 탭 바를 렌더링하지 않음
+  }
+  
   const icons = {
     '홈': require('../assets/images/home.png'),
     '꿈일기 목록': require('../assets/images/note.png'),
@@ -98,7 +105,7 @@ const styles = StyleSheet.create({
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#464E82',
-    height: 130,
+    height: 100,
     width: screenWidth,
     alignItems: 'center',
     justifyContent: 'space-around',
