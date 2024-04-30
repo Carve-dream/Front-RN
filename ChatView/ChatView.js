@@ -16,15 +16,55 @@ function formatDate(date) {
 
 const ChatView = ({ navigation, name }) => {
   StatusBar.setBarStyle('light-content');
-  //채팅창 인사말
+
+  //날짜 표시
   const [messages, setMessages] = useState([
-    { id: 'date', text: formatDate(new Date()), sender: 'date' },
-    { id: '0', text: '안녕하세요! 저는 당신의 꿈을 분석하고, 꿈 속 상징들의 의미 파악을 통해 스스로의 감정을 파악할 수 있도록 돕는 가상 심리학자 꾸미예요', sender: 'other' },
-    { id: '1', text: `${name}님의 무의식 속으로 탐험을 떠나볼까요?`, sender: 'other' },
-    { id: '2', text: '', sender: 'buttons' }, // 일기장 보기, 상담하기 버튼
+    { id: 'date', text: formatDate(new Date()), sender: 'date' }
   ]);
 
-  const sendMessage =  (question) => {
+
+  //채팅창 실행시 환영 인사
+  useEffect(() => {
+    const timer1 = setTimeout(() => {
+      setMessages(prevMessages => [...prevMessages, {
+        id: '0',
+        text: '안녕하세요! 저는 당신의 꿈을 분석하고, 꿈 속 상징들의 의미 파악을 통해 스스로의 감정을 파악할 수 있도록 돕는 가상 심리학자 꾸미예요',
+        sender: 'other'
+      }]);
+    }, 1000); // 1초 후 첫 번째 메시지 추가
+
+    // 두 번째 메시지 설정
+    const timer2 = setTimeout(() => {
+      setMessages(prevMessages => [...prevMessages, {
+        id: '1',
+        text: `${name}님의 무의식 속으로 탐험을 떠나볼까요?`,
+        sender: 'other'
+      }]);
+    }, 2000); // 2초 후 두 번째 메시지 추가
+
+    const timer3 = setTimeout(() => {
+      setMessages((prevMessages) => [
+        ...prevMessages, {
+          id: '2',
+          text: '',
+          sender: 'buttons'
+        }
+      ]);
+    }, 2001);
+
+    // 컴포넌트 언마운트 시 타이머 제거
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+
+    };
+  }, [name]); // `name`이 변경될 때마다 useEffect 재실행
+
+
+  // chat gpt api 연동
+  const sendMessage = (question) => {
+
     // 사용자가 메시지를 보냄
     if (question.trim().length > 0) {
       setMessages(prevMessages => [
@@ -32,23 +72,28 @@ const ChatView = ({ navigation, name }) => {
         { id: Date.now().toString(), text: question, sender: 'user' }
       ]);
 
-      const accessToken = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI1IiwiaWF0IjoxNzE0NDg1ODMzLCJleHAiOjE3MTQ0ODk0MzN9.oUPQYOMZGdw8K5ZFT1aHadX_W3A5nAJC4U6CN0SOgzGAWEG3MXJ3U_OHZbh6VXhwrriIV7ySA1kQRF3lLjyQFg';
-
+      const accessToken = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzE0NDk3MDAyLCJleHAiOjE3MTQ1MDA2MDJ9.0xszhg0UFJw1EgSCI7efGNz013_Y20smB0yH_lj3U15oiVB7xJYHXapiUqJl56XVzDbhs9O7wvbvINXwTqYrbg';
+      console.log(`Sending question: ${question}`);
       fetch('http://carvedrem.kro.kr:8080/api/gptChat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ message: question }),
+        body: JSON.stringify({ question: question }),
       })
 
         .then(response => response.json())
+
         .then(data => {
+          console.log(data);
           console.log(data.information.answer);
+          if (question == '꿈일기 불러오기') {
+            data.information.answer = <BoxComponent />;
+          } //꿈일기 목록 불러오기
           // 상대방 응답 메시지 추가
-          setMessages(prevMessages => [
-            ...prevMessages,
+          setMessages(messages => [
+            ...messages,
             { id: Date.now().toString(), text: data.information.answer, sender: 'other' }
           ]);
         })
@@ -82,7 +127,9 @@ const ChatView = ({ navigation, name }) => {
 
   // FlatList를 자동 스크롤하는 함수
   useEffect(() => {
-    flatListRef.current.scrollToEnd({ animated: true });
+    if (flatListRef.current) {
+      setTimeout(() => flatListRef.current.scrollToEnd({ animated: true }), 1000); // 100ms 후에 스크롤
+    }
   }, [messages]);
 
 
@@ -112,6 +159,7 @@ const ChatView = ({ navigation, name }) => {
             }
           }}
           style={styles.chatContainer}
+          contentContainerStyle={{ paddingBottom: 30 }}
         />
 
         {/* 메세지 보내기 입력창 */}
