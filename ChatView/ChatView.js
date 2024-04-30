@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, SafeAreaView, Text, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
+import { View, FlatList, StyleSheet, SafeAreaView, Text, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
 import TopBar from './TopBar';
 import Input from './Input';
 import Button from './Button';
@@ -6,13 +6,6 @@ import Message from './Message';
 import BoxComponent from './BoxComponent';
 import { useState, useRef, useEffect } from 'react';
 
-function formatDate(date) {
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-
-  return `${year}년 ${month}월 ${day}일`;
-}
 
 const ChatView = ({ navigation, name }) => {
   StatusBar.setBarStyle('light-content');
@@ -67,12 +60,21 @@ const ChatView = ({ navigation, name }) => {
 
     // 사용자가 메시지를 보냄
     if (question.trim().length > 0) {
+      const userMessageId = Date.now().toString();
+
+      const loadingMessage = {
+        id: 'loading_' + userMessageId,
+        text: 'loading',
+        sender: 'loading',
+      }
+
       setMessages(prevMessages => [
         ...prevMessages,
-        { id: Date.now().toString(), text: question, sender: 'user' }
+        { id: userMessageId, text: question, sender: 'user' }, // 사용자 메시지 추가
+        loadingMessage // 로딩 이미지 추가
       ]);
 
-      const accessToken = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzE0NDk3MDAyLCJleHAiOjE3MTQ1MDA2MDJ9.0xszhg0UFJw1EgSCI7efGNz013_Y20smB0yH_lj3U15oiVB7xJYHXapiUqJl56XVzDbhs9O7wvbvINXwTqYrbg';
+      const accessToken = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5IiwiaWF0IjoxNzE0NTA5MTkyLCJleHAiOjE3MTQ1MTI3OTJ9.gmM5xC4gmpzfPaDzFNQ0JLXvD4DocvBhetR0Mj1k8RhRndttFMfwKoxDHAeqjY-Awh5qOtpbfSwH6HbHWQp6qw';
       console.log(`Sending question: ${question}`);
       fetch('http://carvedrem.kro.kr:8080/api/gptChat', {
         method: 'POST',
@@ -91,47 +93,30 @@ const ChatView = ({ navigation, name }) => {
           if (question == '꿈일기 불러오기') {
             data.information.answer = <BoxComponent />;
           } //꿈일기 목록 불러오기
+
           // 상대방 응답 메시지 추가
-          setMessages(messages => [
-            ...messages,
-            { id: Date.now().toString(), text: data.information.answer, sender: 'other' }
-          ]);
+          setMessages(messages => messages.filter(message => message.id !== loadingMessage.id)
+            .concat({ id: Date.now().toString(), text: data.information.answer, sender: 'other' }));
         })
         .catch(error => {
           console.error('Error:', error);
+          setMessages(messages => messages.filter(message => message.id !== loadingMessage.id));
         });
     }
 
 
-
-    // 상대방 응답 메세지 생성
-    // setTimeout(() => {
-    //   let responseText = 'writing...'; // 기본 응답
-
-    //   if (question == '꿈일기 불러오기') {
-    //     responseText = <BoxComponent />; //꿈일기 목록 불러오기
-    //   } else if (question == '상징의미 파악하기') {
-    //     // to do 
-    //   } else if (question == '감정 분석하기') {
-    //     // to do
-    //   }
-
-    //   // 상대방 응답 메세지 추가
-    //   setMessages(messages => [...messages, { id: Date.now().toString(), text: responseText, sender: 'other' }]);
-    // }, 500); // 응답 지연 시간 설정
-
   }
 
   // FlatList ref 생성
+
   const flatListRef = useRef();
 
   // FlatList를 자동 스크롤하는 함수
-  useEffect(() => {
-    if (flatListRef.current) {
-      setTimeout(() => flatListRef.current.scrollToEnd({ animated: true }), 1000); // 100ms 후에 스크롤
-    }
-  }, [messages]);
-
+  // useEffect(() => {
+  //   if (flatListRef.current) {
+  //     setTimeout(() => flatListRef.current.scrollToEnd({ animated: true }), 1000); // 100ms 후에 스크롤
+  //   }
+  // }, [messages]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -160,19 +145,32 @@ const ChatView = ({ navigation, name }) => {
           }}
           style={styles.chatContainer}
           contentContainerStyle={{ paddingBottom: 30 }}
+          onContentSizeChange={() => flatListRef.current.scrollToEnd({ animated: true })}
+          onLayout={() => flatListRef.current.scrollToEnd({ animated: true })}
         />
 
         {/* 메세지 보내기 입력창 */}
         <Input sendMessage={sendMessage} />
       </KeyboardAvoidingView>
+
     </SafeAreaView>
   );
 };
 
+
+function formatDate(date) {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  return `${year}년 ${month}월 ${day}일`;
+}
+
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#464E82', // -> 확인
+    backgroundColor: '#464E82',
   },
   chatContainer: {
     flex: 1,
