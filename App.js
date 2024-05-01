@@ -1,16 +1,22 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 //import  TabNavigator  from './router/TabNavigator';
 import { NavigationContainer } from '@react-navigation/native';
-
+import { store } from './store';
 import AppRouter from './router/AppRouter';
+import { Provider } from 'react-redux';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default function App() {
   return (
-  <NavigationContainer>
-     <AppRouter />
-  </NavigationContainer>
+    <Provider store={store}>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <AppRouter />
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </Provider>
   );
 }
 
