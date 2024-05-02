@@ -74,7 +74,7 @@ const ChatView = ({ navigation, name }) => {
         loadingMessage // 로딩 이미지 추가
       ]);
 
-      const accessToken = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5IiwiaWF0IjoxNzE0NTA5MTkyLCJleHAiOjE3MTQ1MTI3OTJ9.gmM5xC4gmpzfPaDzFNQ0JLXvD4DocvBhetR0Mj1k8RhRndttFMfwKoxDHAeqjY-Awh5qOtpbfSwH6HbHWQp6qw';
+      const accessToken = '"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMSIsImlhdCI6MTcxNDUyODgwNSwiZXhwIjoxNzE0NTMyNDA1fQ.V8DNmGszqT63Vwlh3yX_7yHwch-Ca6n8Natl3u9L7hUXIDCHr1970GLJKZO2GE6pDVkN3fUq5z_MohT_Jsotjg';
       console.log(`Sending question: ${question}`);
       fetch('http://carvedrem.kro.kr:8080/api/gptChat', {
         method: 'POST',
