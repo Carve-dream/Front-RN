@@ -11,11 +11,11 @@ const Button = ({ item, sendMessage }) => {
                 <TouchableOpacity style={styles.button} onPress={() => sendMessage('꿈일기 불러오기')}>
                     <Text style={styles.buttonText}>꿈일기 불러오기</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={() => sendMessage('상징의미 파악하기')}>
-                    <Text style={styles.buttonText}>상징의미 파악하기</Text>
-                </TouchableOpacity>
                 <TouchableOpacity style={styles.button} onPress={() => sendMessage('감정 분석하기')}>
                     <Text style={styles.buttonText}>감정 분석하기</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={() => sendMessage('상담하기')}>
+                    <Text style={styles.buttonText}>상담하기</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
         borderColor: 'black',
         borderWidth: 1,
         borderRadius: 10,
-        marginRight: 40,
+        marginRight: 15,
         marginBottom: 10,
         paddingVertical: 10,
         marginLeft: 50,

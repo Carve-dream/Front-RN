@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TextInput, View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+
 
 // 메세지 보내기 입력창 
 const Input = ({ sendMessage }) => {
@@ -15,6 +15,7 @@ const Input = ({ sendMessage }) => {
     };
 
     return (
+
         <View style={styles.inputContainer}>
             <TextInput
                 style={styles.input}
@@ -26,6 +27,7 @@ const Input = ({ sendMessage }) => {
                 <Image source={require('../assets/cursor.png')} style={styles.sendButton} />
             </TouchableOpacity>
         </View>
+
 
     );
 };

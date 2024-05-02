@@ -5,6 +5,18 @@ const Message = ({ item }) => {
     return (
         <View>
             <View style={styles.messageRow}>
+                {item.sender === 'loading' && ( // 로딩 이미지 render
+                    <>
+                        <Image source={require('../assets/images/chat-ggumi-profile.png')} style={styles.ggumiProfile} />
+                        <View style={styles.othertail} />
+                        <View style={styles.otherMessage}>
+                            <Image source={require('../assets/images/chat-loading.png')} style={styles.loading}/>
+                        </View>
+                    </>
+                )}
+            </View>
+
+            <View style={styles.messageRow}>
                 {item.sender === 'other' && ( //챗봇 채팅 render
                     <>
                         <Image source={require('../assets/images/chat-ggumi-profile.png')} style={styles.ggumiProfile} />
@@ -15,16 +27,18 @@ const Message = ({ item }) => {
                     </>
                 )}
             </View>
+
             {item.sender === 'user' && ( // 사용자 채팅 render
                 <View style={styles.messageContainer}>
                     <Image source={require('../assets/images/chat-user-profile.png')} style={styles.userProfile} />
                     <View style={styles.usertail} />
+
                     <View style={styles.userMessage}>
                         <Text style={styles.messageText}>{item.text}</Text>
                     </View>
-
                 </View>
             )}
+
         </View>
     );
 };
@@ -37,6 +51,11 @@ const styles = StyleSheet.create({
     messageContainer: {
         flexDirection: 'row-reverse',
         alignItems: 'center',
+    },
+    loading:{
+        width: 75,
+        height: 13,
+        marginHorizontal: 10,
     },
     userMessage: {
         backgroundColor: '#C1C7F8',
