@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, Button } from 'react-native';
+import { View, Button,StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import TopBar from '../../ChatView/TopBar';
+
 
 // 쿠키 화면 컴포넌트
 const CookieView = () => {
@@ -11,11 +13,18 @@ const CookieView = () => {
   };
 
   return (
-    <View>
-      <Button title="홈으로 가기" onPress={handleGoHome} />
+    <View style={styles.topCtn}>
+             <TopBar navigation={navigation} title="포춘쿠키"  />
     </View>
   );
 
 }
+
+
+const styles = StyleSheet.create({ 
+  topCtn : {
+      marginTop: 55
+  }
+});
 
 export default CookieView;
