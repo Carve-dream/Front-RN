@@ -17,6 +17,8 @@ import DiaryImageCreate from './views/DiaryImageView/DiaryImageCreate';
 import DiaryImageProduce from './views/DiaryImageView/DiaryImageProduce';
 import DreamInterpret from './views/DreamInterpretView/DreamInterpret';
 import SecondPageView from './views/StartPageView/SecondPageView';
+import LogInView from './views/LoginView/LoginView';
+import SignIn from './views/LoginView/SignIn';
 
 const Stack = createStackNavigator();
 
@@ -27,6 +29,8 @@ function AppStack() {
     <Stack.Navigator initialRouteName="Loading">
       <Stack.Screen name="Loading" component={StartPageView} options={{ headerShown: false }} />
       <Stack.Screen name="Second" component={SecondPageView} options={{ headerShown: false }} />
+      <Stack.Screen name="LogIn" component={LogInView} options={{ headerShown: false }} />
+      <Stack.Screen name="SignIn" component={SignIn} options={{ headerShown: false }} />
       <Stack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="ChatView" component={ChatView} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
       <Stack.Screen name="CookieView" component={CookieView} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />

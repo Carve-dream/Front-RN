@@ -16,7 +16,7 @@ const SecondPageView = () => {
         >
             <TouchableOpacity
                 style={styles.touchable}
-                onPress={() => navigation.navigate('Main')}
+                onPress={() => navigation.navigate('LogIn')}
                 activeOpacity={0.7}
             >
                 <LinearGradient
