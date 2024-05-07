@@ -1,31 +1,44 @@
 import React, { useState } from 'react';
-import { View, Text,Image, TextInput, TouchableOpacity, ScrollView, Modal, StyleSheet, Dimensions} from 'react-native';
+import { View, Text, Image, TextInput, TouchableOpacity, ScrollView, Modal, StyleSheet, Dimensions} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import EmotionPickerModal from './EmotionModal'
+import EmotionPickerModal from '../DiaryWriteView/EmotionModal'
 
 const screenWidth = Dimensions.get('window').width; 
 const screenHeight = Dimensions.get('window').height; 
 
 //전체 뷰
-const DiaryWrite = () => {
+const DiaryDetail = () => {
     const navigation = useNavigation();
 
     return(
-        <View style={styles.container}>
-            <View style={styles.mainBoxCtn}>
-                <View style={styles.topCtn}>
-                    <TopBar navigation={navigation} title="꿈 일지 작성하기"  />
-                </View>
-                <MainBoard/>
+        <View style={styles.fullScreen}>
+            <View style={styles.topCtn}>
+                <TopBar navigation={navigation} title="0000.00.00"/>
             </View>
+            <FullScreen/>
         </View>
     );
 };
 
 
-//일기 작성 보드
+//전체 뷰 정리 (탑바, 저장하기 버튼)
+const FullScreen = () => {
+    return(
+        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <View style={styles.mainBoxCtn}>
+            <MainBoard/>
+        </View>
+        <View style={styles.saveCtn}>
+                <SaveBtn/>
+        </View>
+    </ScrollView>
+    );
+}
+
+
+//일기 디테일 보드
 const MainBoard = () => {
     return(
         <View style={styles.boxCtn}>
@@ -33,64 +46,25 @@ const MainBoard = () => {
                 <DiaryTop/>
                 <SleepTimePicker/>
                 <DiaryEntry/>
+                <ImageBox/>
+                <DreamInterpret/>
                 <TagManager/>
-                <View style={styles.saveCtn}>
-                    <SaveBtn/>
-                </View>
+                
             </View>
         </View>
     );
 }
 
 
-//날짜, 제목, 오늘의 감정
+//제목, 오늘의 감정
 const DiaryTop = () => {
-    const [date, setDate] = useState(new Date());
-    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [title, setTitle] = useState("");
     const [emotionModalVisible, setEmotionModalVisible] = useState(false);
     const [selectedEmotion, setSelectedEmotion] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
 
-    //날짜 포멧팅 함수
-    const formatDate = (date) => {
-        let dd = date.getDate();
-        let mm = date.getMonth() + 1; 
-        const yyyy = date.getFullYear();
-        if (dd < 10) dd = '0' + dd;
-        if (mm < 10) mm = '0' + mm;
-        return `${yyyy}.${mm}.${dd}`;
-    };
-
-    const showDatePicker = () => {
-        setDatePickerVisibility(true);
-    };
-
-    const hideDatePicker = () => {
-        setDatePickerVisibility(false);
-    };
-
-    const handleConfirm = (date) => {
-        console.log("A date has been picked: ", date);
-        setDate(date);
-        hideDatePicker();
-    };
-
     return (
         <View style={styles.diaryTopCtn}>
-            <View style={styles.dateCtn}>
-                    <Text style={styles.date} >{formatDate(date)}</Text>
-                     <TouchableOpacity title={formatDate(date)} onPress={showDatePicker}>
-                         <Text style={styles.toggleIcon}>▼</Text>
-                     </TouchableOpacity>
-            </View>
-                <DateTimePickerModal
-                    isVisible={isDatePickerVisible}
-                    mode="date"
-                    onConfirm={handleConfirm}
-                    onCancel={hideDatePicker}
-                    locale="ko_KR" // 한국어 설정
-                />
             <TextInput
                 value={title}
                 onChangeText={setTitle}
@@ -98,7 +72,6 @@ const DiaryTop = () => {
                 style={styles.input}
                 placeholderTextColor="#434343"
             />
-
 
             <TouchableOpacity onPress={() => setEmotionModalVisible(true)} style={styles.iconCtn}>
                 <Text style={styles.iconText}>오늘의 감정</Text>
@@ -115,7 +88,7 @@ const DiaryTop = () => {
     );
 };
 
-//시간 작성
+//시간 작성 => 서버 연결 후 저장페이지에서 작성한 시간으로 띄우기 수정!
 const SleepTimePicker = () => {
     const [isBedTimePickerVisible, setBedTimePickerVisibility] = useState(false);
     const [isWakeTimePickerVisible, setWakeTimePickerVisibility] = useState(false);
@@ -150,7 +123,6 @@ const SleepTimePicker = () => {
 
     return (
     <View style={styles.timeCtn}>
-
         <TouchableOpacity style={styles.touchable} onPress={showBedTimePicker}>
             <Text style={styles.text}>취침 시간</Text>
             <Text style={styles.text}>{` ${bedTime.getHours()}:${bedTime.getMinutes().toString().padStart(2, '0')}`}</Text>
@@ -183,7 +155,7 @@ const SleepTimePicker = () => {
 };
 
 
-//일기 작성
+//일기 작성 => 저장한 일기 내용 띄우기 수정
 const DiaryEntry = () => {
     const [diaryText, setDiaryText] = useState('');
     const [isFocused, setIsFocused] = useState(false);
@@ -194,7 +166,7 @@ const DiaryEntry = () => {
                 {!isFocused && !diaryText && (
                     <View style={styles.placeholderContainer}>
                         <Text style={styles.titlePlaceholder}>일기내용</Text>
-                        <Text style={styles.subtitlePlaceholder}>꿈 일기 내용을 적어주세요!</Text>
+                        <Text style={styles.subtitlePlaceholder}>오늘은 하늘을 나는 꿈을 꿨다. 기분이 이상했다.</Text>
                     </View>
                 )}
                 <TextInput
@@ -210,7 +182,46 @@ const DiaryEntry = () => {
     );
 };
 
-//태그
+
+//이미지 박스
+const ImageBox = ({ source }) => {
+    const [imageSource, setImageSource] = useState(source);
+
+    return (
+        <View style={styles.imageCtn}>
+            {imageSource ? (
+                <Image source={{ uri: imageSource }} style={styles.image} />
+            ) : (
+                <View style={styles.imageBoxCtn}>
+                   <Text style={styles.imageholder}>사진</Text>
+                    <Text style={styles.imageSubtitlePlaceholder}>앗 아직 꿈 이미지가 만들어지지 않았어요{'\n'} 터치해서 꿈 이미지를 생성해보세요!</Text>
+                    <Image source = {require('../../assets/images/gummiEmpty.png')} style={styles.emptyImage}/>
+                </View>
+            )}
+        </View>
+    );
+};
+
+//꾸미 분석 내용 
+const DreamInterpret = () => {
+    const [text, setText] = useState('');
+
+    return (
+        <View style={styles.DreamCtn}>
+            {text === '' ? (
+            <View style={styles.imageBoxCtn}>
+                <Text style={styles.imageholder}>꾸미 분석 내용</Text>
+                 <Text style={styles.imageSubtitlePlaceholder}>아직 꿈 해몽 내용이 없어요{'\n'} 터치해서 꿈 해몽 내용을 확인해보세요! </Text>
+                 <Image source = {require('../../assets/images/gummiEmpty.png')} style={styles.emptyImage}/>
+             </View>
+            ) : (
+                <Text style={styles.imageSubtitlePlaceholder}>{text}</Text>
+            )}
+        </View>
+    );
+}
+
+//태그 => 저장된 테그 띄우기 수정!
 const TagManager = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [tagText, setTagText] = useState('');
@@ -231,13 +242,12 @@ const TagManager = () => {
 
     return (
         <View style={styles.tagCtn} >
-        <Text style={styles.tags} >태그</Text>
+            <Text style={styles.tags} >태그</Text>
 
             <ScrollView horizontal style={styles.tagContainer}>
             <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
                 <Text style={styles.addButtonText}>+ 추가하기</Text>
             </TouchableOpacity>
-            
                     {tags.map((tag, index) => (
                     <View key={index} style={styles.addButton}>
                         <Text style={styles.addButtonText}>{tag}</Text>
@@ -278,13 +288,17 @@ const TagManager = () => {
 };
 
 
-//저장하기 버튼
+//꿈 이미지 생성하기, 꿈 해몽하기 버튼
 const SaveBtn = () => {
     const navigation = useNavigation();
     return(
         <View>
-            <TouchableOpacity onPress={() => navigation.navigate('DiaryList')} style={styles.confirmButton}>
-                <Text style={styles.confirmText}>저장하기</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('DiaryImageStack')} style={styles.confirmButton}>
+                <Text style={styles.confirmText}>꿈 이미지 생성하기</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => navigation.navigate('DreamInterpret')} style={styles.confirmButton}>
+                <Text style={styles.confirmText}>꿈 해몽하기</Text>
             </TouchableOpacity>
         </View>
     );
@@ -292,13 +306,20 @@ const SaveBtn = () => {
 
 
 
+
 const styles = StyleSheet.create({
+    fullScreen: {
+        flex: 1,
+        backgroundColor: '#464E82',
+        width: screenWidth,
+        height: screenHeight,
+        
+    },
     container: {
       flex:1,
-      backgroundColor: '#464E82',
-      position: 'relative',
-      width: screenWidth,
-      height: screenHeight,
+    },
+    contentContainer: {
+        flexGrow: 1, 
     },
     topCtn : {
         marginTop: 55,
@@ -307,7 +328,6 @@ const styles = StyleSheet.create({
     boxCtn: {
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 275
     },
     mainBox: {
         flexDirection: 'column',
@@ -336,7 +356,7 @@ const styles = StyleSheet.create({
         borderColor: '#89898B',
         borderWidth: 2,
         alignItems: "center",
-        marginTop: 15,
+        marginTop: 5,
         paddingLeft: 15,
         fontSize: 15, 
         fontWeight: '700'
@@ -365,36 +385,12 @@ const styles = StyleSheet.create({
     },
     diaryTopCtn:{
         width: 340, 
-        height: 150, 
+        height: 90, 
         margin:10,
         marginLeft: 14,
         flexDirection: 'column', 
         justifyContent: 'flex-start',
         alignItems: 'flex-start'
-    },
-    dateCtn: {
-        width: 200, 
-        height: 35, 
-        backgroundColor: 'white', 
-        borderRadius: 10,       
-        borderColor: '#89898B',
-        borderWidth: 2,
-        flexDirection: 'row',
-        justifyContent: "flex-start",
-        alignItems: "center",
-        marginTop: 10
-    },
-    toggleIcon: {
-        color: '#434343',
-        fontSize: 14, 
-    },
-    date: {
-        marginLeft: 15,
-        marginRight: 7,
-        flexDirection: 'row',
-        color: '#434343',
-        fontSize: 15, 
-        fontWeight: '700'
     },
     iconCtn : {
         width: 140, 
@@ -429,7 +425,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         alignItems: "center",
         padding: 10,
-        marginBottom: 20,
+        marginBottom:20,
         marginRight: 30
     },
     text: {
@@ -443,8 +439,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         margin:5,
     },
-
-
     textInputWrapper: {
         width: 323, 
         height: 140, 
@@ -465,16 +459,64 @@ const styles = StyleSheet.create({
     },
     titlePlaceholder: {
         fontSize: 14,
-        color: '#434343',
+        color: '#333333',
         fontWeight: '600', 
         marginBottom: 25,
         marginTop: 10
     },
     subtitlePlaceholder: {
         fontSize: 14,
-        color: '#434343',
-        fontWeight: '400',
+        color: '#333333',
+        fontWeight: '500',
     },
+
+
+    imageCtn: {
+        width: 300,
+        height: 200,
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'relative',
+        marginTop: 10
+    },
+    
+    DreamCtn: {
+        marginTop: 10
+    },
+ 
+    imageBoxCtn: {
+        width: 325, 
+        height: 280, 
+        backgroundColor: 'white', 
+        borderRadius: 10,       
+        borderColor: '#89898B',
+        borderWidth: 2,
+        paddingHorizontal: 40,
+        paddingVertical: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 110
+    },
+    imageholder:{
+        fontSize: 14,
+        color: '#333333',
+        fontWeight: '600', 
+        marginBottom: 25,
+    },
+    imageSubtitlePlaceholder: {
+        fontSize: 14,
+        marginTop: 15,
+        color: '#89898B',
+        fontWeight: '600',
+        textAlign: 'center'
+    },
+    emptyImage:{
+        width: 100, 
+        height: 140, 
+    },
+
+
+
     tags:{
         color: '#434343', 
         fontSize: 14,
@@ -488,6 +530,7 @@ const styles = StyleSheet.create({
         color: 'black',
         textAlignVertical: 'top'
     },
+
     tagCtn:{
         width: 325, 
         height: 73, 
@@ -495,7 +538,8 @@ const styles = StyleSheet.create({
         borderRadius: 10,       
         borderColor: '#89898B',
         borderWidth: 2,
-        marginTop: 20,
+        marginTop: 25,
+        marginBottom: 20
     },
 
     addButton: {
@@ -559,7 +603,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     button: {
-        backgroundColor: '#EF82A1',
+        backgroundColor: '#007AFF',
         padding: 10,
         borderRadius: 5,
     },
@@ -583,8 +627,7 @@ const styles = StyleSheet.create({
         padding: 10,
         backgroundColor: '#EF82A1',
         borderRadius: 10,
-        marginTop: 40, 
-        marginBottom: 30
+        marginBottom: 15
     },
     confirmText: {
         fontSize: 16,
@@ -593,8 +636,10 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     saveCtn: {
-        marginTop: 25
+        marginTop: 40,
+        flexDirection: 'column',
+        marginLeft: 72
     }
 });
 
-export default DiaryWrite;
+export default DiaryDetail;

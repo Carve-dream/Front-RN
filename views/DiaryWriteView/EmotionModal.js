@@ -70,7 +70,7 @@ import { View, Text,Image, TouchableOpacity, Modal, StyleSheet} from 'react-nati
         padding: 10,
         alignItems: 'center',
         justifyContent: 'space-around',
-        flexDirection: 'column',  // Change to column to stack elements
+        flexDirection: 'column',  
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
@@ -87,8 +87,8 @@ import { View, Text,Image, TouchableOpacity, Modal, StyleSheet} from 'react-nati
     gridContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'space-around',  // Adjust to space around the icons in the grid
-        width: '100%',  // Use 100% of modalView width
+        justifyContent: 'space-around', 
+        width: '100%',  
     },
     button: {
         width: '30%', 

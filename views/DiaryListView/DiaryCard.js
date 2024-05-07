@@ -1,11 +1,14 @@
 // DiaryCard.js
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const DiaryCard = () => {
+    const navigation = useNavigation();
     return (
-        <View >
-            <DateView/>
+        <View>
+        <DateView/>
+        <TouchableOpacity onPress={() => navigation.navigate('DiaryDetail')}>
             <View style={styles.card}>
                 <TopView/>
                 <Image source={require('../../assets/images/test.png')} style={styles.image} />
@@ -18,8 +21,8 @@ const DiaryCard = () => {
                     <Tag/>
                 </View>
              </View>
+        </TouchableOpacity>
         </View>
-        
     );
 };
 
@@ -37,13 +40,16 @@ const DateView = () => {
     );
 }
 
-// 일기장 제목, 우상단 수정.삭제 버튼
-const TopView = () => {
+
+
+// 일기장 제목, 우상단 수정, 삭제 버튼
+const TopView = ({}) => {
+    const navigation = useNavigation();
     return (
         <View style={styles.topView}>
             <Text style={styles.title}>오늘의 꿈 일기</Text>
             <View style={styles.btnCtn}>
-                <ModifyBtn onPress={() => console.log('수정하기 버튼이 눌렸습니다.')} imageSource={require('../../assets/images/modify.png')} />
+                <ModifyBtn onPress={() => navigation.navigate('DiaryModify')}imageSource={require('../../assets/images/modify.png')} />
                 <ModifyBtn onPress={() => console.log('삭제하기 버튼이 눌렸습니다.')} imageSource={require('../../assets/images/delete.png')} />
             </View>
         </View>
