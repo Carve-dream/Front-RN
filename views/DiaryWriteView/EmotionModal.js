@@ -34,14 +34,22 @@ import { View, Text,Image, TouchableOpacity, Modal, StyleSheet} from 'react-nati
                     setEmotionModalVisible(!emotionModalVisible);
                 }}
             >
-             <View style={styles.centeredView}>
+            <View style={styles.centeredView}>
                 <View style={styles.modalView}>
-                    {emotions.map((emotion, index) => (
-                        <TouchableOpacity key={index} style={styles.button} onPress={() => handleSelectEmotion(emotion)}>
-                            <Image source={emotion.image} style={styles.image} />
-                            <Text>{emotion.text}</Text>
-                        </TouchableOpacity>
-                    ))}
+                    <Text style={styles.headerText}>오늘의 감정</Text>
+                    <View style={styles.gridContainer}>
+                        {emotions.map((emotion, index) => (
+                            <TouchableOpacity key={index} style={styles.button} onPress={() => handleSelectEmotion(emotion)}>
+                                <View style={styles.textCtn}>
+                                    <Text style={styles.text}>{emotion.text}</Text>
+                                </View>
+                                <Image source={emotion.image} style={styles.image} />
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                    <TouchableOpacity style={styles.confirmButton} onPress={() => setEmotionModalVisible(false)}>
+                        <Text style={styles.confirmText}>확인</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         </Modal>
@@ -57,32 +65,75 @@ import { View, Text,Image, TouchableOpacity, Modal, StyleSheet} from 'react-nati
     },
     modalView: {
         width: '90%',
-        backgroundColor: 'white',
+        backgroundColor: '#F5F5F5',
         borderRadius: 20,
-        padding: 20,
+        padding: 10,
         alignItems: 'center',
         justifyContent: 'space-around',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
+        flexDirection: 'column',  // Change to column to stack elements
         shadowOpacity: 0.25,
         shadowRadius: 4,
-        elevation: 5
+        elevation: 5,
+    },
+    headerText: {
+        fontSize: 14,
+        fontWeight: '600',
+        textAlign: 'center',
+        color: '#434343',
+        marginRight: 250,
+        marginTop: 10, 
+        marginBottom: 5
+    },
+    gridContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-around',  // Adjust to space around the icons in the grid
+        width: '100%',  // Use 100% of modalView width
     },
     button: {
         width: '30%', 
-        margin: 3,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 10
     },
     image: {
         width: 40,
         height: 40,
-        marginRight: 5 
+        marginLeft: -25,
+        marginBottom: 30,
     },
     text: {
-        fontSize: 14
+        fontSize: 14,
+        fontWeight: '600',
+        textAlign: 'center',
+        color: '#434343'
+    },
+    textCtn : {
+        borderColor: '#89898B',
+        borderWidth: 2,
+        backgroundColor: 'white',
+        width: 95,
+        height: 63,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        marginTop: 20
+    },
+    confirmButton: {
+        width: '70%',
+        height: 40,
+        padding: 10,
+        backgroundColor: '#EF82A1',
+        borderRadius: 10,
+        marginTop: 40, 
+        marginBottom: 30
+    },
+    confirmText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: 'white',
+        textAlign: 'center',
     }
 });
 
