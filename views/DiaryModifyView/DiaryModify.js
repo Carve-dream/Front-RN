@@ -1,31 +1,42 @@
 import React, { useState } from 'react';
-import { View, Text,Image, TextInput, TouchableOpacity, ScrollView, Modal, StyleSheet, Dimensions} from 'react-native';
+import { View, Text, Image, TextInput, TouchableOpacity, ScrollView, Modal, StyleSheet, Dimensions} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import EmotionPickerModal from './EmotionModal'
+import EmotionPickerModal from '../DiaryWriteView/EmotionModal'
 
 const screenWidth = Dimensions.get('window').width; 
 const screenHeight = Dimensions.get('window').height; 
 
 //전체 뷰
-const DiaryWrite = () => {
+const DiaryDetail = () => {
     const navigation = useNavigation();
 
     return(
-        <View style={styles.container}>
-            <View style={styles.mainBoxCtn}>
-                <View style={styles.topCtn}>
-                    <TopBar navigation={navigation} title="꿈 일지 작성하기"  />
-                </View>
-                <MainBoard/>
+        <View style={styles.fullScreen}>
+            <View style={styles.topCtn}>
+                <TopBar navigation={navigation} title="0000.00.00"/>
             </View>
+            <FullScreen/>
         </View>
     );
 };
 
 
-//일기 작성 보드
+//전체 뷰 정리 (탑바, 저장하기 버튼)
+const FullScreen = () => {
+    return(
+        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <View style={styles.mainBoxCtn}>
+            <MainBoard/>
+        </View>
+        <View style={styles.saveCtn}>
+                <SaveBtn/>
+        </View>
+    </ScrollView>
+    );
+}
+//일기 수정 보드
 const MainBoard = () => {
     return(
         <View style={styles.boxCtn}>
@@ -33,64 +44,26 @@ const MainBoard = () => {
                 <DiaryTop/>
                 <SleepTimePicker/>
                 <DiaryEntry/>
+                <ImageBox/>
+                <DreamInterpret/>
                 <TagManager/>
-                <View style={styles.saveCtn}>
-                    <SaveBtn/>
-                </View>
+                
+                
             </View>
         </View>
     );
 }
 
 
-//날짜, 제목, 오늘의 감정
+//제목, 오늘의 감정
 const DiaryTop = () => {
-    const [date, setDate] = useState(new Date());
-    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [title, setTitle] = useState("");
     const [emotionModalVisible, setEmotionModalVisible] = useState(false);
     const [selectedEmotion, setSelectedEmotion] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
 
-    //날짜 포멧팅 함수
-    const formatDate = (date) => {
-        let dd = date.getDate();
-        let mm = date.getMonth() + 1; 
-        const yyyy = date.getFullYear();
-        if (dd < 10) dd = '0' + dd;
-        if (mm < 10) mm = '0' + mm;
-        return `${yyyy}.${mm}.${dd}`;
-    };
-
-    const showDatePicker = () => {
-        setDatePickerVisibility(true);
-    };
-
-    const hideDatePicker = () => {
-        setDatePickerVisibility(false);
-    };
-
-    const handleConfirm = (date) => {
-        console.log("A date has been picked: ", date);
-        setDate(date);
-        hideDatePicker();
-    };
-
     return (
         <View style={styles.diaryTopCtn}>
-            <View style={styles.dateCtn}>
-                    <Text style={styles.date} >{formatDate(date)}</Text>
-                     <TouchableOpacity title={formatDate(date)} onPress={showDatePicker}>
-                         <Text style={styles.toggleIcon}>▼</Text>
-                     </TouchableOpacity>
-            </View>
-                <DateTimePickerModal
-                    isVisible={isDatePickerVisible}
-                    mode="date"
-                    onConfirm={handleConfirm}
-                    onCancel={hideDatePicker}
-                    locale="ko_KR" // 한국어 설정
-                />
             <TextInput
                 value={title}
                 onChangeText={setTitle}
@@ -98,7 +71,6 @@ const DiaryTop = () => {
                 style={styles.input}
                 placeholderTextColor="#434343"
             />
-
 
             <TouchableOpacity onPress={() => setEmotionModalVisible(true)} style={styles.iconCtn}>
                 <Text style={styles.iconText}>오늘의 감정</Text>
@@ -150,7 +122,6 @@ const SleepTimePicker = () => {
 
     return (
     <View style={styles.timeCtn}>
-
         <TouchableOpacity style={styles.touchable} onPress={showBedTimePicker}>
             <Text style={styles.text}>취침 시간</Text>
             <Text style={styles.text}>{` ${bedTime.getHours()}:${bedTime.getMinutes().toString().padStart(2, '0')}`}</Text>
@@ -194,7 +165,7 @@ const DiaryEntry = () => {
                 {!isFocused && !diaryText && (
                     <View style={styles.placeholderContainer}>
                         <Text style={styles.titlePlaceholder}>일기내용</Text>
-                        <Text style={styles.subtitlePlaceholder}>꿈 일기 내용을 적어주세요!</Text>
+                        <Text style={styles.subtitlePlaceholder}>오늘은 하늘을 나는 꿈을 꿨다. 기분이 이상했다.</Text>
                     </View>
                 )}
                 <TextInput
@@ -209,6 +180,195 @@ const DiaryEntry = () => {
         </View>
     );
 };
+
+
+const ModifyBtn = ({ onPress, imageSource }) => {
+    return (
+        <TouchableOpacity onPress={onPress}>
+            <Image source={imageSource} style={styles.modifyBtnImage} />
+        </TouchableOpacity>
+    );
+};
+
+//이미지 박스
+const ImageBox = ({ source }) => {
+    const [imageSource, setImageSource] = useState(source);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+    const navigation = useNavigation();
+
+    const handleModify = ({}) => {
+        // 사진 수정 로직 
+        setModalVisible(false);
+        navigation.navigate('DiaryImageStack')
+    };
+    const handleDelete = () => {
+        // 삭제 로직
+        setDeleteModalVisible(false);
+        
+    };
+
+    return (
+        <View style={styles.imageCtn}>
+            {imageSource ? (
+                <Image source={{ uri: imageSource }} style={styles.image} />
+            ) : (
+                <View style={styles.imageBoxCtn}>
+                    <View style={styles.modifyTop}>
+                        <Text style={styles.imageholder}>사진</Text>
+                            <View style={styles.btnCtn}>
+                                <ModifyBtn onPress={() => setModalVisible(true)} imageSource={require('../../assets/images/modify.png')} />
+                                <ModifyBtn onPress={() => setDeleteModalVisible(true)} imageSource={require('../../assets/images/delete.png')} />
+                             </View>
+                    </View>
+
+                    <Text style={styles.imageSubtitlePlaceholder}>만들어진 꿈 이미지가 존재하지 않아요</Text>
+                    <Image source = {require('../../assets/images/gummiEmpty.png')} style={styles.emptyImage}/>
+                </View>
+            )}
+
+            {/* 수정 확인 모달 */}
+             <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.centeredView}>
+                <Image source = {require('../../assets/images/gummiCheck.png')} style={styles.CheckImage}/>
+                    <View style={styles.modalView}>
+
+                        <Text style={styles.modalText}>꿈 사진을 수정하시겠습니까? {'\n'}{'\n'} 수정을 진행하면 현재 꿈 사진이 삭제되고 {'\n'} 새 사진으로 바뀌어요!</Text>
+                        <View style={styles.modalButtonGroup}>
+                            <TouchableOpacity style={styles.modalButtonCheck} onPress={handleModify}>
+                                <Text style={styles.modalButtonText}>확인</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.modalButtonCancel} onPress={() => setModalVisible(false)}>
+                                <Text style={styles.modalButtonText}>취소</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+             {/* 삭제 확인 모달 */}
+             <Modal
+                animationType="slide"
+                transparent={true}
+                visible={deleteModalVisible}
+                onRequestClose={() => setDeleteModalVisible(false)}
+            >
+                <View style={styles.centeredView}>
+                <Image source = {require('../../assets/images/gummiCheck.png')} style={styles.CheckImage}/>
+                    <View style={styles.modalView}>
+
+                        <Text style={styles.modalText}>꿈 사진을 삭제하시겠습니까? {'\n'}{'\n'} 한 번 삭제한 사진은 다시 복구가 불가능해요!</Text>
+                        <View style={styles.modalButtonGroup}>
+                            <TouchableOpacity style={styles.modalButtonCheck} onPress={handleDelete}>
+                                <Text style={styles.modalButtonText}>확인</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.modalButtonCancel} onPress={() => setDeleteModalVisible(false)}>
+                                <Text style={styles.modalButtonText}>취소</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        </View>
+    );
+};
+
+
+
+//꾸미 분석 내용 
+const DreamInterpret = () => {
+    const [text, setText] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+    const navigation = useNavigation();
+
+    const handleModify = () => {
+        // 해몽 수정 로직
+        setModalVisible(false);
+        navigation.navigate('DreamInterpret')
+        
+    };
+    const handleDelete = () => {
+        // 해몽 삭제 로직
+        console.log('사진 삭제 처리');
+        setDeleteModalVisible(false);
+    };
+    
+
+    return (
+        <View style={styles.DreamCtn}>
+            {text === '' ? (
+            <View style={styles.imageBoxCtn}>
+                <View style={styles.modifyTop}>
+                        <Text style={styles.imageholder}>꾸미 분석 내용</Text>
+                            <View style={styles.btnCtn}>
+                                <ModifyBtn onPress={() => setModalVisible(true)} imageSource={require('../../assets/images/modify.png')} />
+                                <ModifyBtn onPress={() => setDeleteModalVisible(true)} imageSource={require('../../assets/images/delete.png')} />
+                            </View>
+                    </View>
+                 <Text style={styles.imageSubtitlePlaceholder}>꾸미 분석 내용이 존재하지 않아요</Text>
+                 <Image source = {require('../../assets/images/gummiEmpty.png')} style={styles.emptyImage}/>
+             </View>
+            ) : (
+                <Text style={styles.imageSubtitlePlaceholder}>{text}</Text>
+            )}
+
+
+             {/* 수정 확인 모달 */}
+             <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.centeredView}>
+                <Image source = {require('../../assets/images/gummiCheck.png')} style={styles.CheckImage}/>
+                    <View style={styles.modalView}>
+
+                        <Text style={styles.modalText}>꾸미 분석 내용을 수정하시겠습니까? {'\n'}{'\n'} 수정을 진행하면 현재 분석 내용이 삭제되고 {'\n'} 새 분석으로 바뀌어요!</Text>
+                        <View style={styles.modalButtonGroup}>
+                            <TouchableOpacity style={styles.modalButtonCheck} onPress={handleModify}>
+                                <Text style={styles.modalButtonText}>확인</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.modalButtonCancel} onPress={() => setModalVisible(false)}>
+                                <Text style={styles.modalButtonText}>취소</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+             {/* 삭제 확인 모달 */}
+             <Modal
+                animationType="slide"
+                transparent={true}
+                visible={deleteModalVisible}
+                onRequestClose={() => setDeleteModalVisible(false)}
+            >
+                <View style={styles.centeredView}>
+                <Image source = {require('../../assets/images/gummiCheck.png')} style={styles.CheckImage}/>
+                    <View style={styles.modalView}>
+
+                        <Text style={styles.modalText}>꾸미 분석 내용을 삭제하시겠습니까? {'\n'}{'\n'} 한 번 삭제한 분석은 다시 복구가 불가능해요!</Text>
+                        <View style={styles.modalButtonGroup}>
+                            <TouchableOpacity style={styles.modalButtonCheck} onPress={handleDelete}>
+                                <Text style={styles.modalButtonText}>확인</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.modalButtonCancel} onPress={() => setDeleteModalVisible(false)}>
+                                <Text style={styles.modalButtonText}>취소</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        </View>
+    );
+}
 
 //태그
 const TagManager = () => {
@@ -231,13 +391,12 @@ const TagManager = () => {
 
     return (
         <View style={styles.tagCtn} >
-        <Text style={styles.tags} >태그</Text>
+            <Text style={styles.tags} >태그</Text>
 
             <ScrollView horizontal style={styles.tagContainer}>
             <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
                 <Text style={styles.addButtonText}>+ 추가하기</Text>
             </TouchableOpacity>
-            
                     {tags.map((tag, index) => (
                     <View key={index} style={styles.addButton}>
                         <Text style={styles.addButtonText}>{tag}</Text>
@@ -266,6 +425,7 @@ const TagManager = () => {
                         onChangeText={setTagText}
                         autoFocus={true}
                         onSubmitEditing={addTag}
+                        placeholderTextColor={'white'}
                     />
                     <TouchableOpacity style={styles.button} onPress={addTag}>
                         <Text style={styles.buttonText}>확인</Text>
@@ -283,7 +443,7 @@ const SaveBtn = () => {
     const navigation = useNavigation();
     return(
         <View>
-            <TouchableOpacity onPress={() => navigation.navigate('DiaryList')} style={styles.confirmButton}>
+            <TouchableOpacity  onPress={() => navigation.navigate('DiaryList')} style={styles.confirmButton}>
                 <Text style={styles.confirmText}>저장하기</Text>
             </TouchableOpacity>
         </View>
@@ -292,13 +452,20 @@ const SaveBtn = () => {
 
 
 
+
 const styles = StyleSheet.create({
+    fullScreen: {
+        flex: 1,
+        backgroundColor: '#464E82',
+        width: screenWidth,
+        height: screenHeight,
+        
+    },
     container: {
       flex:1,
-      backgroundColor: '#464E82',
-      position: 'relative',
-      width: screenWidth,
-      height: screenHeight,
+    },
+    contentContainer: {
+        flexGrow: 1, 
     },
     topCtn : {
         marginTop: 55,
@@ -307,7 +474,6 @@ const styles = StyleSheet.create({
     boxCtn: {
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 275
     },
     mainBox: {
         flexDirection: 'column',
@@ -336,7 +502,7 @@ const styles = StyleSheet.create({
         borderColor: '#89898B',
         borderWidth: 2,
         alignItems: "center",
-        marginTop: 15,
+        marginTop: 5,
         paddingLeft: 15,
         fontSize: 15, 
         fontWeight: '700'
@@ -347,6 +513,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         marginTop: 22,
+        
     },
     modalView: {
         margin: 20,
@@ -365,36 +532,12 @@ const styles = StyleSheet.create({
     },
     diaryTopCtn:{
         width: 340, 
-        height: 150, 
+        height: 90, 
         margin:10,
         marginLeft: 14,
         flexDirection: 'column', 
         justifyContent: 'flex-start',
         alignItems: 'flex-start'
-    },
-    dateCtn: {
-        width: 200, 
-        height: 35, 
-        backgroundColor: 'white', 
-        borderRadius: 10,       
-        borderColor: '#89898B',
-        borderWidth: 2,
-        flexDirection: 'row',
-        justifyContent: "flex-start",
-        alignItems: "center",
-        marginTop: 10
-    },
-    toggleIcon: {
-        color: '#434343',
-        fontSize: 14, 
-    },
-    date: {
-        marginLeft: 15,
-        marginRight: 7,
-        flexDirection: 'row',
-        color: '#434343',
-        fontSize: 15, 
-        fontWeight: '700'
     },
     iconCtn : {
         width: 140, 
@@ -429,7 +572,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         alignItems: "center",
         padding: 10,
-        marginBottom: 20,
+        marginBottom:20,
         marginRight: 30
     },
     text: {
@@ -443,8 +586,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         margin:5,
     },
-
-
     textInputWrapper: {
         width: 323, 
         height: 140, 
@@ -465,16 +606,64 @@ const styles = StyleSheet.create({
     },
     titlePlaceholder: {
         fontSize: 14,
-        color: '#434343',
+        color: '#333333',
         fontWeight: '600', 
         marginBottom: 25,
         marginTop: 10
     },
     subtitlePlaceholder: {
         fontSize: 14,
-        color: '#434343',
-        fontWeight: '400',
+        color: '#333333',
+        fontWeight: '500',
     },
+
+
+    imageCtn: {
+        width: 300,
+        height: 200,
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'relative',
+        marginTop: 10
+    },
+    
+    DreamCtn: {
+        marginTop: 10
+    },
+ 
+    imageBoxCtn: {
+        width: 325, 
+        height: 280, 
+        backgroundColor: 'white', 
+        borderRadius: 10,       
+        borderColor: '#89898B',
+        borderWidth: 2,
+        paddingHorizontal: 40,
+        paddingVertical: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 110
+    },
+    imageholder:{
+        fontSize: 14,
+        color: '#333333',
+        fontWeight: '600', 
+        marginBottom: 25,
+    },
+    imageSubtitlePlaceholder: {
+        fontSize: 14,
+        marginTop: 15,
+        color: '#89898B',
+        fontWeight: '600',
+        textAlign: 'center'
+    },
+    emptyImage:{
+        width: 100, 
+        height: 140, 
+    },
+
+
+
     tags:{
         color: '#434343', 
         fontSize: 14,
@@ -488,6 +677,7 @@ const styles = StyleSheet.create({
         color: 'black',
         textAlignVertical: 'top'
     },
+
     tagCtn:{
         width: 325, 
         height: 73, 
@@ -495,7 +685,8 @@ const styles = StyleSheet.create({
         borderRadius: 10,       
         borderColor: '#89898B',
         borderWidth: 2,
-        marginTop: 20,
+        marginTop: 25,
+        marginBottom: 20
     },
 
     addButton: {
@@ -583,8 +774,7 @@ const styles = StyleSheet.create({
         padding: 10,
         backgroundColor: '#EF82A1',
         borderRadius: 10,
-        marginTop: 40, 
-        marginBottom: 30
+        marginBottom: 40
     },
     confirmText: {
         fontSize: 16,
@@ -593,8 +783,90 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     saveCtn: {
-        marginTop: 25
+        marginTop: 40,
+        flexDirection: 'column',
+        marginLeft: 72
+    },
+    btnCtn:{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginLeft: 60,
+        width:60
+    },
+    modifyTop:{
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginLeft: 145,
+        marginBottom: 20
+    },
+
+
+
+
+
+
+
+
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    modalView: {
+        backgroundColor: '#464E82',
+        borderRadius: 20,
+        width: 289, 
+        height: 188,
+        padding: 20,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+        width: 0,
+        height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+        flexDirection: 'column',
+    },
+    modalText: {
+        marginBottom: 18,
+        textAlign: 'center',
+        fontSize: 14,
+        color: 'white',
+        marginTop:15
+    },
+    modalButtonCheck:{
+        width: 123.50, 
+        height: 32,
+        backgroundColor: '#EF82A1', 
+        borderRadius: 10,
+        justifyContent: 'center'
+    },
+    modalButtonCancel: {
+        width: 123.50, 
+        height: 32,
+        backgroundColor: '#89898B', 
+        borderRadius: 10,
+        justifyContent: 'center',
+        marginLeft: 15
+    },
+    modalButtonText : {
+        textAlign: 'center', 
+        color: 'white', 
+        fontSize: 14, 
+        fontWeight: '500',
+    },
+    modalButtonGroup: {
+        flexDirection:'row',
+        marginTop:10
+    },
+    CheckImage: {
+        width: 56, 
+        height: 56,
+        marginTop: 40
     }
 });
 
-export default DiaryWrite;
+export default DiaryDetail;
