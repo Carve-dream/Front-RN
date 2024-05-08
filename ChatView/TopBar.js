@@ -14,7 +14,7 @@ const TopBar = ({ navigation, title }) => {
         <Text style={styles.headerText}>{title}</Text>
       </View>
       {/* 메뉴 버튼 */}
-      <TouchableOpacity style={styles.menuButton} onPress={() => console.log('메뉴 버튼이 눌렸습니다.')}>
+      <TouchableOpacity style={styles.menuButton}  onPress={() => navigation.navigation('Main')}>
         <Image source={require('../assets/images/close.png')} style={styles.close} />
       </TouchableOpacity>
     </View>
