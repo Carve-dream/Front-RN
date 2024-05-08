@@ -13,10 +13,7 @@ const SignIn = () => {
     const [stayLoggedIn, setStayLoggedIn] = useState(false);
 
     // 로그인 버튼 눌렀을 때 처리할 함수
-    const handleLoginPress = () => {
-        console.log('button');
 
-    };
     
     // 회원가입 버튼 눌렀을 때 처리할 함수
     const handleSignUpPress = () => {
@@ -53,7 +50,7 @@ const SignIn = () => {
                     <CircleCheckbox label="로그인 유지"/>
                 </View>
 
-                <TouchableOpacity style={styles.button} onPress={handleLoginPress}>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Main')}>
                     <Text style={styles.buttonText}>로그인</Text>
                 </TouchableOpacity>
 
