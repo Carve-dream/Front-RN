@@ -13,11 +13,14 @@ const SignIn = () => {
     const [stayLoggedIn, setStayLoggedIn] = useState(false);
 
     // 로그인 버튼 눌렀을 때 처리할 함수
+    const handleLoginPress = () =>{
+        console.log('login button');
+        navigation.navigate('Main')  //메인으로 넘어가는 걸로 임의 설정 => 수정해야됨
+    }
 
-    
     // 회원가입 버튼 눌렀을 때 처리할 함수
     const handleSignUpPress = () => {
-        console.log('button');
+        console.log('sign up button');
 
     };
 
@@ -42,7 +45,7 @@ const SignIn = () => {
                         secureTextEntry={true}
                         placeholder="비밀번호를 입력해주세요."
                         placeholderTextColor="white" 
-                        keyboardType="email-address" // 이메일 입력 키보드 형식
+                        keyboardType="email-address" // 비밀번호 입력 키보드 형식
                     />
                 </View>
 
@@ -50,7 +53,7 @@ const SignIn = () => {
                     <CircleCheckbox label="로그인 유지"/>
                 </View>
 
-                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Main')}>
+                <TouchableOpacity style={styles.button} onPress={handleLoginPress}>
                     <Text style={styles.buttonText}>로그인</Text>
                 </TouchableOpacity>
 

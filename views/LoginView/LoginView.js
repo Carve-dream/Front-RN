@@ -8,8 +8,6 @@ const screenHeight = Dimensions.get('window').height;
 const LoginView = () => {
     const navigation = useNavigation();
 
-    
-
     // 회원가입 버튼 눌렀을 때 처리할 함수
     const handleSignUpPress = () => {
         // 회원가입 버튼을 눌렀을 때의 네비게이션 처리

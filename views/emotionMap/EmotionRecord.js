@@ -1,8 +1,9 @@
 import React from 'react';
 import { Text, Image, View, StyleSheet } from 'react-native';
 
-'../../assets/images/ellipse-blank.png'
+//'../../assets/images/ellipse-blank.png'
 
+// 일주일 간 감정 기록 이미지
 const EmotionRecord = () => {
     return (
         <View style={styles.container}>
