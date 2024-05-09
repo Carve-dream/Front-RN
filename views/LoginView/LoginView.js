@@ -8,10 +8,14 @@ const screenHeight = Dimensions.get('window').height;
 const LoginView = () => {
     const navigation = useNavigation();
 
+    // 로그인 버튼 눌렀을 때 SignIn 화면으로 이동
+    const handleSingInPress = () => {
+        navigation.navigate('SignIn')
+    }
+
     // 회원가입 버튼 눌렀을 때 처리할 함수
     const handleSignUpPress = () => {
-        // 회원가입 버튼을 눌렀을 때의 네비게이션 처리
-        // 예시: navigation.navigate('SignUp');
+        navigation.navigate('SignUpInfo')
     };
 
     return (
@@ -21,7 +25,7 @@ const LoginView = () => {
                 <Image source={require('../../assets/images/logo.png')} style={styles.logo} />
                 <Image source={require('../../assets/images/login-ggumi.png')} style={styles.ggumi} />
             </View>
-            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('SignIn')}>
+            <TouchableOpacity style={styles.button} onPress={handleSingInPress}>
                 <Text style={styles.buttonText}>로그인</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={handleSignUpPress}>
