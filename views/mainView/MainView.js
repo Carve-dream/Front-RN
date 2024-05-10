@@ -42,7 +42,7 @@ const ButtonsView = ({ searchQuery, setSearchQuery, onButtonPress }) => {
     navigation.navigate('ChatView'); // 네비게이션 스택에 정의된 정확한 화면 이름 사용
   };
   const handleFortuneCookiePress = () => {
-    navigation.navigate('CookieView');
+    navigation.navigate('CookieViewStack');
   };
   return (
     <View style={styles.BtnContainer}>

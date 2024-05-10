@@ -49,7 +49,7 @@ const TopView = ({}) => {
         <View style={styles.topView}>
             <Text style={styles.title}>오늘의 꿈 일기</Text>
             <View style={styles.btnCtn}>
-                <ModifyBtn onPress={() => navigation.navigate('DiaryModify')}imageSource={require('../../assets/images/modify.png')} />
+                <ModifyBtn onPress={() => navigation.navigate('DiaryModify')} imageSource={require('../../assets/images/modify.png')} />
                 <ModifyBtn onPress={() => console.log('삭제하기 버튼이 눌렸습니다.')} imageSource={require('../../assets/images/delete.png')} />
             </View>
         </View>

@@ -1,9 +1,11 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 
 //상단바
-const TopBar = ({ navigation, title }) => {
+const TopBar = ({ title }) => {
+  const navigation = useNavigation();
   return (
     <View style={styles.topBar}>
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -14,7 +16,7 @@ const TopBar = ({ navigation, title }) => {
         <Text style={styles.headerText}>{title}</Text>
       </View>
       {/* 메뉴 버튼 */}
-      <TouchableOpacity style={styles.menuButton}  onPress={() => navigation.navigation('Main')}>
+      <TouchableOpacity style={styles.menuButton}  onPress={() => navigation.navigate('Main')}>
         <Image source={require('../assets/images/close.png')} style={styles.close} />
       </TouchableOpacity>
     </View>

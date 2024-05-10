@@ -1,16 +1,13 @@
 import React from 'react';
-import { View,Text,Image,TouchableOpacity,StyleSheet, Dimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View,Text,Image,StyleSheet, Dimensions, ImageBackground } from 'react-native';
 import TopBar from '../../ChatView/TopBar';
 import { LinearGradient } from 'expo-linear-gradient';
-
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height; 
 
 // 쿠키 화면 컴포넌트
-const CookieView = () => {
-  const navigation = useNavigation();
+const FortuneResult = () => {
 
   return (
     <LinearGradient
@@ -27,10 +24,16 @@ const CookieView = () => {
           <CurrentDateDisplay/>
         </View>
 
-        <TouchableOpacity style={styles.BtnCtn} onPress={() => navigation.navigate('fortuneResult')}>
-            <Image source = {require('../../assets/images/fortuneGummi.png')} style={styles.fortuneImage}/>
-            <Text style={styles.fortuneText}>터치해서 오늘의 포춘쿠키 확인하기</Text>
-        </TouchableOpacity>
+        <View style={styles.BtnCtn}>
+            <Image source = {require('../../assets/images/fortuneResult.png')} style={styles.fortuneImage}/>
+            <ImageBackground
+                source = {require('../../assets/images/foutuneResultText.png')}
+                style={styles.fortuneResult}>
+                    {/*포춘쿠키 결과 텍스트 연결 */}
+                    <Text style={styles.fortuneText}>마음을 편하게 먹고 조급해하지 마세요</Text>
+            </ImageBackground>
+            
+        </View>
         
 
       </LinearGradient>
@@ -42,7 +45,7 @@ const CookieView = () => {
 
 }
 
-
+// 오늘의 날짜 가져오기
 const CurrentDateDisplay = () => {
   const currentDate = new Date();
 
@@ -90,20 +93,26 @@ const styles = StyleSheet.create({
   fortuneImage:{
     width: 207, 
     height: 278,
-    marginBottom: 40,
   },
   fortuneText:{
     color: '#434343', 
     fontSize: 16,
     fontWeight: '700',
+    marginTop: 55,
+    marginLeft: 65
   },
   BtnCtn: {
     alignItems: 'center', 
     justifyContent: 'center',
     flexDirection: 'column',
     marginTop: 50,
+  },
+  fortuneResult: {
+    width: 371, 
+    height: 131,
+    marginBottom: 30
   }
 
 });
 
-export default CookieView;
+export default FortuneResult;
