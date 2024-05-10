@@ -27,15 +27,35 @@ const DiaryWrite = () => {
 
 //일기 작성 보드
 const MainBoard = () => {
+    const dateState = useState(new Date());
+    const titleState = useState("");
+    const selectedEmotionState = useState(null);
+
+    const bedTimeState = useState(new Date());
+    const wakeTimeState = useState(new Date());
+
+    const diaryTextState = useState('');
+
+    const tagsState = useState([]);
+
+    const data = {
+        "date": dateState[0],
+        "title": titleState[0],
+        "selectedEmotion": selectedEmotionState[0],
+        "bedTime": bedTimeState[0],
+        "wakeTime": wakeTimeState[0],
+        "diaryText": diaryTextState[0],
+        "tags": tagsState[0],
+    }
     return(
         <View style={styles.boxCtn}>
             <View style={styles.mainBox}>
-                <DiaryTop/>
-                <SleepTimePicker/>
-                <DiaryEntry/>
-                <TagManager/>
+                <DiaryTop dateState={dateState} titleState={titleState} selectedEmotionState={selectedEmotionState}/>
+                <SleepTimePicker bedTimeState={bedTimeState} wakeTimeState={wakeTimeState}/>
+                <DiaryEntry diaryTextState={diaryTextState}/>
+                <TagManager tagsState={tagsState}/>
                 <View style={styles.saveCtn}>
-                    <SaveBtn/>
+                    <SaveBtn data={data}/>
                 </View>
             </View>
         </View>
@@ -43,14 +63,16 @@ const MainBoard = () => {
 }
 
 
+
 //날짜, 제목, 오늘의 감정
-const DiaryTop = () => {
-    const [date, setDate] = useState(new Date());
+const DiaryTop = (state) => {
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-    const [title, setTitle] = useState("");
     const [emotionModalVisible, setEmotionModalVisible] = useState(false);
-    const [selectedEmotion, setSelectedEmotion] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
+
+    const [date, setDate] = state.dateState;
+    const [title, setTitle] = state.titleState;
+    const [selectedEmotion, setSelectedEmotion] = state.selectedEmotionState;
 
     //날짜 포멧팅 함수
     const formatDate = (date) => {
@@ -99,7 +121,6 @@ const DiaryTop = () => {
                 placeholderTextColor="#434343"
             />
 
-
             <TouchableOpacity onPress={() => setEmotionModalVisible(true)} style={styles.iconCtn}>
                 <Text style={styles.iconText}>오늘의 감정</Text>
                 {selectedImage && <Image source={selectedImage} style={styles.emotionImage} />}
@@ -115,13 +136,18 @@ const DiaryTop = () => {
     );
 };
 
+const toTime = (date) => {
+    return (` ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`)
+}
+
 //시간 작성
-const SleepTimePicker = () => {
+const SleepTimePicker = (state) => {
     const [isBedTimePickerVisible, setBedTimePickerVisibility] = useState(false);
     const [isWakeTimePickerVisible, setWakeTimePickerVisibility] = useState(false);
-    const [bedTime, setBedTime] = useState(new Date());
-    const [wakeTime, setWakeTime] = useState(new Date());
 
+    const [bedTime, setBedTime] = state.bedTimeState;
+    const [wakeTime, setWakeTime] = state.wakeTimeState;
+    
     const showBedTimePicker = () => {
         setBedTimePickerVisibility(true);
     };
@@ -153,7 +179,7 @@ const SleepTimePicker = () => {
 
         <TouchableOpacity style={styles.touchable} onPress={showBedTimePicker}>
             <Text style={styles.text}>취침 시간</Text>
-            <Text style={styles.text}>{` ${bedTime.getHours()}:${bedTime.getMinutes().toString().padStart(2, '0')}`}</Text>
+            <Text style={styles.text}>{toTime(bedTime)}</Text>
         </TouchableOpacity>
         <DateTimePickerModal
             isVisible={isBedTimePickerVisible}
@@ -167,7 +193,7 @@ const SleepTimePicker = () => {
 
         <TouchableOpacity style={styles.touchable} onPress={showWakeTimePicker}>
             <Text style={styles.text}>기상 시간</Text>
-            <Text style={styles.text}>{` ${wakeTime.getHours()}:${wakeTime.getMinutes().toString().padStart(2, '0')}`}</Text>
+            <Text style={styles.text}>{toTime(wakeTime)}</Text>
         </TouchableOpacity>
         <DateTimePickerModal
             isVisible={isWakeTimePickerVisible}
@@ -182,11 +208,12 @@ const SleepTimePicker = () => {
     );
 };
 
-
 //일기 작성
-const DiaryEntry = () => {
-    const [diaryText, setDiaryText] = useState('');
+const DiaryEntry = (state) => {
+
     const [isFocused, setIsFocused] = useState(false);
+
+    const [diaryText, setDiaryText] = state.diaryTextState;
 
     return (
         <View>
@@ -211,10 +238,11 @@ const DiaryEntry = () => {
 };
 
 //태그
-const TagManager = () => {
+const TagManager = (state) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [tagText, setTagText] = useState('');
-    const [tags, setTags] = useState([]);
+
+    const [tags, setTags] = state.tagsState;
 
     const addTag = () => {
         if (tagText.trim() !== '') {
@@ -277,13 +305,63 @@ const TagManager = () => {
     );
 };
 
+const accessToken = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzE1MjgyOTI5LCJleHAiOjE3MTUyODY1Mjl9.lUDaDfFJ1rWHIBszwNmh2IJgxLz1LxVXYZNCskXSa46V6xsy5t3TnI2GeNmy9yUYMv5prxdzcs4funysX7KRhg";
+
+const requestSave = (props) => {
+
+    const emotionDict = {
+        "두려워요": "FEAR",
+        "그리워요": "YEARNING",
+        "기뻐요": "JOY",
+        "화나요": "ANGER",
+        "찝찝해요": "AWKWARDNESS",
+        "황당해요": "ABSURDITY",
+        "흥분돼요": "EXCITED",
+        "설레요": "THRILL",
+        "미스테리해요": "MYSTERY",
+    };
+
+    const title = props.data["title"];
+    const diaryText = props.data["diaryText"];
+    const bedTime = props.data["bedTime"];
+    const wakeTime = props.data["wakeTime"];
+    const selectedEmotion = emotionDict[props.data["selectedEmotion"]];
+    const date = props.data["date"];
+    const tags = props.data["tags"];
+
+    const response = fetch('http://carvedrem.kro.kr:8080/api/diary', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ 
+            'title': title,
+            'content': diaryText,
+            'start_sleep': toTime(bedTime),
+            'end_sleep': toTime(wakeTime),
+            'emotion': selectedEmotion,
+            'date': date,
+            'tags': tags,
+        }),
+    });
+    return response.then(res => res.json()).then(data => {
+        console.log(data);
+    })
+}
 
 //저장하기 버튼
-const SaveBtn = () => {
+const SaveBtn = (props) => {
     const navigation = useNavigation();
+
+    async function handleSave(p, d) {
+        await requestSave(p);
+        navigation.navigate(d);
+    }
+
     return(
         <View>
-            <TouchableOpacity onPress={() => navigation.navigate('DiaryList')} style={styles.confirmButton}>
+            <TouchableOpacity onPress={() => {handleSave(props, 'DiaryList')}} style={styles.confirmButton}>
                 <Text style={styles.confirmText}>저장하기</Text>
             </TouchableOpacity>
         </View>

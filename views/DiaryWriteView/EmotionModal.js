@@ -15,7 +15,7 @@ import { View, Text,Image, TouchableOpacity, Modal, StyleSheet} from 'react-nati
         { text: '화나요', image: require('../../assets/emoji/angry.png') }
      ];
 
-
+     
     //감정 선택 모달
     const EmotionPickerModal = ({emotionModalVisible, setEmotionModalVisible, setSelectedEmotion, setSelectedImage }) => {
 
