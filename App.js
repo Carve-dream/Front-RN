@@ -23,6 +23,9 @@ import SignUpAcc from './views/SignUpView/SignupAcc'
 import SignUpInfo from './views/SignUpView/SignupInfo';
 import SignupComplete from './views/SignUpView/SignupComplete';
 import fortuneResult from './views/FortuneCookie/fortuneResult';
+import MyPageView from './views/myPage/MyPageView';
+import ProfileView from './views/myPage/ProfileView';
+import ProfileEditView from './views/myPage/ProfileEditView';
 
 const Stack = createStackNavigator();
 
@@ -40,7 +43,9 @@ function AppStack() {
       <Stack.Screen name="SignUpComplete" component={SignupComplete} options={{ headerShown: false }} />
       <Stack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="ChatView" component={ChatView} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
-
+      <Stack.Screen name="MyPageView" component={MyPageView} options={{ headerShown: false }} />
+      <Stack.Screen name="ProfileView" component={ProfileView} options={{ headerShown: false }} />
+      <Stack.Screen name="ProfileEditView" component={ProfileEditView} options={{ headerShown: false }} />
       <Stack.Screen name="CookieViewStack" component={CookieViewStack} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
 
       <Stack.Screen name="DiaryWriteStackModal" component={DiaryWriteStack} options={{ headerShown: false }} />
