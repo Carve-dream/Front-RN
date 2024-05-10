@@ -4,6 +4,7 @@ import CustomTabBar from '../../CustomTabBar/CustomTabBar';
 import { LinearGradient } from 'expo-linear-gradient';
 import CalendarView from './CalendarView';
 import EmotionRecord from './EmotionRecord';
+import EmotionChart from './EmotionChart';
 
 
 const EmotionMapView = (navigation) => {
@@ -31,7 +32,7 @@ const EmotionMapView = (navigation) => {
                         <EmotionRecord />
                         <Text style={styles.eText}>{weekRange}</Text>
                         <Text style={styles.eText}>감정 통계</Text>
-              
+                        <EmotionChart/>
                     </View>
                 </View>
             </ScrollView>
