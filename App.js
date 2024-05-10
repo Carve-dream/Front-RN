@@ -19,6 +19,9 @@ import DreamInterpret from './views/DreamInterpretView/DreamInterpret';
 import SecondPageView from './views/StartPageView/SecondPageView';
 import LogInView from './views/LoginView/LoginView';
 import SignIn from './views/LoginView/SignIn';
+import SignUpAcc from './views/SignUpView/SignupAcc'
+import SignUpInfo from './views/SignUpView/SignupInfo';
+import SignupComplete from './views/SignUpView/SignupComplete';
 
 const Stack = createStackNavigator();
 
@@ -31,6 +34,9 @@ function AppStack() {
       <Stack.Screen name="Second" component={SecondPageView} options={{ headerShown: false }} />
       <Stack.Screen name="LogIn" component={LogInView} options={{ headerShown: false }} />
       <Stack.Screen name="SignIn" component={SignIn} options={{ headerShown: false }} />
+      <Stack.Screen name="SignUpInfo" component={SignUpInfo} options={{ headerShown: false }} />
+      <Stack.Screen name="SignUpAcc" component={SignUpAcc} options={{ headerShown: false }} />
+      <Stack.Screen name="SignUpComplete" component={SignupComplete} options={{ headerShown: false }} />
       <Stack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="ChatView" component={ChatView} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
       <Stack.Screen name="CookieView" component={CookieView} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />

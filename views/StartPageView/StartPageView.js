@@ -11,7 +11,7 @@ const StartPageView = () => {
 
   // opacity 값을 관리할 상태 변수 생성
   const [fadeAnim] = useState(new Animated.Value(0)); // 투명도
-  const [translateYAnim] = useState(new Animated.Value(30)); // Y축 이동 거리 (아래에서 위로)
+  const [translateYAnim] = useState(new Animated.Value(30)); // Y축 이동 거리 (아래에서 위로 나타나기)
 
 
   useEffect(() => {

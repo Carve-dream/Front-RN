@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
+//로그인 유지하기 체크박스
 const CircleCheckbox = ({ label }) => {
     const [checked, setChecked] = useState(false);
 
