@@ -26,7 +26,7 @@ import fortuneResult from './views/FortuneCookie/fortuneResult';
 import MyPageView from './views/myPage/MyPageView';
 import ProfileView from './views/myPage/ProfileView';
 import ProfileEditView from './views/myPage/ProfileEditView';
-
+import FortuneRecordView from './views/myPage/FortuneRecordView';
 const Stack = createStackNavigator();
 
 
@@ -44,6 +44,7 @@ function AppStack() {
       <Stack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="ChatView" component={ChatView} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
       <Stack.Screen name="MyPageView" component={MyPageView} options={{ headerShown: false }} />
+      <Stack.Screen name="FortuneRecordView" component={FortuneRecordView} options={{headerShown: false}}/>    
       <Stack.Screen name="ProfileView" component={ProfileView} options={{ headerShown: false }} />
       <Stack.Screen name="ProfileEditView" component={ProfileEditView} options={{ headerShown: false }} />
       <Stack.Screen name="CookieViewStack" component={CookieViewStack} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
@@ -54,6 +55,7 @@ function AppStack() {
       <Stack.Screen name="DiaryModify" component={DiaryModify} options={{headerShown: false}}/>
       <Stack.Screen name="DiaryImageStack" component={DiaryImageStack} options={{headerShown: false}}/>  
       <Stack.Screen name="DreamInterpret" component={DreamInterpret} options={{headerShown: false}}/>    
+
     </Stack.Navigator>
     );
   }

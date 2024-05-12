@@ -8,12 +8,12 @@ const CustomTabBarButton = ({ children, onPress, style }) => (
   
   <TouchableOpacity
     style={[{
-      top:10,
+      top:-5,
       justifyContent: 'center',
       alignItems: 'center',
       ...styles.shadow,
-      width: 56,
-      height: 56,
+      width: 60,
+      height: 60,
       borderRadius: 35,
       backgroundColor: 'white',
       shadowColor: '#000',
@@ -58,7 +58,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
     <View style={styles.tabBar}>
       {state.routes.map((route, index) => {
         const isFocused = state.index === index;
-
+        const iconSize = route.name === '일기작성' ? { width: 55, height: 55 } : { width: 35, height: 35 };
         const onPress = () => {
           console.log('Press event on ', route.name);
 
@@ -74,17 +74,17 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
         };
 
         const icon = isFocused ? focusedIcons[route.name] : icons[route.name];
-        const iconSize = { width: 35, height: 35 };
+
 
         if (route.name === '일기작성') {
           return (
-            <CustomTabBarButton onPress={onPress} style={styles.menuCtn}>
+            <CustomTabBarButton key={route.key} onPress={onPress} style={styles.menuCtn}>
               <Image source={icon} style={[styles.icon, iconSize]} resizeMode="contain" />
             </CustomTabBarButton>
           );
         } else {
           return (
-            <TouchableOpacity key={index} onPress={onPress} style={styles.menuCtn}>
+            <TouchableOpacity key={route.key} onPress={onPress} style={styles.menuCtn}>
               <Image source={icon} style={[styles.icon, iconSize]} resizeMode="contain" />
               <Text style={styles.iconLabel}>{route.name}</Text>
             </TouchableOpacity>
