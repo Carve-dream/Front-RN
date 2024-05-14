@@ -9,6 +9,7 @@ import DiaryWriteView from '../views/DiaryWriteView/DiaryWrite';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
 
+
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
@@ -23,7 +24,7 @@ function TabNavigator() {
       <Tab.Screen name="홈" component={MainView} options={{ tabBarIcon: { active: require('../assets/images/homePush.png'), default: require('../assets/images/home.png') } }} />
       <Tab.Screen name="꿈일기 목록" component={DiaryList} options={{ tabBarIcon: { active: require('../assets/images/notePush.png'), default: require('../assets/images/note.png') } }} />
       <Tab.Screen 
-        name="일기 작성" 
+        name="일기작성" 
         component={DiaryWriteView} // 이 컴포넌트는 실제로 렌더링되지 않습니다.
         options={{ tabBarIcon: { active: require('../assets/images/plus.png'), default: require('../assets/images/plus.png') } }}
         listeners={{
@@ -37,7 +38,17 @@ function TabNavigator() {
       />
 
       <Tab.Screen name="감정지도" component={EmotionMapView} options={{ tabBarIcon: { active: require('../assets/images/chartPush.png'), default: require('../assets/images/chart.png') } }} />
-      <Tab.Screen name="마이페이지" component={MyPageView} options={{ tabBarIcon: { active: require('../assets/images/myPage.png'), default: require('../assets/images/myPage.png') } }} />
+      <Tab.Screen 
+        name="마이페이지" 
+        component={MyPageView} // 이 컴포넌트는 실제로 렌더링되지 않습니다.
+        options={{ tabBarIcon: { active: require('../assets/images/myPage.png'), default: require('../assets/images/myPage.png') } }}
+        listeners={{
+          tabPress: e => {
+            e.preventDefault();
+            navigation.navigate('MyPageView');
+          }
+        }}
+      />
     </Tab.Navigator>
   );
 };

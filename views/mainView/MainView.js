@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
-import { View, StyleSheet, Image, Dimensions } from 'react-native';
-import { SquareButton, BubbleButton}  from './SquareButton';
-import MainViewModel from './MainViewModel'; 
+import React, { useState } from 'react';
+import { View, StyleSheet, Image, Dimensions, ImageBackground } from 'react-native';
+import { SquareButton, BubbleButton } from './SquareButton';
+import MainViewModel from './MainViewModel';
 import CustomTabBar from '../../CustomTabBar/CustomTabBar.js';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
@@ -13,9 +13,15 @@ const MainView = () => {
   const { searchQuery, setSearchQuery, handleSearch } = MainViewModel();
 
   return (
-      <LinearGradient
-        colors={['rgba(41, 32, 100, 0.80)', 'rgba(203, 157, 221, 0.80)', 'rgba(244, 191, 168, 0.80)', 'rgba(255, 255, 255, 0.80)']}
-        style={styles.linearGradient}
+
+
+    <LinearGradient
+      colors={['rgba(41, 32, 100, 0.80)', 'rgba(203, 157, 221, 0.80)', 'rgba(244, 191, 168, 0.80)', 'rgba(255, 255, 255, 0.80)']}
+      style={styles.linearGradient}
+    >
+      <ImageBackground
+        source={require('../../assets/images/cloud.png')}
+        style={styles.backcontainer}
       >
         <View style={styles.container}>
           <ButtonsView
@@ -24,11 +30,12 @@ const MainView = () => {
             onButtonPress={handleSearch}
             style={styles.buttonsView}
           />
-          </View>
-          <View style={styles.customTabBarContainer}>
-            <CustomTabBar />
-          </View>
-      </LinearGradient>
+        </View>
+        <View style={styles.customTabBarContainer}>
+          <CustomTabBar />
+        </View>
+      </ImageBackground>
+    </LinearGradient>
   );
 };
 
@@ -42,7 +49,7 @@ const ButtonsView = ({ searchQuery, setSearchQuery, onButtonPress }) => {
     navigation.navigate('ChatView'); // 네비게이션 스택에 정의된 정확한 화면 이름 사용
   };
   const handleFortuneCookiePress = () => {
-    navigation.navigate('CookieView');
+    navigation.navigate('CookieViewStack');
   };
   return (
     <View style={styles.BtnContainer}>
@@ -50,22 +57,22 @@ const ButtonsView = ({ searchQuery, setSearchQuery, onButtonPress }) => {
         <SquareButton
           onPress={handleFortuneCookiePress}
           title="오늘의 포춘쿠키"
-          imageSource={require('../../assets/images/cookie.png')}  
+          imageSource={require('../../assets/images/cookie.png')}
         />
       </View>
       <View style={styles.ggumiContainer}>
-      <BubbleButton
-        onPress={handleChatNavigation}
-        bubbleText="오늘은 어떤 꿈을 꾸셨나요?"
-        buttonText="꾸미와 이야기하기"
-        bubbleImageSource={require('../../assets/images/TalkBtn.png')} 
-      />
-      <View style={styles.square}>
-        <Image 
-        source = {require('../../assets/images/ggumi.png')}
-        style={styles.image}
-        resizeMode="contain"  />
-      </View>
+        <BubbleButton
+          onPress={handleChatNavigation}
+          bubbleText="오늘은 어떤 꿈을 꾸셨나요?"
+          buttonText="꾸미와 이야기하기"
+          bubbleImageSource={require('../../assets/images/TalkBtn.png')}
+        />
+        <View style={styles.square}>
+          <Image
+            source={require('../../assets/images/ggumi.png')}
+            style={styles.image}
+            resizeMode="contain" />
+        </View>
       </View>
     </View>
   );
@@ -74,6 +81,10 @@ const ButtonsView = ({ searchQuery, setSearchQuery, onButtonPress }) => {
 
 
 const styles = StyleSheet.create({
+  backcontainer: {
+    flex: 1,
+    height: 750,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -84,13 +95,13 @@ const styles = StyleSheet.create({
   customTabBarContainer: {
     position: 'absolute',
     bottom: 0,
-    zIndex: 0, 
+    zIndex: 0,
   },
   buttonsView: {
-    position: 'absolute', 
-    top: 0, 
-    left: 0, 
-    right: 0, 
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
     zIndex: 1,
   },
   linearGradient: {
@@ -112,7 +123,7 @@ const styles = StyleSheet.create({
     marginBottom: 140,
     marginLeft: 190
   },
-  ggumiContainer : {
+  ggumiContainer: {
     maxHeight: 436,
     maxWidth: 258,
     justifyContent: 'center',
@@ -123,13 +134,13 @@ const styles = StyleSheet.create({
   square: {
     width: 207,
     height: 246,
-    alignSelf: 'center' 
-  }, 
-  image : {
+    alignSelf: 'center'
+  },
+  image: {
     width: 207,
     height: 278,
   }
-  
+
 });
 
 export default MainView;

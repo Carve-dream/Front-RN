@@ -22,7 +22,11 @@ import SignIn from './views/LoginView/SignIn';
 import SignUpAcc from './views/SignUpView/SignupAcc'
 import SignUpInfo from './views/SignUpView/SignupInfo';
 import SignupComplete from './views/SignUpView/SignupComplete';
-
+import fortuneResult from './views/FortuneCookie/fortuneResult';
+import MyPageView from './views/myPage/MyPageView';
+import ProfileView from './views/myPage/ProfileView';
+import ProfileEditView from './views/myPage/ProfileEditView';
+import FortuneRecordView from './views/myPage/FortuneRecordView';
 const Stack = createStackNavigator();
 
 
@@ -39,13 +43,19 @@ function AppStack() {
       <Stack.Screen name="SignUpComplete" component={SignupComplete} options={{ headerShown: false }} />
       <Stack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="ChatView" component={ChatView} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
-      <Stack.Screen name="CookieView" component={CookieView} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
+      <Stack.Screen name="MyPageView" component={MyPageView} options={{ headerShown: false }} />
+      <Stack.Screen name="FortuneRecordView" component={FortuneRecordView} options={{headerShown: false}}/>    
+      <Stack.Screen name="ProfileView" component={ProfileView} options={{ headerShown: false }} />
+      <Stack.Screen name="ProfileEditView" component={ProfileEditView} options={{ headerShown: false }} />
+      <Stack.Screen name="CookieViewStack" component={CookieViewStack} options={{ headerShown: false, tabBarStyle: { display: 'none' } }} />
+
       <Stack.Screen name="DiaryWriteStackModal" component={DiaryWriteStack} options={{ headerShown: false }} />
       <Stack.Screen name="DiaryList" component={DiaryList} options={{ headerShown: false }}/>
       <Stack.Screen name="DiaryDetail" component={DiaryDetail} options={{headerShown: false}}/>
       <Stack.Screen name="DiaryModify" component={DiaryModify} options={{headerShown: false}}/>
       <Stack.Screen name="DiaryImageStack" component={DiaryImageStack} options={{headerShown: false}}/>  
       <Stack.Screen name="DreamInterpret" component={DreamInterpret} options={{headerShown: false}}/>    
+
     </Stack.Navigator>
     );
   }
@@ -64,6 +74,15 @@ function AppStack() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="DiaryImageCreate" component={DiaryImageCreate}  options={{ headerShown: false }}/>
         <Stack.Screen name="DiaryImageProduce" component={DiaryImageProduce}  options={{ headerShown: false }}/>
+      </Stack.Navigator>
+    );
+  }
+
+  const CookieViewStack = () => {
+    return(
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="CookieView" component={CookieView}  options={{ headerShown: false }}/>
+        <Stack.Screen name="fortuneResult" component={fortuneResult}  options={{ headerShown: false }}/>
       </Stack.Navigator>
     );
   }
