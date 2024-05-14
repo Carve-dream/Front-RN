@@ -6,12 +6,53 @@ import Validation from '../LoginView/validation';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
-const SignupAcc = () => {
-    const navigation = useNavigation();
-    const { email, emailValid, handleEmailChange, password, passwordValid, handlePasswordChange } = Validation(); // 이메일 유효성 검사를 위한 커스텀 훅 사용
+const SignupAcc = (props) => {
+    // console.log(props.route.params); // 넘어온 정보 출력
 
-    const handleComplete = () =>{
-        navigation.navigate('SignUpComplete')
+    const name = props.route.params[0];
+    const birth = props.route.params[1].replaceAll('/', '-');
+    const gender = props.route.params[2].toUpperCase();
+
+    const navigation = useNavigation();
+
+    const [email, setEmail] = useState(null);
+    const [password, setPassword] = useState(null);
+
+    const [emailValid, setEmailValid] = useState(false); // 이메일 유효성 상태
+    const [passwordValid, setPasswordValid] = useState(false); // 비밀번호 유효성 상태
+
+    const { validateEmail, validatePassword } = Validation(); // 이메일 유효성 검사를 위한 커스텀 훅 사용
+
+    const handleComplete = async () =>{
+        // 회원가입 로직 추가
+        const response = await fetch('http://carvedrem.kro.kr:8080/auth/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "name": name,
+                "email": email,
+                "password": password,
+                "gender": gender,
+                "birthDate": birth
+            }),
+        })
+        const data = await response.json();
+        console.log(data);
+        if (data.check == null) {
+            navigation.navigate('SignUpComplete', name);
+        }
+    }
+
+    const handleEmailChange = (t) => {
+        setEmail(t);
+        setEmailValid(validateEmail(t));
+    }
+
+    const handlePasswordChange = (t) => {
+        setPassword(t);
+        setPasswordValid(validatePassword(t));
     }
 
     return (
@@ -36,10 +77,10 @@ const SignupAcc = () => {
                             placeholder="abc@email.com"
                             placeholderTextColor="#BDBDBD"
                             keyboardType="email-address" // 이메일 입력 키보드 형식
-                            value={email} // 이메일 유효성 검사
+                            // value={email} // 이메일 유효성 검사
                             onChangeText={handleEmailChange}
                         />
-                        {emailValid && email.length>0 ? (
+                        {emailValid && email != '' ? (
                             <Image source={require('../../assets/images/check.png')} style={styles.check} />
                         ) : !emailValid && <Text style={styles.exclamation}>!</Text>}
                     </View>
@@ -53,10 +94,10 @@ const SignupAcc = () => {
                             placeholder="영문, 숫자, 특수문자 포함 8자 이상"
                             placeholderTextColor="#BDBDBD"
                             keyboardType="email-address" // 비밀번호 입력 키보드 형식
-                            value={password} // 비밀번호 유효성 검사
+                            // value={password} // 비밀번호 유효성 검사
                             onChangeText={handlePasswordChange}
                         />
-                        {passwordValid && password.length>0 ? (
+                        {passwordValid && password != '' ? (
                             <Image source={require('../../assets/images/check.png')} style={styles.check} />
                         ) : !passwordValid && <Text style={styles.exclamation}>!</Text>}
                         
@@ -66,9 +107,9 @@ const SignupAcc = () => {
 
 
                 
-                <TouchableOpacity style={[styles.button, !(emailValid && passwordValid && email.length > 0 && password.length > 0) && styles.buttonDisabled]}  
+                <TouchableOpacity style={[styles.button, !(emailValid && passwordValid && email != '' && password != '') && styles.buttonDisabled]}  
                     onPress={handleComplete}
-                    disabled={!( emailValid && passwordValid && email.length > 0 && password.length > 0)} //email ,pwd 모두 유효한 경우에만 버튼 활성화
+                    disabled={!( emailValid && passwordValid && email != '' && password != '')} //email ,pwd 모두 유효한 경우에만 버튼 활성화
                     >
                     <Text style={styles.buttonText}>다음</Text>
                 </TouchableOpacity>

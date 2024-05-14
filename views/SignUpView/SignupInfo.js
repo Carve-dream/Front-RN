@@ -15,7 +15,7 @@ const SignUpInfo = () => {
 
     // 다음 버튼 눌렀을 때 SignupAcc 화면으로 전환
     const handleNextPress = () => {
-        navigation.navigate('SignUpAcc')
+        navigation.navigate('SignUpAcc', [name, birth, gender]);
     };
 
     // 이름 삭제

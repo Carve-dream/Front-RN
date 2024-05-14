@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, Dimensions, StatusBar, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Validation from '../LoginView/validation';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
-const SignupComplete = ({ name }) => {
+const SignupComplete = (props) => {
     const navigation = useNavigation();
-    const { email, emailValid, handleEmailChange, password, passwordValid, handlePasswordChange } = Validation(); // 이메일 유효성 검사를 위한 커스텀 훅 사용
+
+    const name = props.route.params;
 
     const handleStart = () => {
-        navigation.navigate('SignIn')
+        navigation.navigate('SignIn');
     }
 
     return (

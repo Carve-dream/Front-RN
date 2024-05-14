@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 //로그인 유지하기 체크박스
-const CircleCheckbox = ({ label }) => {
-    const [checked, setChecked] = useState(false);
+const CircleCheckbox = ({ checked, onChange, label }) => {
 
     return (
         <TouchableOpacity
             style={styles.checkboxContainer}
-            onPress={() => setChecked(!checked)}>
+            onPress={() => onChange(!checked)}>
             <View style={[styles.checkbox, { backgroundColor: checked ? '#EF82A1' : 'white' }]}>
                 <Icon name="check" size={13} color={'#464E82'} />
             </View>

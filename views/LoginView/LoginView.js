@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Dimensions, StatusBar, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import checkToken from '../../CheckToken';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -9,13 +11,23 @@ const LoginView = () => {
     const navigation = useNavigation();
 
     // 로그인 버튼 눌렀을 때 SignIn 화면으로 이동
-    const handleSingInPress = () => {
-        navigation.navigate('SignIn')
+    const handleSingInPress = async () => {
+        
+        const autoLogin = await AsyncStorage.getItem('autoLogin');
+        if (autoLogin && autoLogin == 'true') {
+            const checking = await checkToken();
+            if (checking) {
+                navigation.navigate("Main");
+                return;
+            }
+        }
+        navigation.navigate('SignIn');
     }
 
     // 회원가입 버튼 눌렀을 때 처리할 함수
-    const handleSignUpPress = () => {
-        navigation.navigate('SignUpInfo')
+    const handleSignUpPress = async () => {
+        await AsyncStorage.getAllKeys().then(AsyncStorage.multiRemove); // 삭제 예정 (토큰과 자동로그인 정보 삭제하는 코드)
+        navigation.navigate('SignUpInfo');
     };
 
     return (
