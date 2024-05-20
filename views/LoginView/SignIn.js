@@ -60,6 +60,10 @@ const SignIn = () => {
             await getToken(email, password);
             const at = await AsyncStorage.getItem('accessToken');
             const rt = await AsyncStorage.getItem('refreshToken');
+            
+            console.log("AccessToken: " + at);
+            console.log("RefreshToken: " + rt);
+            
             if (at != null && rt != null) {
                 await AsyncStorage.setItem('autoLogin', stayLoggedIn.toString());
                 console.log("autoLogin: " + stayLoggedIn.toString());

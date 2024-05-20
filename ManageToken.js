@@ -29,4 +29,11 @@ async function checkToken() {
     }
 }
 
-export default checkToken;
+async function getToken() {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    const refreshToken = await AsyncStorage.getItem('refreshToken');
+
+    return [accessToken, refreshToken];
+}
+
+export {checkToken, getToken};
