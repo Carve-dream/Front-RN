@@ -1,29 +1,105 @@
 // DiaryCard.js
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { checkToken, getToken } from '../../ManageToken';
+
+const makeDiaryCard = (data, navigation) => {
+
+    console.log(data);
+
+    return (
+        
+        <View style={styles.card}>
+            <TouchableOpacity style={{alignItems: 'center',}} key={data.id} onPress={() => navigation.navigate('DiaryDetail')}>
+                <TopView data={data.title} navigation={navigation}/>
+                <Image source={require('../../assets/images/test.png')} style={styles.image} />
+                <View style={styles.infoContainer}>
+                    <Text style={styles.content}>{data.content}</Text>
+                </View>
+            </TouchableOpacity>
+            <ScrollView horizontal={true} style={styles.TagCtn}>
+                {data.tags.map((element, index) => {
+                    return (
+                        <Tag data={element} key={index}/> 
+                    )
+                })}
+            </ScrollView>
+        </View>
+    
+   )
+}
+
+const makeDiaryList = (data, navigation) => {
+
+    if (data == null) {
+        return (
+            <ScrollView style={styles.list}>
+            </ScrollView>
+        )
+    }
+
+    return (
+        <ScrollView style={styles.list}>
+            {data.information.map(element => {
+                return makeDiaryCard(element, navigation);
+            })}
+        </ScrollView>
+    )
+
+    
+}
 
 const DiaryCard = () => {
+
     const navigation = useNavigation();
+
+    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState(null);
+
+    async function fetchData() {
+        await checkToken();
+        token = await getToken();
+    
+        const response = await fetch('http://carvedrem.kro.kr:8080/api/diary?page=0', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token[0]}`,
+            },
+        });
+        
+        const ret = await response.json();
+    
+        if (ret.check == null || ret.check == true) {
+            setData(ret);
+            console.log("데이터 불러오기 성공");
+            setLoading(false);
+        } else {
+            console.log("데이터 불러오기 실패");
+        }
+    }
+
+    useEffect(() => {
+        fetchData();
+    }, [])
+
+    if (loading) {
+        return (
+            <View>
+            <DateView/>
+            {makeDiaryList(null)}
+            </View>
+        )
+    }
+
     return (
         <View>
         <DateView/>
-        <TouchableOpacity onPress={() => navigation.navigate('DiaryDetail')}>
-            <View style={styles.card}>
-                <TopView/>
-                <Image source={require('../../assets/images/test.png')} style={styles.image} />
-                <View style={styles.infoContainer}>
-                    <Text style={styles.content}>나는 오늘 하늘을 나는 꿈을 꿨다.{'\n'}나는 오늘 하늘을 나는 꿈을 꿨다.{'\n'}나는 오늘 하늘을 나는 꿈을 꿨다.{'\n'}</Text>
-                </View>
-                <View style={styles.TagCtn}>
-                    <Tag/> 
-                    <Tag/>
-                    <Tag/>
-                </View>
-             </View>
-        </TouchableOpacity>
+        {makeDiaryList(data, navigation)}
         </View>
-    );
+    )
+    
 };
 
 //날짜 및 검색 버튼 
@@ -43,11 +119,11 @@ const DateView = () => {
 
 
 // 일기장 제목, 우상단 수정, 삭제 버튼
-const TopView = ({}) => {
-    const navigation = useNavigation();
+const TopView = ({data, navigation}) => {
+
     return (
         <View style={styles.topView}>
-            <Text style={styles.title}>오늘의 꿈 일기</Text>
+            <Text style={styles.title}>{data}</Text>
             <View style={styles.btnCtn}>
                 <ModifyBtn onPress={() => navigation.navigate('DiaryModify')} imageSource={require('../../assets/images/modify.png')} />
                 <ModifyBtn onPress={() => console.log('삭제하기 버튼이 눌렸습니다.')} imageSource={require('../../assets/images/delete.png')} />
@@ -65,11 +141,11 @@ const ModifyBtn = ({ onPress, imageSource }) => {
 };
 
 //태그 컴포넌트
-const Tag = () => {
+const Tag = ({data}) => {
     return(
         <View>
             <View style={styles.tagBox} >
-                <Text style={styles.tagText}> #하늘 </Text>
+                <Text style={styles.tagText}> {data} </Text>
             </View>
         </View>
     );
@@ -150,13 +226,18 @@ const styles = StyleSheet.create({
         
     },
     title: {
-        textAlign: 'center', 
+        textAlign: 'left', 
         color: '#333333', 
         fontSize: 16, 
-        fontWeight: '700'
+        fontWeight: '700',
+        width: 70,
+        marginLeft: 10,
     },
     content: {
         fontSize: 13,
+        paddingHorizontal: 10,
+        width: 319,
+        height: 50,
     },
     topView: {
         width: 319,
@@ -173,7 +254,7 @@ const styles = StyleSheet.create({
         height: 24, 
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginLeft: 158
+        marginLeft: 158,
     },
     modifyBtnImage: {
         width: 24,
@@ -186,7 +267,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        marginLeft:7
+        marginLeft:7,
     },
     tagText: {
         margin: 4,
@@ -196,10 +277,13 @@ const styles = StyleSheet.create({
     },
     TagCtn:{
         flex:1,
-        minHeight:40,
-        minWidth:290,
+        height: 40,
+        width: 319,
         flexDirection: 'row',
-        marginBottom : 30
+        marginBottom : 30,
+        marginHorizontal: 20,
+        position: 'absolute',
+        marginTop: 310,
     },
     dateCtn: {
         flexDirection: 'row',
@@ -207,16 +291,18 @@ const styles = StyleSheet.create({
         height: 30,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 5
+        marginTop: 5,
+        marginBottom: 20,
     },
     searchBtn : {
         width: 30, 
         height: 30,
         marginLeft: 125,
         marginTop: 20
-    }
-
-     
+    },
+    list: {
+        height: 580,
+    }     
     
 });
 

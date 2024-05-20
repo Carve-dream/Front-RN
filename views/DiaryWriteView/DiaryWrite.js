@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import EmotionPickerModal from './EmotionModal'
+import {getToken, checkToken} from '../../ManageToken';
 
 const screenWidth = Dimensions.get('window').width; 
 const screenHeight = Dimensions.get('window').height; 
@@ -305,9 +306,7 @@ const TagManager = (state) => {
     );
 };
 
-const accessToken = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzE1MjgyOTI5LCJleHAiOjE3MTUyODY1Mjl9.lUDaDfFJ1rWHIBszwNmh2IJgxLz1LxVXYZNCskXSa46V6xsy5t3TnI2GeNmy9yUYMv5prxdzcs4funysX7KRhg";
-
-const requestSave = (props) => {
+const requestSave = async (props) => {
 
     const emotionDict = {
         "두려워요": "FEAR",
@@ -329,6 +328,8 @@ const requestSave = (props) => {
     const date = props.data["date"];
     const tags = props.data["tags"];
 
+    const [accessToken, refreshToken] = await getToken();
+
     const response = fetch('http://carvedrem.kro.kr:8080/api/diary', {
         method: 'POST',
         headers: {
@@ -347,6 +348,9 @@ const requestSave = (props) => {
     });
     return response.then(res => res.json()).then(data => {
         console.log(data);
+        if (data.check != null && data.check == false) {
+            checkToken() ? requestSave(props) : console.log("저장 실패");
+        }
     })
 }
 
