@@ -308,6 +308,8 @@ const TagManager = (state) => {
 
 const requestSave = async (props) => {
 
+    await checkToken();
+
     const emotionDict = {
         "두려워요": "FEAR",
         "그리워요": "YEARNING",
@@ -349,7 +351,9 @@ const requestSave = async (props) => {
     return response.then(res => res.json()).then(data => {
         console.log(data);
         if (data.check != null && data.check == false) {
-            checkToken() ? requestSave(props) : console.log("저장 실패");
+            console.log("저장 실패");
+        } else {
+            console.log("저장 성공");
         }
     })
 }
@@ -358,14 +362,14 @@ const requestSave = async (props) => {
 const SaveBtn = (props) => {
     const navigation = useNavigation();
 
-    async function handleSave(p, d) {
+    async function handleSave(p) {
         await requestSave(p);
-        navigation.navigate(d);
+        navigation.goBack();
     }
 
     return(
         <View>
-            <TouchableOpacity onPress={() => {handleSave(props, 'DiaryList')}} style={styles.confirmButton}>
+            <TouchableOpacity onPress={() => {handleSave(props)}} style={styles.confirmButton}>
                 <Text style={styles.confirmText}>저장하기</Text>
             </TouchableOpacity>
         </View>

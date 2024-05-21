@@ -1,18 +1,18 @@
 // DiaryCard.js
-import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { checkToken, getToken } from '../../ManageToken';
 
-const makeDiaryCard = (data, navigation) => {
+const makeDiaryCard = (data, navigation, fetchData) => {
 
     console.log(data);
 
     return (
         
-        <View style={styles.card}>
-            <TouchableOpacity style={{alignItems: 'center',}} key={data.id} onPress={() => navigation.navigate('DiaryDetail')}>
-                <TopView data={data.title} navigation={navigation}/>
+        <View style={styles.card} key={data.id}>
+            <TouchableOpacity style={{alignItems: 'center',}} onPress={() => navigation.navigate('DiaryDetail')}>
+                <TopView data={data} navigation={navigation} fetchData={fetchData}/>
                 <Image source={require('../../assets/images/test.png')} style={styles.image} />
                 <View style={styles.infoContainer}>
                     <Text style={styles.content}>{data.content}</Text>
@@ -30,7 +30,7 @@ const makeDiaryCard = (data, navigation) => {
    )
 }
 
-const makeDiaryList = (data, navigation) => {
+const makeDiaryList = (data, navigation, fetchData) => {
 
     if (data == null) {
         return (
@@ -42,7 +42,7 @@ const makeDiaryList = (data, navigation) => {
     return (
         <ScrollView style={styles.list}>
             {data.information.map(element => {
-                return makeDiaryCard(element, navigation);
+                return makeDiaryCard(element, navigation, fetchData);
             })}
         </ScrollView>
     )
@@ -80,9 +80,13 @@ const DiaryCard = () => {
         }
     }
 
+    const isFocused = useIsFocused();
+
     useEffect(() => {
-        fetchData();
-    }, [])
+        if (isFocused) {
+            fetchData();
+        }
+    }, [isFocused])
 
     if (loading) {
         return (
@@ -96,7 +100,7 @@ const DiaryCard = () => {
     return (
         <View>
         <DateView/>
-        {makeDiaryList(data, navigation)}
+        {makeDiaryList(data, navigation, fetchData)}
         </View>
     )
     
@@ -116,17 +120,52 @@ const DateView = () => {
     );
 }
 
+const handleDeleteBtn = (id, fetchData) => {
 
+    Alert.alert("일기 삭제", "삭제하시겠습니까?", [
+        {
+            text: "확인",
+            onPress: async () => {
+                await checkToken();
+                token = await getToken();
+                const response = await fetch('http://carvedrem.kro.kr:8080/api/diary/' + id, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token[0]}`,
+                    },
+                });
+
+                const ret = await response.json();
+
+                if (ret.check == null || ret.check == true) {
+                    console.log("삭제 성공");
+                } else {
+                    console.log("삭제 실패");
+                }
+                await fetchData();
+            },
+            style: 'destructive',
+        },
+        {
+            text: "취소",
+            style: 'cancel',
+            onPress: console.log("삭제 취소")
+        }
+    ])
+
+    
+}
 
 // 일기장 제목, 우상단 수정, 삭제 버튼
-const TopView = ({data, navigation}) => {
+const TopView = ({data, navigation, fetchData}) => {
 
     return (
         <View style={styles.topView}>
-            <Text style={styles.title}>{data}</Text>
+            <Text style={styles.title}>{data.title}</Text>
             <View style={styles.btnCtn}>
                 <ModifyBtn onPress={() => navigation.navigate('DiaryModify')} imageSource={require('../../assets/images/modify.png')} />
-                <ModifyBtn onPress={() => console.log('삭제하기 버튼이 눌렸습니다.')} imageSource={require('../../assets/images/delete.png')} />
+                <ModifyBtn onPress={() => handleDeleteBtn(data.id, fetchData)} imageSource={require('../../assets/images/delete.png')} />
             </View>
         </View>
     );
@@ -230,7 +269,7 @@ const styles = StyleSheet.create({
         color: '#333333', 
         fontSize: 16, 
         fontWeight: '700',
-        width: 70,
+        width: 200,
         marginLeft: 10,
     },
     content: {
@@ -254,7 +293,7 @@ const styles = StyleSheet.create({
         height: 24, 
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginLeft: 158,
+        marginLeft: 28,
     },
     modifyBtnImage: {
         width: 24,
@@ -302,7 +341,7 @@ const styles = StyleSheet.create({
     },
     list: {
         height: 580,
-    }     
+    },
     
 });
 
