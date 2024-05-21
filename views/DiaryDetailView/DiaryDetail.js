@@ -284,7 +284,7 @@ const ImageBox = ({ imageSource }) => {
             ) : (
                 <View style={styles.imageBoxCtn}>
                    <Text style={styles.imageholder}>사진</Text>
-                    <Text style={styles.imageSubtitlePlaceholder}>앗 아직 꿈 이미지가 만들어지지 않았어요{'\n'} 터치해서 꿈 이미지를 생성해보세요!</Text>
+                    <Text style={styles.imageSubtitlePlaceholder}>앗 아직 꿈 이미지가 만들어지지 않았어요{'\n'}꿈 이미지 생성하기 버튼으로 꿈 이미지를 생성해보세요!</Text>
                     <Image source = {require('../../assets/images/gummiEmpty.png')} style={styles.emptyImage}/>
                 </View>
             )}
@@ -301,7 +301,7 @@ const DreamInterpret = ({interpret}) => {
             {!interpret ? (
             <View style={styles.imageBoxCtn}>
                 <Text style={styles.imageholder}>꾸미 분석 내용</Text>
-                 <Text style={styles.imageSubtitlePlaceholder}>아직 꿈 해몽 내용이 없어요{'\n'} 터치해서 꿈 해몽 내용을 확인해보세요! </Text>
+                 <Text style={styles.imageSubtitlePlaceholder}>아직 꿈 해몽 내용이 없어요{'\n'}꿈 해몽하기 버튼으로 꿈 해몽 내용을 확인해보세요! </Text>
                  <Image source = {require('../../assets/images/gummiEmpty.png')} style={styles.emptyImage}/>
              </View>
             ) : (
@@ -611,7 +611,8 @@ const styles = StyleSheet.create({
         marginTop: 15,
         color: '#89898B',
         fontWeight: '600',
-        textAlign: 'center'
+        textAlign: 'center',
+        width: 325,
     },
     image:{
         width: 200,

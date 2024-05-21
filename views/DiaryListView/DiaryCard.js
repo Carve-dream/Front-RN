@@ -13,7 +13,7 @@ const makeDiaryCard = (data, navigation, fetchData) => {
         <View style={styles.card} key={data.id}>
             <TouchableOpacity style={{alignItems: 'center',}} onPress={() => navigation.navigate('DiaryDetail', {id: data.id})}>
                 <TopView data={data} navigation={navigation} fetchData={fetchData}/>
-                <Image source={require('../../assets/images/test.png')} style={styles.image} />
+                <Image source={data.image_url ? data.image_url : require('../../assets/images/test.png')} style={styles.image} />
                 <View style={styles.infoContainer}>
                     <Text style={styles.content}>{data.content}</Text>
                 </View>
@@ -253,14 +253,14 @@ const styles = StyleSheet.create({
     },
     image: {
         width: 300,
-        height: 170,
+        height: 300,
         marginHorizontal: 16,
         marginVertical: 19,
     },
     infoContainer: {
         flex:1,
-        minHeight: 60,
-        minWidth: 280,
+        height: 100,
+        width: 300,
         textAlign:'left',
         
     },
@@ -269,13 +269,13 @@ const styles = StyleSheet.create({
         color: '#333333', 
         fontSize: 16, 
         fontWeight: '700',
-        width: 200,
-        marginLeft: 10,
+        width: 210,
+        marginLeft: 0,
     },
     content: {
         fontSize: 13,
-        paddingHorizontal: 10,
-        width: 319,
+        paddingHorizontal: 0,
+        width: 300,
         height: 50,
     },
     topView: {
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
         marginBottom : 30,
         marginHorizontal: 20,
         position: 'absolute',
-        marginTop: 310,
+        marginTop: 440,
     },
     dateCtn: {
         flexDirection: 'row',
