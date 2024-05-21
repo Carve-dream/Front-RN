@@ -17,16 +17,8 @@ const ProfileEditView = () => {
     // 저장하기 버튼 눌렀을 때 화면 전환
     const handleNextPress = async () => {
         try {
-            // 슬래시를 제거하고 YYYYMMDD 형태로 만든 후, YYYY-MM-DD 형태로 변환
-            const rmSlash = birthDate.replace(/\//g, ''); 
-            const year = rmSlash.substring(0, 4);
-            const month = rmSlash.substring(4, 6);
-            const day = rmSlash.substring(6, 8);
-            const formattedBirth = `${year}-${month}-${day}`;
-
-            console.log({formattedBirth});
-            await updateUserData(userName, formattedBirth, gender); // 수정된 사용자 정보를 API를 통해 업데이트
-            console.log('Updating user data:', { userName, birthDate: formattedBirth, gender });
+            await updateUserData(userName, birthDate, gender); // 수정된 사용자 정보를 API를 통해 업데이트
+            console.log('Updating user data:', { userName, birthDate, gender });
             navigation.navigate('ProfileView'); // 업데이트 후 ProfileView로 이동
         } catch (error) {
             console.error('Failed to update user data:', error);
@@ -49,12 +41,12 @@ const ProfileEditView = () => {
         const newText = text.replace(/[^0-9]/g, ''); // 먼저 숫자가 아닌 모든 문자를 제거합니다.
         let formattedText = newText;
 
-        // 숫자가 4개 입력되었을 때와 6개 입력되었을 때 자동으로 슬래시를 추가합니다.
+        // 숫자가 4개 입력되었을 때와 6개 입력되었을 때 자동으로 -를 추가합니다.
         if (newText.length > 4) {
-            formattedText = newText.substring(0, 4) + '/' + newText.substring(4);
+            formattedText = newText.substring(0, 4) + '-' + newText.substring(4);
         }
         if (newText.length > 6) {
-            formattedText = newText.substring(0, 4) + '/' + newText.substring(4, 6) + '/' + newText.substring(6, 8);
+            formattedText = newText.substring(0, 4) + '-' + newText.substring(4, 6) + '-' + newText.substring(6, 8);
         }
 
         setBirth(formattedText); // 변환된 텍스트로 상태를 업데이트합니다.
@@ -75,6 +67,7 @@ const ProfileEditView = () => {
     }, []);
 
     const isFormValid = userName.length > 0 && birthDate.length === 10 && gender != null && email.length > 0; // 이름, 생년월일, 성별이 모두 입력되었는지 확인
+    
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
             <SafeAreaView style={styles.container}>
@@ -110,7 +103,7 @@ const ProfileEditView = () => {
                             <View style={styles.inputContainer}>
                                 <TextInput
                                     style={styles.birthInput}
-                                    placeholder="2000/01/01"
+                                    placeholder="2000-01-01"
                                     placeholderTextColor="#BDBDBD"
                                     keyboardType="numeric"
                                     value={birthDate}
