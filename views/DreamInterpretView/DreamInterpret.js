@@ -116,7 +116,7 @@ const SaveBtn = () => {
                 <Text style={styles.confirmText}>꾸미와 꿈에 대해 이야기하기</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => navigation.navigate('DiaryList')} style={styles.confirmButton}>
+            <TouchableOpacity onPress={() => navigation.navigate('Main')} style={styles.confirmButton}>
                 <Text style={styles.confirmText}>저장하기</Text>
             </TouchableOpacity>
         </View>
