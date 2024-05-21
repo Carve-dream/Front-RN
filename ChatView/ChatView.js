@@ -7,6 +7,7 @@ import BoxComponent from './BoxComponent';
 import { useState, useRef, useEffect } from 'react';
 
 
+
 const ChatView = ({ navigation, name }) => {
   StatusBar.setBarStyle('light-content');
 

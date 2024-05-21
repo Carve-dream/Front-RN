@@ -1,14 +1,28 @@
-import React from 'react';
+import React, { useState,useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { fetchUserData } from '../api/userData';
 
 //챗봇 - 꿈 일기 목록 조회 
-const BoxComponent = ({ name }) => {
+const BoxComponent = () => {
+
+    const [userName, setUserName] = useState('');
+
+    useEffect(() => {
+        const init = async () => {
+            const data = await fetchUserData();
+            console.log(data.information.name);
+            setUserName(data.information.name);
+            setEmail(data.information.email);
+        };
+
+        init();
+    }, []);
 
     return (
         <View>
             <Text style={styles.text}>최근 꿈 일기 목록을 불러왔어요.{"\n"}분석하고 싶은 꿈 일기를 선택해주세요!</Text>
             <View style={styles.container}>
-                <Text>{name}님의 꿈 일기 목록</Text>
+                <Text>{userName} 님의 꿈 일기 목록</Text>
                 <List1 />
                 <List2 />
                 <List3 />

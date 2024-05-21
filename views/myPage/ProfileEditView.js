@@ -1,40 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, Dimensions, StatusBar, TouchableOpacity, TextInput, SafeAreaView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
-
-const screenWidth = Dimensions.get('window').width;
-const screenHeight = Dimensions.get('window').height;
+import { fetchUserData } from '../../api/userData';
+import { updateUserData } from '../../api/updatedUserData';
 
 const ProfileEditView = () => {
     const navigation = useNavigation();
-    const [name, setName] = useState('');
-    const [birth, setBirth] = useState('');
-    const [email, setEmail] = useState('');
-    const [gender, setGender] = useState(null);
-    const isFormValid = name.length > 0 && birth.length === 10 && gender !== null && email.length > 0; // 이름, 생년월일, 성별이 모두 입력되었는지 확인
 
-    // 다음 버튼 눌렀을 때 SignupAcc 화면으로 전환
-    const handleNextPress = () => {
-        navigation.navigate('ProfileView')
+    const [userName, setUserName] = useState('');
+    const [birthDate, setBirth] = useState('');
+    const [gender, setGender] = useState(null);
+    const [createdDate, setDate] = useState('');
+    const [email, setEmail] = useState('');
+
+
+    // 저장하기 버튼 눌렀을 때 화면 전환
+    const handleNextPress = async () => {
+        try {
+            // 슬래시를 제거하고 YYYYMMDD 형태로 만든 후, YYYY-MM-DD 형태로 변환
+            const rmSlash = birthDate.replace(/\//g, ''); 
+            const year = rmSlash.substring(0, 4);
+            const month = rmSlash.substring(4, 6);
+            const day = rmSlash.substring(6, 8);
+            const formattedBirth = `${year}-${month}-${day}`;
+
+            console.log({formattedBirth});
+            await updateUserData(userName, formattedBirth, gender); // 수정된 사용자 정보를 API를 통해 업데이트
+            console.log('Updating user data:', { userName, birthDate: formattedBirth, gender });
+            navigation.navigate('ProfileView'); // 업데이트 후 ProfileView로 이동
+        } catch (error) {
+            console.error('Failed to update user data:', error);
+        }
     };
 
     // 이름 삭제
     const nameDelete = () => {
         console.log('delete');
-        setName('');
+        setUserName('');
     };
 
     //생년월일 삭제
     const birthDelete = () => {
         console.log('birth delete');
         setBirth('');
-    }
-
-    //이메일 삭제
-    const emailDelete = () => {
-        console.log('email delete');
-        setEmail('');
     }
 
     const handleBirthDateChange = (text) => {
@@ -52,7 +60,21 @@ const ProfileEditView = () => {
         setBirth(formattedText); // 변환된 텍스트로 상태를 업데이트합니다.
     };
 
+    useEffect(() => {
+        const init = async () => {
+            const data = await fetchUserData();
+            console.log(data.information.name);
+            setUserName(data.information.name);
+            setEmail(data.information.email);
+            setBirth(data.information.birthDate);
+            setDate(data.information.createdDate.split('T')[0]); // YYYY-MM-DD 형식으로 변환
+            setGender(data.information.gender);
+        };
 
+        init();
+    }, []);
+
+    const isFormValid = userName.length > 0 && birthDate.length === 10 && gender != null && email.length > 0; // 이름, 생년월일, 성별이 모두 입력되었는지 확인
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
             <SafeAreaView style={styles.container}>
@@ -71,8 +93,8 @@ const ProfileEditView = () => {
                                 style={styles.input}
                                 placeholder="김꾸미"
                                 placeholderTextColor="#BDBDBD"
-                                value={name}
-                                onChangeText={setName}
+                                value={userName}
+                                onChangeText={setUserName}
                             />
                             <TouchableOpacity onPress={nameDelete}>
                                 <Image source={require('../../assets/images/delete-info.png')} style={styles.delete} />
@@ -91,7 +113,7 @@ const ProfileEditView = () => {
                                     placeholder="2000/01/01"
                                     placeholderTextColor="#BDBDBD"
                                     keyboardType="numeric"
-                                    value={birth}
+                                    value={birthDate}
                                     onChangeText={handleBirthDateChange}
                                 />
                                 <TouchableOpacity onPress={birthDelete}>
@@ -100,36 +122,28 @@ const ProfileEditView = () => {
                             </View>
                             {/* 남성 버튼 */}
                             <TouchableOpacity
-                                style={[styles.genderButton, gender === 'male' && styles.selectedGender]}
-                                onPress={() => setGender('male')}
+                                style={[styles.genderButton, gender === 'MALE' && styles.selectedGender]}
+                                onPress={() => setGender('MALE')}
                             >
-                                <Text style={[styles.genderText, gender === 'male' && styles.selectedGenderText]}>남성</Text>
+                                <Text style={[styles.genderText, gender === 'MALE' && styles.selectedGenderText]}>남성</Text>
                             </TouchableOpacity>
 
                             {/* 여성 버튼 */}
                             <TouchableOpacity
-                                style={[styles.genderButton, gender === 'female' && styles.selectedGender]}
-                                onPress={() => setGender('female')}
+                                style={[styles.genderButton, gender === 'FEMALE' && styles.selectedGender]}
+                                onPress={() => setGender('FEMALE')}
                             >
-                                <Text style={[styles.genderText, gender === 'female' && styles.selectedGenderText]}>여성</Text>
+                                <Text style={[styles.genderText, gender === 'FEMALE' && styles.selectedGenderText]}>여성</Text>
                             </TouchableOpacity>
                         </View>
                         <Text style={styles.text}>이메일 주소</Text>
                         <View style={styles.inputContainer}>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="abc@gmail.com"
-                                placeholderTextColor="#BDBDBD"
-                                value={email}
-                                onChangeText={setEmail}
-                            />
-                            <TouchableOpacity onPress={emailDelete}>
-                                <Image source={require('../../assets/images/delete-info.png')} style={styles.delete} />
-                            </TouchableOpacity>
+                            <Text style={styles.input}>{email}</Text>
                         </View>
+
                         <Text style={styles.text}>가입한 날짜</Text>
                         <View style={styles.inputContainer}>
-                            <Text style={styles.input}>2024/04/08</Text>
+                            <Text style={styles.input}>{createdDate}</Text>
                         </View>
                     </View>
 
