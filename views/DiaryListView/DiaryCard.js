@@ -1,5 +1,5 @@
 // DiaryCard.js
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { checkToken, getToken } from '../../ManageToken';
@@ -11,7 +11,7 @@ const makeDiaryCard = (data, navigation, fetchData) => {
     return (
         
         <View style={styles.card} key={data.id}>
-            <TouchableOpacity style={{alignItems: 'center',}} onPress={() => navigation.navigate('DiaryDetail')}>
+            <TouchableOpacity style={{alignItems: 'center',}} onPress={() => navigation.navigate('DiaryDetail', {id: data.id})}>
                 <TopView data={data} navigation={navigation} fetchData={fetchData}/>
                 <Image source={require('../../assets/images/test.png')} style={styles.image} />
                 <View style={styles.infoContainer}>

@@ -1,54 +1,117 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TextInput, TouchableOpacity, ScrollView, Modal, StyleSheet, Dimensions} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import EmotionPickerModal from '../DiaryWriteView/EmotionModal'
+import EmotionPickerModal from '../DiaryWriteView/EmotionModal';
+import { checkToken, getToken } from '../../ManageToken';
 
 const screenWidth = Dimensions.get('window').width; 
 const screenHeight = Dimensions.get('window').height; 
 
 //전체 뷰
-const DiaryDetail = () => {
+const DiaryDetail = (props) => {
     const navigation = useNavigation();
+
+    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState(null);
+
+    async function fetchData(id) {
+        await checkToken();
+        token = await getToken();
+    
+        const response = await fetch('http://carvedrem.kro.kr:8080/api/diary/' + id, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token[0]}`,
+            },
+        });
+        
+        const ret = await response.json();
+
+        console.log(ret);
+    
+        if (ret.check == null || ret.check == true) {
+            setData(ret);
+            console.log("데이터 불러오기 성공");
+            setLoading(false);
+        } else {
+            console.log("데이터 불러오기 실패");
+        }
+    }
+
+    const isFocused = useIsFocused();
+
+    useEffect(() => {
+        if (isFocused) {
+            fetchData(props.route.params.id);
+        }
+    }, [isFocused])
+
+    if (loading) {
+        return(
+            <View style={styles.fullScreen}>
+                <View style={styles.topCtn}>
+                    <TopBar navigation={navigation} title="0000-00-00"/>
+                </View>
+                <FullScreen/>
+            </View>
+        );
+    }
 
     return(
         <View style={styles.fullScreen}>
             <View style={styles.topCtn}>
-                <TopBar navigation={navigation} title="0000.00.00"/>
+                <TopBar navigation={navigation} title={data.information.date}/>
             </View>
-            <FullScreen/>
+            <FullScreen data={data.information}/>
         </View>
     );
 };
 
 
 //전체 뷰 정리 (탑바, 저장하기 버튼)
-const FullScreen = () => {
+const FullScreen = ({data}) => {
     return(
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <View style={styles.mainBoxCtn}>
-            <MainBoard/>
-        </View>
-        <View style={styles.saveCtn}>
-                <SaveBtn/>
-        </View>
-    </ScrollView>
+            <View style={styles.mainBoxCtn}>
+                <MainBoard data={data}/>
+            </View>
+            <View style={styles.saveCtn}>
+                    <SaveBtn/>
+            </View>
+        </ScrollView>
     );
 }
 
 
 //일기 디테일 보드
-const MainBoard = () => {
+const MainBoard = ({data}) => {
+    if (data == null) {
+        return (
+            <View style={styles.boxCtn}>
+                <View style={styles.mainBox}>
+                    <DiaryTop title="" emotion=""/>
+                    <SleepTimePicker/>
+                    <DiaryEntry/>
+                    <ImageBox/>
+                    <DreamInterpret/>
+                    <TagManager/>
+                    
+                </View>
+            </View>
+        )
+    }
     return(
         <View style={styles.boxCtn}>
             <View style={styles.mainBox}>
-                <DiaryTop/>
-                <SleepTimePicker/>
-                <DiaryEntry/>
-                <ImageBox/>
-                <DreamInterpret/>
-                <TagManager/>
+                <DiaryTop title={data.title} emotion={data.emotion}/>
+                <SleepTimePicker start={data.start_sleep} end={data.end_sleep}/>
+                <DiaryEntry content={data.content}/>
+                <ImageBox imageSource={data.image_url}/>
+                <DreamInterpret interpret={data.interpretation}/>
+                <TagManager tags={data.tags}/>
                 
             </View>
         </View>
@@ -57,77 +120,101 @@ const MainBoard = () => {
 
 
 //제목, 오늘의 감정
-const DiaryTop = () => {
-    const [title, setTitle] = useState("");
-    const [emotionModalVisible, setEmotionModalVisible] = useState(false);
-    const [selectedEmotion, setSelectedEmotion] = useState(null);
-    const [selectedImage, setSelectedImage] = useState(null);
+const DiaryTop = ({title, emotion}) => {
+    // const [title, setTitle] = useState("");
+    // const [emotionModalVisible, setEmotionModalVisible] = useState(false);
+    // const [selectedEmotion, setSelectedEmotion] = useState(null);
+    // const [selectedImage, setSelectedImage] = useState(null);
+
+    const emotionDict = {
+        "FEAR": "두려워요",
+        "YEARNING": "그리워요",
+        "JOY": "기뻐요",
+        "ANGER": "화나요",
+        "AWKWARDNESS": "찝찝해요",
+        "ABSURDITY": "황당해요",
+        "EXCITED": "흥분돼요",
+        "THRILL": "설레요",
+        "MYSTERY": "미스테리해요",
+    };
+
+    const emotions = [
+        { text: '설레요', image: require('../../assets/emoji/happy.png') },
+        { text: '그리워요', image: require('../../assets/emoji/miss.png') },
+        { text: '두려워요', image: require('../../assets/emoji/scared.png') },
+        { text: '찝찝해요', image: require('../../assets/emoji/uncomfortable.png') },
+        { text: '미스테리해요', image: require('../../assets/emoji/mysterious.png') },
+        { text: '황당해요', image: require('../../assets/emoji/confused.png') },
+        { text: '흥분돼요', image: require('../../assets/emoji/excited.png') },
+        { text: '기뻐요', image: require('../../assets/emoji/glad.png') },
+        { text: '화나요', image: require('../../assets/emoji/angry.png') }
+    ];
+
+    let emotionImage;
+
+    emotions.forEach((e) => {
+        (e.text == emotionDict[emotion]) ? (emotionImage = e.image) : ()=>{}
+    })
 
     return (
         <View style={styles.diaryTopCtn}>
-            <TextInput
-                value={title}
-                onChangeText={setTitle}
-                placeholder="제목"
-                style={styles.input}
-                placeholderTextColor="#434343"
-            />
+            <Text style={styles.input} placeholderTextColor="#434343">{title}</Text>
 
-            <TouchableOpacity onPress={() => setEmotionModalVisible(true)} style={styles.iconCtn}>
+            <TouchableOpacity style={styles.iconCtn}>
                 <Text style={styles.iconText}>오늘의 감정</Text>
-                {selectedImage && <Image source={selectedImage} style={styles.emotionImage} />}
+                <Image source={emotionImage} style={styles.emotionImage} />
             </TouchableOpacity>
 
-            <EmotionPickerModal 
+            {/* <EmotionPickerModal 
                 emotionModalVisible={emotionModalVisible}
                 setEmotionModalVisible={setEmotionModalVisible}
                 setSelectedEmotion={setSelectedEmotion}
                 setSelectedImage={setSelectedImage}
-            />
+            /> */}
         </View>
     );
 };
 
 //시간 작성 => 서버 연결 후 저장페이지에서 작성한 시간으로 띄우기 수정!
-const SleepTimePicker = () => {
-    const [isBedTimePickerVisible, setBedTimePickerVisibility] = useState(false);
-    const [isWakeTimePickerVisible, setWakeTimePickerVisibility] = useState(false);
-    const [bedTime, setBedTime] = useState(new Date());
-    const [wakeTime, setWakeTime] = useState(new Date());
+const SleepTimePicker = ({start, end}) => {
+    // const [isBedTimePickerVisible, setBedTimePickerVisibility] = useState(false);
+    // const [isWakeTimePickerVisible, setWakeTimePickerVisibility] = useState(false);
+    // const [bedTime, setBedTime] = useState(new Date());
+    // const [wakeTime, setWakeTime] = useState(new Date());
 
-    const showBedTimePicker = () => {
-        setBedTimePickerVisibility(true);
-    };
+    // const showBedTimePicker = () => {
+    //     setBedTimePickerVisibility(true);
+    // };
 
-    const hideBedTimePicker = () => {
-        setBedTimePickerVisibility(false);
-    };
+    // const hideBedTimePicker = () => {
+    //     setBedTimePickerVisibility(false);
+    // };
 
-    const handleConfirmBedTime = (date) => {
-        setBedTime(date);
-        hideBedTimePicker();
-    };
+    // const handleConfirmBedTime = (date) => {
+    //     setBedTime(date);
+    //     hideBedTimePicker();
+    // };
 
-    const showWakeTimePicker = () => {
-        setWakeTimePickerVisibility(true);
-    };
+    // const showWakeTimePicker = () => {
+    //     setWakeTimePickerVisibility(true);
+    // };
 
-    const hideWakeTimePicker = () => {
-        setWakeTimePickerVisibility(false);
-    };
+    // const hideWakeTimePicker = () => {
+    //     setWakeTimePickerVisibility(false);
+    // };
 
-    const handleConfirmWakeTime = (date) => {
-        setWakeTime(date);
-        hideWakeTimePicker();
-    };
+    // const handleConfirmWakeTime = (date) => {
+    //     setWakeTime(date);
+    //     hideWakeTimePicker();
+    // };
 
     return (
     <View style={styles.timeCtn}>
-        <TouchableOpacity style={styles.touchable} onPress={showBedTimePicker}>
+        <TouchableOpacity style={styles.touchable}>
             <Text style={styles.text}>취침 시간</Text>
-            <Text style={styles.text}>{` ${bedTime.getHours()}:${bedTime.getMinutes().toString().padStart(2, '0')}`}</Text>
+            <Text style={styles.text}>{start}</Text>
         </TouchableOpacity>
-        <DateTimePickerModal
+        {/* <DateTimePickerModal
             isVisible={isBedTimePickerVisible}
             mode="time"
             onConfirm={handleConfirmBedTime}
@@ -135,13 +222,13 @@ const SleepTimePicker = () => {
             headerTextIOS="취침 시작시간 선택"
             locale="ko_KR" 
             is24Hour={true}
-        />
+        /> */}
 
-        <TouchableOpacity style={styles.touchable} onPress={showWakeTimePicker}>
+        <TouchableOpacity style={styles.touchable}>
             <Text style={styles.text}>기상 시간</Text>
-            <Text style={styles.text}>{` ${wakeTime.getHours()}:${wakeTime.getMinutes().toString().padStart(2, '0')}`}</Text>
+            <Text style={styles.text}>{end}</Text>
         </TouchableOpacity>
-        <DateTimePickerModal
+        {/* <DateTimePickerModal
             isVisible={isWakeTimePickerVisible}
             mode="time"
             onConfirm={handleConfirmWakeTime}
@@ -149,34 +236,32 @@ const SleepTimePicker = () => {
             headerTextIOS="일어난 시간 선택"
             locale="ko_KR" 
             is24Hour={true}
-        />
+        /> */}
     </View>
     );
 };
 
 
 //일기 작성 => 저장한 일기 내용 띄우기 수정
-const DiaryEntry = () => {
-    const [diaryText, setDiaryText] = useState('');
-    const [isFocused, setIsFocused] = useState(false);
+const DiaryEntry = ({content}) => {
+    // const [diaryText, setDiaryText] = useState('');
+    // const [isFocused, setIsFocused] = useState(false);
 
     return (
         <View>
-            <TouchableOpacity style={styles.textInputWrapper} activeOpacity={1} onPress={() => setIsFocused(true)}>
-                {!isFocused && !diaryText && (
-                    <View style={styles.placeholderContainer}>
-                        <Text style={styles.titlePlaceholder}>일기내용</Text>
-                        <Text style={styles.subtitlePlaceholder}>오늘은 하늘을 나는 꿈을 꿨다. 기분이 이상했다.</Text>
-                    </View>
-                )}
-                <TextInput
+            <TouchableOpacity style={styles.textInputWrapper} activeOpacity={1}>
+                <View style={styles.placeholderContainer}>
+                    <Text style={styles.titlePlaceholder}>일기내용</Text>
+                    <Text style={styles.subtitlePlaceholder}>{content}</Text>
+                </View>
+                {/* <TextInput
                     style={styles.textInput}
                     multiline
                     onChangeText={text => setDiaryText(text)}
                     value={diaryText}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(diaryText !== '')}
-                />
+                /> */}
             </TouchableOpacity>
         </View>
     );
@@ -184,13 +269,18 @@ const DiaryEntry = () => {
 
 
 //이미지 박스
-const ImageBox = ({ source }) => {
-    const [imageSource, setImageSource] = useState(source);
+const ImageBox = ({ imageSource }) => {
+    // const [imageSource, setImageSource] = useState("");
+
+    console.log(imageSource);
 
     return (
         <View style={styles.imageCtn}>
             {imageSource ? (
-                <Image source={{ uri: imageSource }} style={styles.image} />
+                <View style={styles.imageBoxCtn}>
+                <Text style={styles.imageholder}>사진</Text>
+                 <Image src={imageSource} style={styles.image}/>
+             </View>
             ) : (
                 <View style={styles.imageBoxCtn}>
                    <Text style={styles.imageholder}>사진</Text>
@@ -203,62 +293,76 @@ const ImageBox = ({ source }) => {
 };
 
 //꾸미 분석 내용 
-const DreamInterpret = () => {
-    const [text, setText] = useState('');
+const DreamInterpret = ({interpret}) => {
+    // const [text, setText] = useState('');
 
     return (
         <View style={styles.DreamCtn}>
-            {text === '' ? (
+            {!interpret ? (
             <View style={styles.imageBoxCtn}>
                 <Text style={styles.imageholder}>꾸미 분석 내용</Text>
                  <Text style={styles.imageSubtitlePlaceholder}>아직 꿈 해몽 내용이 없어요{'\n'} 터치해서 꿈 해몽 내용을 확인해보세요! </Text>
                  <Image source = {require('../../assets/images/gummiEmpty.png')} style={styles.emptyImage}/>
              </View>
             ) : (
-                <Text style={styles.imageSubtitlePlaceholder}>{text}</Text>
+                <Text style={styles.imageSubtitlePlaceholder}>{interpret}</Text>
             )}
         </View>
     );
 }
 
 //태그 => 저장된 테그 띄우기 수정!
-const TagManager = () => {
-    const [modalVisible, setModalVisible] = useState(false);
-    const [tagText, setTagText] = useState('');
-    const [tags, setTags] = useState([]);
+const TagManager = ({tags}) => {
+    // const [modalVisible, setModalVisible] = useState(false);
+    // const [tagText, setTagText] = useState('');
+    // const [tags, setTags] = useState([]);
 
-    const addTag = () => {
-        if (tagText.trim() !== '') {
-            setTags([...tags, `#${tagText.trim()}`]);
-            setTagText(''); // 입력 필드 초기화
-            setModalVisible(false); // 모달 숨기기
-        }
-    };
+    // const addTag = () => {
+    //     if (tagText.trim() !== '') {
+    //         setTags([...tags, `#${tagText.trim()}`]);
+    //         setTagText(''); // 입력 필드 초기화
+    //         setModalVisible(false); // 모달 숨기기
+    //     }
+    // };
 
-    const removeTag = (index) => {
-        setTags(tags.filter((_, idx) => idx !== index));
-    };
+    // const removeTag = (index) => {
+    //     setTags(tags.filter((_, idx) => idx !== index));
+    // };
 
+    if (!tags) {
+        return (
+            <View style={styles.tagCtn} >
+            <Text style={styles.tags}>태그</Text>
+
+            <ScrollView horizontal style={styles.tagContainer}>
+            {/* <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+                <Text style={styles.addButtonText}>+ 추가하기</Text>
+            </TouchableOpacity> */}
+                
+            </ScrollView>
+        </View>
+        )
+    }
 
     return (
         <View style={styles.tagCtn} >
             <Text style={styles.tags} >태그</Text>
 
             <ScrollView horizontal style={styles.tagContainer}>
-            <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+            {/* <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
                 <Text style={styles.addButtonText}>+ 추가하기</Text>
-            </TouchableOpacity>
-                    {tags.map((tag, index) => (
+            </TouchableOpacity> */}
+                {tags.map((tag, index) => (
                     <View key={index} style={styles.addButton}>
                         <Text style={styles.addButtonText}>{tag}</Text>
-                        <TouchableOpacity style={styles.deleteButton} onPress={() => removeTag(index)}>
+                        {/* <TouchableOpacity style={styles.deleteButton} onPress={() => removeTag(index)}>
                             <Text style={styles.deleteButtonText}>x</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                     </View>
                 ))}
             </ScrollView>
 
-            <Modal
+            {/* <Modal
                 animationType="slide"
                 transparent={true}
                 visible={modalVisible}
@@ -282,7 +386,7 @@ const TagManager = () => {
                     </TouchableOpacity>
                 </View>
                 </View>
-            </Modal>
+            </Modal> */}
         </View>
     );
 };
@@ -319,7 +423,7 @@ const styles = StyleSheet.create({
       flex:1,
     },
     contentContainer: {
-        flexGrow: 1, 
+        flexGrow: 1,
     },
     topCtn : {
         marginTop: 55,
@@ -358,9 +462,10 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginTop: 5,
         paddingLeft: 15,
+        paddingTop: 6,
         fontSize: 15, 
-        fontWeight: '700'
-        
+        fontWeight: '700',
+        textAlign: 'left',
     },
     centeredView: {
         flex: 1,
@@ -441,7 +546,7 @@ const styles = StyleSheet.create({
     },
     textInputWrapper: {
         width: 323, 
-        height: 140, 
+        height: 'auto', 
         backgroundColor: 'white', 
         borderRadius: 10,       
         borderColor: '#89898B',
@@ -451,11 +556,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     placeholderContainer: {
-        position: 'absolute',
         top: 0,
-        left: 10,
-        right: 10,
-        alignItems: "center",
+        height: 'auto',
+        alignItems: 'center',
     },
     titlePlaceholder: {
         fontSize: 14,
@@ -510,6 +613,10 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         textAlign: 'center'
     },
+    image:{
+        width: 200,
+        height: 200,
+    },
     emptyImage:{
         width: 100, 
         height: 140, 
@@ -543,13 +650,13 @@ const styles = StyleSheet.create({
     },
 
     addButton: {
-        width: 90, 
+        width: 88, 
         height: 30,
         backgroundColor: '#C1C7F8',
-        paddingHorizontal: 15,
-        paddingVertical: 6,
-        borderRadius: 5,
-        marginRight: 8
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft:7,
     },
     addButtonText: {
         color: 'white',
@@ -571,7 +678,7 @@ const styles = StyleSheet.create({
     tagContainer: {
         marginTop: 10,
         minHeight: 40,
-        marginLeft: 25,
+        marginLeft: 10,
     },
     centeredView: {
         flex: 1,
