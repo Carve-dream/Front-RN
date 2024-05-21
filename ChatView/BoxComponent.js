@@ -1,4 +1,5 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState,useEffect, useCallback } from 'react';
+import { useNavigation, useFocusEffect  } from '@react-navigation/native';
 import { View, Text, StyleSheet } from 'react-native';
 import { fetchUserData } from '../api/userData';
 
@@ -7,15 +8,19 @@ const BoxComponent = () => {
 
     const [userName, setUserName] = useState('');
 
-    useEffect(() => {
-        const init = async () => {
-            const data = await fetchUserData();
-            console.log(data.information.name);
-            setUserName(data.information.name);
-            setEmail(data.information.email);
-        };
+    const loadUserData = async () => {
+        const data = await fetchUserData();
+        setUserName(data.information.name);
+    };
 
-        init();
+    useFocusEffect(
+        useCallback(() => {
+            loadUserData();
+        }, [])
+    );
+
+    useEffect(() => {
+        loadUserData();
     }, []);
 
     return (
