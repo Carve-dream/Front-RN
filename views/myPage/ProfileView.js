@@ -2,7 +2,7 @@ import React, { useCallback , useEffect , useState} from 'react';
 import { View, Text, StyleSheet, Image, Dimensions, StatusBar, TouchableOpacity, TextInput, SafeAreaView } from 'react-native';
 import { useNavigation, useFocusEffect  } from '@react-navigation/native';
 import ProfileTopBar from './ProfileTopBar';
-import { fetchUserData } from '../../api/userData';
+import { fetchUserData } from '../../api/fetchUserData';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
