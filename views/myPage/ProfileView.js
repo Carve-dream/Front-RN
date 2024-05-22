@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useCallback , useEffect , useState} from 'react';
 import { View, Text, StyleSheet, Image, Dimensions, StatusBar, TouchableOpacity, TextInput, SafeAreaView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect  } from '@react-navigation/native';
 import ProfileTopBar from './ProfileTopBar';
+import { fetchUserData } from '../../api/userData';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -13,6 +14,31 @@ const ProfileView = ({ title }) => {
     const ConfirmPress = () => {
         navigation.navigate('MyPageView')
     };
+    const [userName, setUserName] = useState('');
+    const [email, setEmail] = useState('');
+    const [birthDate, setBirth] = useState('');
+    const [createdDate, setDate] = useState('');
+    const [gender, setGender] = useState('');
+
+    const loadUserData = async () => {
+        const data = await fetchUserData();
+        setUserName(data.information.name);
+        setEmail(data.information.email);
+        setBirth(data.information.birthDate);
+        setDate(data.information.createdDate.split('T')[0]); // YYYY-MM-DD 형식으로 변환
+        setGender(data.information.gender);
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            loadUserData();
+        }, [])
+    );
+
+    useEffect(() => {
+        loadUserData();
+    }, []);
+
 
     //유저 정보에 따라 프로필 사진, 이름, 생년월일, 성별, 이메일 주소, 가입 날짜 수정
     return (
@@ -26,7 +52,7 @@ const ProfileView = ({ title }) => {
                 <View>
                     <Text style={styles.text}>이름</Text>
                     <View style={styles.inputContainer}>
-                        <Text style={styles.input}>김꾸미</Text>
+                        <Text style={styles.input}>{userName}</Text>
                     </View>
 
                     <View style={{ flexDirection: 'row' }}>
@@ -36,25 +62,27 @@ const ProfileView = ({ title }) => {
 
                     <View style={{ flexDirection: 'row' }}>
                         <View style={styles.inputContainer}>
-                            <Text style={styles.birthInput}>2000/01/01</Text>
+                            <Text style={styles.birthInput}>{birthDate}</Text> 
                         </View>
 
-                        <View style={styles.genderButton}>
-                            <Text style={styles.genderText}>남성</Text>
+                        <View style={[styles.genderButton, gender === 'MALE' && styles.selectedGender]}>
+                            <Text style={[styles.genderText, gender === 'MALE' && styles.selectedGenderText]}>남성</Text>
                         </View>
-                        <View style={styles.genderButton}>
-                            <Text style={styles.genderText}>여성</Text>
+
+                        {/* 여성 버튼 */}
+                        <View style={[styles.genderButton, gender === 'FEMALE' && styles.selectedGender]}>
+                            <Text style={[styles.genderText, gender === 'FEMALE' && styles.selectedGenderText]}>여성</Text>
                         </View>
                     </View>
 
                     <Text style={styles.text}>이메일 주소</Text>
                     <View style={styles.inputContainer}>
-                        <Text style={styles.input}>abc@gmail.com</Text>
+                        <Text style={styles.input}>{email}</Text>
                     </View>
 
                     <Text style={styles.text}>가입한 날짜</Text>
                     <View style={styles.inputContainer}>
-                        <Text style={styles.input}>2024/04/08</Text>
+                        <Text style={styles.input}>{createdDate}</Text>
                     </View>
                 </View>
 
@@ -141,11 +169,11 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         color: 'white',
-        fontSize: 18,
+        fontSize: 17,
     },
     birthInput: {
         color: 'white',
-        fontSize: 18,
+        fontSize: 16,
         marginRight: 20,
         width: 90,
     },

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect, useCallback  } from 'react';
 import { View, Text, StyleSheet,ImageBackground, Image, Dimensions, StatusBar, TouchableOpacity, TextInput, SafeAreaView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect  } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
+import { fetchUserData } from '../../api/userData';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -18,6 +19,25 @@ const MyPageView = ({ title }) => {
         navigation.navigate('FortuneRecordView')
     };
 
+    const [userName, setUserName] = useState('');
+    const [email, setEmail] = useState('');
+
+    const loadUserData = async () => {
+        const data = await fetchUserData();
+        setUserName(data.information.name);
+        setEmail(data.information.email);
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            loadUserData();
+        }, [])
+    );
+
+    useEffect(() => {
+        loadUserData();
+    }, []);
+
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.container}>
@@ -27,10 +47,9 @@ const MyPageView = ({ title }) => {
                 <TouchableOpacity onPress={handleProfilePress} style={styles.button}>
                     <View style={styles.profileContainer}>
                         <Image source={require('../../assets/images/basic-profile.png')} style={styles.profileImage} />
-                        {/*유저 이름, 이메일 수정*/}
                         <View>
-                            <Text style={styles.name}>김꾸미 님의 프로필</Text>
-                            <Text style={styles.email}>abc@gmail.com</Text>
+                            <Text style={styles.name}>{userName} 님의 프로필</Text>
+                            <Text style={styles.email}>{email}</Text>
                         </View>
                     </View>
                 </TouchableOpacity>
@@ -38,7 +57,7 @@ const MyPageView = ({ title }) => {
 
                 <View style={styles.fortuneBox}>
                     <Image source={require('../../assets/images/fortune.png')} style={styles.fortuneImage}/>
-                    <Text style={styles.fortuneUser}>김꾸미 님의 포춘쿠키</Text>
+                    <Text style={styles.fortuneUser}>{userName} 님의 포춘쿠키</Text>
 
                     <ImageBackground
                         source = {require('../../assets/images/foutuneResultText.png') }

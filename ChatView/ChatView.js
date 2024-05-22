@@ -4,20 +4,38 @@ import Input from './Input';
 import Button from './Button';
 import Message from './Message';
 import BoxComponent from './BoxComponent';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { checkToken, getToken } from '../ManageToken';
+import { useFocusEffect  } from '@react-navigation/native';
+import { fetchUserData } from '../api/userData';
 
-
-const ChatView = ({ navigation, name }) => {
+const ChatView = ({ navigation }) => {
   StatusBar.setBarStyle('light-content');
 
   //날짜 표시
   const [messages, setMessages] = useState([
     { id: 'date', text: formatDate(new Date()), sender: 'date' }
   ]);
+  const [userName, setUserName] = useState('');
 
+  const loadUserData = async () => {
+      const data = await fetchUserData();
+      setUserName(data.information.name);
+  };
+
+  useFocusEffect(
+      useCallback(() => {
+          loadUserData();
+      }, [])
+  );
+
+  // useEffect(() => {
+  //     loadUserData();
+  // }, []);
 
   //채팅창 실행시 환영 인사
   useEffect(() => {
+    loadUserData();
     const timer1 = setTimeout(() => {
       setMessages(prevMessages => [...prevMessages, {
         id: '0',
@@ -30,7 +48,7 @@ const ChatView = ({ navigation, name }) => {
     const timer2 = setTimeout(() => {
       setMessages(prevMessages => [...prevMessages, {
         id: '1',
-        text: `${name}님의 무의식 속으로 탐험을 떠나볼까요?`,
+        text: `${userName}님의 무의식 속으로 탐험을 떠나볼까요?`,
         sender: 'other'
       }]);
     }, 2000); // 2초 후 두 번째 메시지 추가
@@ -52,11 +70,11 @@ const ChatView = ({ navigation, name }) => {
       clearTimeout(timer3);
 
     };
-  }, [name]); // `name`이 변경될 때마다 useEffect 재실행
+  }, [userName]);
 
 
   // chat gpt api 연동
-  const sendMessage = (question) => {
+  const sendMessage = async (question) => {
 
     // 사용자가 메시지를 보냄
     if (question.trim().length > 0) {
@@ -74,37 +92,36 @@ const ChatView = ({ navigation, name }) => {
         loadingMessage // 로딩 이미지 추가
       ]);
 
-      const accessToken = '"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMSIsImlhdCI6MTcxNDUyODgwNSwiZXhwIjoxNzE0NTMyNDA1fQ.V8DNmGszqT63Vwlh3yX_7yHwch-Ca6n8Natl3u9L7hUXIDCHr1970GLJKZO2GE6pDVkN3fUq5z_MohT_Jsotjg';
       console.log(`Sending question: ${question}`);
-      fetch('http://carvedrem.kro.kr:8080/api/gptChat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({ question: question }),
-      })
-
-        .then(response => response.json())
-
-        .then(data => {
-          console.log(data);
-          console.log(data.information.answer);
-          if (question == '꿈일기 불러오기') {
-            data.information.answer = <BoxComponent />;
-          } //꿈일기 목록 불러오기
-
-          // 상대방 응답 메시지 추가
-          setMessages(messages => messages.filter(message => message.id !== loadingMessage.id)
-            .concat({ id: Date.now().toString(), text: data.information.answer, sender: 'other' }));
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          setMessages(messages => messages.filter(message => message.id !== loadingMessage.id));
+      await checkToken();
+      token = await getToken();
+      try {
+        const response = await fetch('http://carvedrem.kro.kr:8080/api/gptChat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token[0]}`,
+          },
+          body: JSON.stringify({ question: question }),
         });
+
+        const data = await response.json();
+        console.log(data);
+        console.log(data.information.answer);
+
+        if (question == '꿈일기 불러오기') {
+          data.information.answer = <BoxComponent />;
+        } //꿈일기 목록 불러오기
+
+        // 상대방 응답 메시지 추가
+        setMessages(messages => messages.filter(message => message.id !== loadingMessage.id)
+          .concat({ id: Date.now().toString(), text: data.information.answer, sender: 'other' }));
+
+      } catch (error) {
+        console.error('Error:', error);
+        setMessages(messages => messages.filter(message => message.id !== loadingMessage.id));
+      }
     }
-
-
   }
 
   // FlatList ref 생성
@@ -137,8 +154,8 @@ const ChatView = ({ navigation, name }) => {
           }}
           style={styles.chatContainer}
           contentContainerStyle={{ paddingBottom: 30 }}
-          onContentSizeChange={() => setTimeout(()=>flatListRef.current.scrollToEnd({ animated: true }), 1)}
-          onLayout={() => setTimeout(()=>flatListRef.current.scrollToEnd({ animated: true }), 1)}
+          onContentSizeChange={() => setTimeout(() => flatListRef.current.scrollToEnd({ animated: true }), 1)}
+          onLayout={() => setTimeout(() => flatListRef.current.scrollToEnd({ animated: true }), 1)}
         />
 
         {/* 메세지 보내기 입력창 */}
