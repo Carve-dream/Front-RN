@@ -1,7 +1,9 @@
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import { View,Text,Image,StyleSheet, Dimensions, ImageBackground } from 'react-native';
 import TopBar from '../../ChatView/TopBar';
 import { LinearGradient } from 'expo-linear-gradient';
+import {useFocusEffect } from '@react-navigation/native';
+import { fetchUserData } from '../../api/userData';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height; 
@@ -9,6 +11,23 @@ const screenHeight = Dimensions.get('window').height;
 // 쿠키 화면 컴포넌트
 const FortuneResult = ({route}) => {
   const { fortune } = route.params;
+  const [userName, setUserName] = useState('');
+
+  const loadUserData = async () => {
+      const data = await fetchUserData();
+      setUserName(data.information.name);
+  };
+
+  useFocusEffect(
+      useCallback(() => {
+          loadUserData();
+      }, [])
+  );
+
+  useEffect(() => {
+      loadUserData();
+  }, []);
+
   return (
     <LinearGradient
         colors={['rgba(41, 32, 100, 0.80)', 'rgba(203, 157, 221, 0.80)', 'rgba(244, 191, 168, 0.80)', 'rgba(255, 255, 255, 0.80)']}
@@ -20,7 +39,7 @@ const FortuneResult = ({route}) => {
 
         <View style={styles.textCtn}>
           {/*사용자 이름 연결 */}
-          <Text style={styles.uesrText} >  00님을 위한 오늘의 포춘쿠키 </Text>
+          <Text style={styles.uesrText} >  {userName}님을 위한 오늘의 포춘쿠키 </Text>
           <CurrentDateDisplay/>
         </View>
 

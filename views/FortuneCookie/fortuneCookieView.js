@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import { View,Text,Image,TouchableOpacity,StyleSheet, Dimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { checkToken, getToken } from '../../ManageToken';
+import { fetchUserData } from '../../api/userData';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height; 
@@ -11,7 +12,22 @@ const screenHeight = Dimensions.get('window').height;
 // 쿠키 화면 컴포넌트
 const CookieView = () => {
   const navigation = useNavigation();
+  const [userName, setUserName] = useState('');
 
+  const loadUserData = async () => {
+      const data = await fetchUserData();
+      setUserName(data.information.name);
+  };
+
+  useFocusEffect(
+      useCallback(() => {
+          loadUserData();
+      }, [])
+  );
+
+  useEffect(() => {
+      loadUserData();
+  }, []);
 
   const fetchFortuneCookie = async () => {
     await checkToken();
@@ -49,7 +65,7 @@ const CookieView = () => {
 
         <View style={styles.textCtn}>
           {/*사용자 이름 연결 */}
-          <Text style={styles.uesrText} >  00님을 위한 오늘의 포춘쿠키 </Text>
+          <Text style={styles.uesrText} >  {userName}님을 위한 오늘의 포춘쿠키 </Text>
           <CurrentDateDisplay/>
         </View>
 
