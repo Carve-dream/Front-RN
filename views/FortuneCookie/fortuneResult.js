@@ -7,8 +7,8 @@ const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height; 
 
 // 쿠키 화면 컴포넌트
-const FortuneResult = () => {
-
+const FortuneResult = ({route}) => {
+  const { fortune } = route.params;
   return (
     <LinearGradient
         colors={['rgba(41, 32, 100, 0.80)', 'rgba(203, 157, 221, 0.80)', 'rgba(244, 191, 168, 0.80)', 'rgba(255, 255, 255, 0.80)']}
@@ -30,12 +30,9 @@ const FortuneResult = () => {
                 source = {require('../../assets/images/foutuneResultText.png')}
                 style={styles.fortuneResult}>
                     {/*포춘쿠키 결과 텍스트 연결 */}
-                    <Text style={styles.fortuneText}>마음을 편하게 먹고 조급해하지 마세요</Text>
+                    <Text style={styles.fortuneText}>{fortune.answer}</Text>
             </ImageBackground>
-            
         </View>
-        
-
       </LinearGradient>
             
   );

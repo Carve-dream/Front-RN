@@ -3,7 +3,7 @@ import { View,Text,Image,TouchableOpacity,StyleSheet, Dimensions } from 'react-n
 import { useNavigation } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
 import { LinearGradient } from 'expo-linear-gradient';
-
+import { checkToken, getToken } from '../../ManageToken';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height; 
@@ -11,6 +11,32 @@ const screenHeight = Dimensions.get('window').height;
 // 쿠키 화면 컴포넌트
 const CookieView = () => {
   const navigation = useNavigation();
+
+
+  const fetchFortuneCookie = async () => {
+    await checkToken();
+    token = await getToken()
+    try {
+      const response = await fetch('http://carvedrem.kro.kr:8080/api/fortune', {
+        method: 'POST', 
+        headers: {
+          'Authorization': `Bearer ${token[0]}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      return data;  
+
+    } catch (error) {
+      console.error('Error fetching fortune cookie:', error);
+        return 'Error retrieving fortune.';
+    }
+  };
+
+  const handlePress = async () => {
+    const fortune = await fetchFortuneCookie();
+    navigation.navigate('fortuneResult', { fortune });
+  };
 
   return (
     <LinearGradient
@@ -27,7 +53,7 @@ const CookieView = () => {
           <CurrentDateDisplay/>
         </View>
 
-        <TouchableOpacity style={styles.BtnCtn} onPress={() => navigation.navigate('fortuneResult')}>
+        <TouchableOpacity style={styles.BtnCtn} onPress={handlePress}>
             <Image source = {require('../../assets/images/fortuneGummi.png')} style={styles.fortuneImage}/>
             <Text style={styles.fortuneText}>터치해서 오늘의 포춘쿠키 확인하기</Text>
         </TouchableOpacity>
