@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import { View,Text,Image,TouchableOpacity,StyleSheet, Dimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
 import { LinearGradient } from 'expo-linear-gradient';
-
+import { checkToken, getToken } from '../../ManageToken';
+import { fetchUserData } from '../../api/userData';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height; 
@@ -11,6 +12,47 @@ const screenHeight = Dimensions.get('window').height;
 // 쿠키 화면 컴포넌트
 const CookieView = () => {
   const navigation = useNavigation();
+  const [userName, setUserName] = useState('');
+
+  const loadUserData = async () => {
+      const data = await fetchUserData();
+      setUserName(data.information.name);
+  };
+
+  useFocusEffect(
+      useCallback(() => {
+          loadUserData();
+      }, [])
+  );
+
+  useEffect(() => {
+      loadUserData();
+  }, []);
+
+  const fetchFortuneCookie = async () => {
+    await checkToken();
+    token = await getToken()
+    try {
+      const response = await fetch('http://carvedrem.kro.kr:8080/api/fortune', {
+        method: 'POST', 
+        headers: {
+          'Authorization': `Bearer ${token[0]}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      return data;  
+
+    } catch (error) {
+      console.error('Error fetching fortune cookie:', error);
+        return 'Error retrieving fortune.';
+    }
+  };
+
+  const handlePress = async () => {
+    const fortune = await fetchFortuneCookie();
+    navigation.navigate('fortuneResult', { fortune });
+  };
 
   return (
     <LinearGradient
@@ -23,11 +65,11 @@ const CookieView = () => {
 
         <View style={styles.textCtn}>
           {/*사용자 이름 연결 */}
-          <Text style={styles.uesrText} >  00님을 위한 오늘의 포춘쿠키 </Text>
+          <Text style={styles.uesrText} >  {userName}님을 위한 오늘의 포춘쿠키 </Text>
           <CurrentDateDisplay/>
         </View>
 
-        <TouchableOpacity style={styles.BtnCtn} onPress={() => navigation.navigate('fortuneResult')}>
+        <TouchableOpacity style={styles.BtnCtn} onPress={handlePress}>
             <Image source = {require('../../assets/images/fortuneGummi.png')} style={styles.fortuneImage}/>
             <Text style={styles.fortuneText}>터치해서 오늘의 포춘쿠키 확인하기</Text>
         </TouchableOpacity>
