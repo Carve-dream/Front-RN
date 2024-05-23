@@ -22,7 +22,6 @@ import SignIn from './views/LoginView/SignIn';
 import SignUpAcc from './views/SignUpView/SignupAcc'
 import SignUpInfo from './views/SignUpView/SignupInfo';
 import SignupComplete from './views/SignUpView/SignupComplete';
-import fortuneResult from './views/FortuneCookie/fortuneResult';
 import MyPageView from './views/myPage/MyPageView';
 import ProfileView from './views/myPage/ProfileView';
 import ProfileEditView from './views/myPage/ProfileEditView';
@@ -82,7 +81,6 @@ function AppStack() {
     return(
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="CookieView" component={CookieView}  options={{ headerShown: false }}/>
-        <Stack.Screen name="fortuneResult" component={fortuneResult}  options={{ headerShown: false }}/>
       </Stack.Navigator>
     );
   }

@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import { View,Text,Image,TouchableOpacity,StyleSheet, Dimensions } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { View,Text,Image,TouchableOpacity,StyleSheet, Dimensions, ImageBackground } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { checkToken, getToken } from '../../ManageToken';
@@ -11,7 +11,6 @@ const screenHeight = Dimensions.get('window').height;
 
 // 쿠키 화면 컴포넌트
 const CookieView = () => {
-  const navigation = useNavigation();
   const [userName, setUserName] = useState('');
 
   const loadUserData = async () => {
@@ -41,7 +40,8 @@ const CookieView = () => {
         },
       });
       const data = await response.json();
-      return data;  
+      
+      return data;
 
     } catch (error) {
       console.error('Error fetching fortune cookie:', error);
@@ -49,9 +49,20 @@ const CookieView = () => {
     }
   };
 
+  const [isTouched, setIsTouched] = useState(false);
+  const [fortune, setFortune] = useState("");
+
   const handlePress = async () => {
-    const fortune = await fetchFortuneCookie();
-    navigation.navigate('fortuneResult', { fortune });
+    const fetch = await fetchFortuneCookie();
+    console.log(fetch);
+    if (fetch.information.content) {
+      console.log("포춘 생성 완료");
+      setFortune(fetch.information.content);
+    } else {
+      setFortune(fetch.information.answer);
+    }
+    setIsTouched(true);
+    // navigation.navigate('fortuneResult', { fortune: fortune });
   };
 
   return (
@@ -65,23 +76,30 @@ const CookieView = () => {
 
         <View style={styles.textCtn}>
           {/*사용자 이름 연결 */}
-          <Text style={styles.uesrText} >  {userName}님을 위한 오늘의 포춘쿠키 </Text>
+          <Text style={styles.uesrText} >{userName}님을 위한 오늘의 포춘쿠키 </Text>
           <CurrentDateDisplay/>
         </View>
 
-        <TouchableOpacity style={styles.BtnCtn} onPress={handlePress}>
-            <Image source = {require('../../assets/images/fortuneGummi.png')} style={styles.fortuneImage}/>
+        {!isTouched ? (
+          <TouchableOpacity style={styles.BtnCtn} onPress={handlePress}>
+            <Image source={require('../../assets/images/fortuneGummi.png')} style={styles.fortuneImage}/>
             <Text style={styles.fortuneText}>터치해서 오늘의 포춘쿠키 확인하기</Text>
-        </TouchableOpacity>
-        
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.BtnCtn}>
+            <Image source={require('../../assets/images/fortuneResult.png')} style={styles.fortuneImage}/>
+            <ImageBackground
+                source={require('../../assets/images/foutuneResultText.png')}
+                style={styles.fortuneResult}>
+                    {/*포춘쿠키 결과 텍스트 연결 */}
+                    <Text style={styles.fortuneText}>{fortune}</Text>
+                    
+            </ImageBackground>
+          </View>
+        )}
 
       </LinearGradient>
-            
   );
-
-
-  
-
 }
 
 
@@ -132,18 +150,29 @@ const styles = StyleSheet.create({
   fortuneImage:{
     width: 207, 
     height: 278,
-    marginBottom: 40,
+    marginBottom: 0,
   },
   fortuneText:{
     color: '#434343', 
     fontSize: 16,
     fontWeight: '700',
+    height: 'auto',
+    width: 320,
+    paddingRight: 10,
+    textAlign: 'center',
+    paddingBottom: 10,
   },
   BtnCtn: {
     alignItems: 'center', 
     justifyContent: 'center',
     flexDirection: 'column',
     marginTop: 50,
+  },
+  fortuneResult: {
+    width: 371, 
+    height: 131,
+    alignItems: 'center',
+    justifyContent: 'center',
   }
 
 });
