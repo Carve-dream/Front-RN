@@ -13,7 +13,7 @@ const makeDiaryCard = (data, navigation, fetchData) => {
         <View style={styles.card} key={data.id}>
             <TouchableOpacity style={{alignItems: 'center',}} onPress={() => navigation.navigate('DiaryDetail', {id: data.id})}>
                 <TopView data={data} navigation={navigation} fetchData={fetchData}/>
-                <Image source={data.image_url ? data.image_url : require('../../assets/images/test.png')} style={styles.image} />
+                <Image src={data.image_url ? data.image_url : require('../../assets/images/test.png')} style={styles.image} />
                 <View style={styles.infoContainer}>
                     <Text style={styles.content}>{data.content}</Text>
                 </View>
