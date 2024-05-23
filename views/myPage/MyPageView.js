@@ -1,8 +1,8 @@
 import React, { useState,useEffect, useCallback  } from 'react';
-import { View, Text, StyleSheet,ImageBackground, Image, Dimensions, StatusBar, TouchableOpacity, TextInput, SafeAreaView } from 'react-native';
+import { Alert, View, Text, StyleSheet,ImageBackground, Image, Dimensions, StatusBar, TouchableOpacity, TextInput, SafeAreaView } from 'react-native';
 import { useNavigation, useFocusEffect  } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
-import { fetchUserData } from '../../api/userData';
+import { fetchUserData, logoutUser, deleteUserAccount } from '../../api/fetchUserData';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -38,6 +38,31 @@ const MyPageView = ({ title }) => {
         loadUserData();
     }, []);
 
+    const handleLogout = async () => { //로그아웃 후 로그인화면으로 전환
+        await logoutUser();
+        navigation.navigate('LogIn');
+    }
+
+    const handleDeleteAccount = async () => { //탈퇴하기 후 로그인화면으로 전환
+        Alert.alert(
+            '정말 탈퇴하시겠습니까?',
+            '탈퇴 후 복구가 불가능합니다.',
+            [
+                {
+                    text: '취소',
+                    style: 'cancel',
+                },
+                {
+                    text: '확인',
+                    onPress: async () => {
+                        await deleteUserAccount();
+                        navigation.navigate('LogIn');
+                    },
+                },
+            ],
+            { cancelable: false }
+        );
+    };
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.container}>
@@ -82,10 +107,10 @@ const MyPageView = ({ title }) => {
                         <TouchableOpacity>
                             <Text style={styles.settingMenuText}> 서비스 설정 </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={handleLogout}>
                             <Text style={styles.settingMenuText}> 로그아웃 </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={handleDeleteAccount}>
                             <Text style={styles.settingMenuDelete}> 탈퇴하기 </Text>
                         </TouchableOpacity>
 

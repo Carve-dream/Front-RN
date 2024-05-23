@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, Dimensions, StatusBar, TouchableOpacity, TextInput, SafeAreaView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { fetchUserData } from '../../api/userData';
+import { fetchUserData } from '../../api/fetchUserData';
 import { updateUserData } from '../../api/updatedUserData';
 
 const ProfileEditView = () => {
