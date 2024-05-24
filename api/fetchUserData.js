@@ -47,7 +47,7 @@ export const logoutUser = async () => {
     }
 
     // 로그아웃이 성공하면 로컬 스토리지에서 토큰 삭제
-    await AsyncStorage.removeItem('refreshToken');
+    await AsyncStorage.getAllKeys().then(AsyncStorage.multiRemove);
 };
 
 //탈퇴하기 api
@@ -69,5 +69,5 @@ export const deleteUserAccount = async () => {
         console.log('탈퇴하기 실패');
     }
 
-    await AsyncStorage.removeItem('refreshToken');
+    await AsyncStorage.getAllKeys().then(AsyncStorage.multiRemove);
 };
