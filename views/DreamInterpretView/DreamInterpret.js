@@ -1,66 +1,100 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Dimensions,ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
+import { checkToken, getToken } from '../../ManageToken';
 
 
 const screenWidth = Dimensions.get('window').width; 
 const screenHeight = Dimensions.get('window').height; 
 
 
-const DreamInterpret = () => {
+const DreamInterpret = (data) => {
     const navigation = useNavigation();
+
+    const diary = data.route.params;
 
     return(
         <View style={styles.fullScreen}>
             <View style={styles.topCtn}>
                 <TopBar navigation={navigation} title="꿈 해몽 하기"/>
             </View>
-            <FullScreen/>
+            <FullScreen data={diary}/>
         </View>
     );
 };
 
 
+const FullScreen = ({data}) => {
 
+    const [text, setText] = useState(data.interpretation);
+    const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        const interpret = async () => {
+            setLoading(true);
+            await checkToken();
+            const [accessToken, refreshToken] = await getToken();
+            const response = fetch('http://carvedrem.kro.kr:8080/api/diary/interpretation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify({ 
+                    'content': data.content,
+                }),
+            });
+            response.then(result => result.json()).then(res => {
+                console.log(res);
+                if (res.check != null && res.check == false) {
+                    console.log("해몽 실패");
+                } else {
+                    setText(res.information.answer);
+                    console.log("해몽 성공");
+                }
+            });
+            setLoading(false);
+        }
+        interpret();
+    }, [data]);
 
-
-const FullScreen = () => {
     return(
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <View style={styles.container} contentContainerStyle={styles.contentContainer}>
         <View>
             <View style={styles.backCtn}>
                 <View style={styles.card}>
-                 <TopView/>
-                    <View style={styles.infoContainer}>
-                        <Text style={styles.content}>나는 오늘 하늘을 나는 꿈을 꿨다.{'\n'}나는 오늘 하늘을 나는 꿈을 꿨다.{'\n'}나는 오늘 하늘을 나는 꿈을 꿨다.{'\n'}</Text>
-                    </View>
-                 <View style={styles.TagCtn}>
-                     <Tag/> 
-                     <Tag/>
-                     <Tag/>
-                 </View>
-                 </View>
-                 <View style={styles.DiaryEntryCtn}>
-                    <DiaryEntry/>
-                 </View>
+                    <TopView title={data.title} date={data.date}/>
+                    <ScrollView style={styles.infoContainer}>
+                        <Text style={styles.content}>{data.content}</Text>
+                    </ScrollView>
+                    <ScrollView horizontal={true} style={styles.TagCtn} showsHorizontalScrollIndicator={false}>
+                        {data.tags.map((element, index) => {
+                            return (
+                                <Tag data={element} key={index}/> 
+                            )
+                        })}
+                    </ScrollView>
+                </View>
+                <View style={styles.DiaryEntryCtn}>
+                    <DiaryEntry interpret={[text, setText]}/>
+                </View>
              </View>
              <View style={styles.saveCtn}>
-                <SaveBtn/>
+                <SaveBtn id={data.id} interpret={[text, setText]}/>
             </View>
         </View>
-    </ScrollView>
+    </View>
     );
 }
 
 
 // 일기장 제목, 날짜
-const TopView = ({}) => {
+const TopView = ({title, date}) => {
     return (
         <View style={styles.topView}>
-            <Text style={styles.title}>오늘의 꿈 일기</Text>
-            <Text>2024.05.08</Text>
+            <Text style={styles.title}>{title}</Text>
+            <Text>{date}</Text>
         </View>
     );
 };
@@ -68,11 +102,11 @@ const TopView = ({}) => {
 
 
 //태그 컴포넌트
-const Tag = () => {
+const Tag = ({data}) => {
     return(
         <View>
             <View style={styles.tagBox} >
-                <Text style={styles.tagText}> #하늘 </Text>
+                <Text style={styles.tagText}>{data}</Text>
             </View>
         </View>
     );
@@ -80,43 +114,66 @@ const Tag = () => {
 
 
 // 꿈 해몽 내용 => 서버에서 받아와서 출력하기!
-const DiaryEntry = () => {
-    const [diaryText, setDiaryText] = useState('');
-    const [isFocused, setIsFocused] = useState(false);
+const DiaryEntry = ({interpret}) => {
+
+    const [interpretation, setInterpretation] = interpret;
 
     return (
         <View>
-            <TouchableOpacity style={styles.textInputWrapper} activeOpacity={1} onPress={() => setIsFocused(true)}>
-                {!isFocused && !diaryText && (
-                    <View style={styles.placeholderContainer}>
-                        <Text style={styles.titlePlaceholder}>꿈 해몽 내용</Text>
-                        <Text style={styles.subtitlePlaceholder}>비행기를 타는 꿈은 자유로운 마음이 투영된 것입니다.</Text>
-                    </View>
-                )}
-                <TextInput
-                    style={styles.textInput}
-                    multiline
-                    onChangeText={text => setDiaryText(text)}
-                    value={diaryText}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(diaryText !== '')}
-                />
-            </TouchableOpacity>
+            <View style={styles.textInputWrapper}>
+                <View style={styles.placeholderContainer}>
+                    <Text style={styles.titlePlaceholder}>꿈 해몽 내용</Text>
+                    <ScrollView style={styles.subtitleCtn} showsHorizontalScrollIndicator={false}>
+                        <Text style={styles.subtitlePlaceholder}>
+                            {interpretation ? 
+                            interpretation : "아직 해몽이 없습니다."}
+                        </Text>
+                    </ScrollView>
+                </View>
+            </View>
         </View>
     );
 };
 
 
 //꿈 이미지 생성하기 버튼
-const SaveBtn = () => {
+const SaveBtn = ({id, interpret}) => {
     const navigation = useNavigation();
+
+    const [text, setText] = interpret;
+
+    const handleSave = async () => {
+        await checkToken();
+        const [accessToken, refreshToken] = await getToken();
+        const response = fetch('http://carvedrem.kro.kr:8080/api/diary/interpretation', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({
+                'id': id,
+                'content': text,
+            }),
+        });
+        response.then(result => result.json()).then(res => {
+            console.log(res);
+            if (res.check != null && res.check == false) {
+                console.log("해몽 저장 실패");
+            } else {
+                console.log("해몽 저장 성공");
+                navigation.goBack();
+            }
+        });
+    }
+
     return(
         <View>
             <TouchableOpacity onPress={() => navigation.navigate('ChatView')} style={styles.confirmButton}>
                 <Text style={styles.confirmText}>꾸미와 꿈에 대해 이야기하기</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => navigation.navigate('Main')} style={styles.confirmButton}>
+            <TouchableOpacity onPress={() => {handleSave()}} style={styles.confirmButton}>
                 <Text style={styles.confirmText}>저장하기</Text>
             </TouchableOpacity>
         </View>
@@ -168,14 +225,12 @@ const styles = StyleSheet.create({
         borderRadius: 10,       
         borderColor: '#89898B',
         borderWidth: 2,
-        padding:2,
-        marginTop : -10
+        alignItems: 'center',
     },
     infoContainer: {
-        flex:1,
-        minHeight: 60,
-        minWidth: 280,
-        textAlign:'left',
+        height: 50,
+        width: 300,
+        paddingHorizontal: 10,
     },
     title: {
         textAlign: 'center', 
@@ -188,11 +243,10 @@ const styles = StyleSheet.create({
         color: '#434343', 
         fontSize: 14, 
         fontWeight: '400',
-        marginTop: 10,
-        marginLeft: 20,
+        textAlign: 'left',
     },
     topView: {
-        width: 319,
+        width: 300,
         height: 50, 
         alignItems: 'flex-start', 
         flexDirection:'column',
@@ -218,10 +272,11 @@ const styles = StyleSheet.create({
     },
     TagCtn:{
         flex:1,
-        minHeight:30,
-        minWidth:290,
+        height: 'auto',
+        width: 300,
         flexDirection: 'row',
-        marginBottom : 30
+        marginBottom : 10,
+        paddingHorizontal: 10,
     },
     textInputWrapper: {
         width: 323, 
@@ -252,6 +307,13 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#434343',
         fontWeight: '400',
+        width: 300,
+        height: 'auto',
+        textAlign: 'center',
+    },
+    subtitleCtn: {
+        width: 300,
+        height: 140,
     },
     DiaryEntryCtn: {
         marginTop:25

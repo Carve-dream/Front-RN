@@ -6,19 +6,20 @@ import { checkToken, getToken } from '../../ManageToken';
 
 const makeDiaryCard = (data, navigation, fetchData) => {
 
-    console.log(data);
-
     return (
         
         <View style={styles.card} key={data.id}>
             <TouchableOpacity style={{alignItems: 'center',}} onPress={() => navigation.navigate('DiaryDetail', {id: data.id})}>
                 <TopView data={data} navigation={navigation} fetchData={fetchData}/>
-                <Image source={data.image_url ? data.image_url : require('../../assets/images/test.png')} style={styles.image} />
+                {data.image_url ? 
+                    <Image src={data.image_url} style={styles.image} /> :
+                    <Image source={require('../../assets/images/test.png')} style={styles.image} />
+                }
                 <View style={styles.infoContainer}>
                     <Text style={styles.content}>{data.content}</Text>
                 </View>
             </TouchableOpacity>
-            <ScrollView horizontal={true} style={styles.TagCtn}>
+            <ScrollView horizontal={true} style={styles.TagCtn} showsHorizontalScrollIndicator={false}>
                 {data.tags.map((element, index) => {
                     return (
                         <Tag data={element} key={index}/> 
@@ -164,7 +165,7 @@ const TopView = ({data, navigation, fetchData}) => {
         <View style={styles.topView}>
             <Text style={styles.title}>{data.title}</Text>
             <View style={styles.btnCtn}>
-                <ModifyBtn onPress={() => navigation.navigate('DiaryModify')} imageSource={require('../../assets/images/modify.png')} />
+                <ModifyBtn onPress={() => navigation.navigate('DiaryModify', {id: data.id})} imageSource={require('../../assets/images/modify.png')} />
                 <ModifyBtn onPress={() => handleDeleteBtn(data.id, fetchData)} imageSource={require('../../assets/images/delete.png')} />
             </View>
         </View>
