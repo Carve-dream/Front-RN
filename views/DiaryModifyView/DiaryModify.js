@@ -52,25 +52,13 @@ const DiaryModify = (props) => {
     );
 };
 
-const emotionDict = {
-    "FEAR": "두려워요",
-    "YEARNING": "그리워요",
-    "JOY": "기뻐요",
-    "ANGER": "화나요",
-    "AWKWARDNESS": "찝찝해요",
-    "ABSURDITY": "황당해요",
-    "EXCITED": "흥분돼요",
-    "THRILL": "설레요",
-    "MYSTERY": "미스테리해요",
-};
-
 //전체 뷰 정리 (탑바, 저장하기 버튼)
 const FullScreen = ({data}) => {
 
     const diaryTitle = useState(null);
     const selectedEmotion = useState(null);
-    const bedTime = useState(null);
-    const wakeTime = useState(null);
+    const bedTime = useState("00:00");
+    const wakeTime = useState("00:00");
     const diaryText = useState(null);
     const imageSource = useState(null);
     const text = useState(null);
@@ -82,7 +70,7 @@ const FullScreen = ({data}) => {
     useEffect(() => {
         if (data) {
             diaryTitle[1](data.title);
-            selectedEmotion[1](data.emotion ? emotionDict[data.emotion] : null);
+            selectedEmotion[1](data.emotion);
             bedTime[1](data.start_sleep);
             wakeTime[1](data.end_sleep);
             diaryText[1](data.content);
@@ -109,7 +97,7 @@ const FullScreen = ({data}) => {
     return(
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         <View style={styles.mainBoxCtn}>
-            <MainBoard setter={setter}/>
+            <MainBoard setter={setter} data={data}/>
         </View>
         <View style={styles.saveCtn}>
             <SaveBtn setter={setter} id={diaryId[0]} date={diaryDate[0]}/>
@@ -119,15 +107,15 @@ const FullScreen = ({data}) => {
 }
 
 //일기 수정 보드
-const MainBoard = ({setter}) => {
+const MainBoard = ({setter, data}) => {
     return(
         <View style={styles.boxCtn}>
             <View style={styles.mainBox}>
                 <DiaryTop pDiaryTitle={setter.diaryTitle} pSelectedEmotion={setter.selectedEmotion}/>
                 <SleepTimePicker pBedTime={setter.bedTime} pWakeTime={setter.wakeTime}/>
                 <DiaryEntry pDiaryText={setter.diaryText}/>
-                <ImageBox pImageSource={setter.imageSource}/>
-                <DreamInterpret pText={setter.text}/>
+                <ImageBox pImageSource={setter.imageSource} data={data}/>
+                <DreamInterpret pText={setter.text} data={data}/>
                 <TagManager pTags={setter.tags}/>
                 
             </View>
@@ -138,6 +126,18 @@ const MainBoard = ({setter}) => {
 
 //제목, 오늘의 감정
 const DiaryTop = ({pDiaryTitle, pSelectedEmotion}) => {
+
+    const emotionDict = {
+        "FEAR": "두려워요",
+        "YEARNING": "그리워요",
+        "JOY": "기뻐요",
+        "ANGER": "화나요",
+        "AWKWARDNESS": "찝찝해요",
+        "ABSURDITY": "황당해요",
+        "EXCITED": "흥분돼요",
+        "THRILL": "설레요",
+        "MYSTERY": "미스테리해요",
+    };
 
     const emotions = [
         { text: '설레요', image: require('../../assets/emoji/happy.png') },
@@ -203,7 +203,7 @@ const SleepTimePicker = ({pBedTime, pWakeTime}) => {
     };
 
     const handleConfirmBedTime = (date) => {
-        setBedTime(date);
+        setBedTime(` ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`);
         hideBedTimePicker();
     };
 
@@ -216,7 +216,7 @@ const SleepTimePicker = ({pBedTime, pWakeTime}) => {
     };
 
     const handleConfirmWakeTime = (date) => {
-        setWakeTime(date);
+        setWakeTime(` ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`);
         hideWakeTimePicker();
     };
 
@@ -288,8 +288,44 @@ const ModifyBtn = ({ onPress, imageSource }) => {
     );
 };
 
+const deleteImgIpt = async (mode, id) => {
+
+    let dest;
+
+    if (mode == 'image') {
+        dest = {
+            'id': id,
+            'url': null,
+        }
+    } else {
+        dest = {
+            'id': id,
+            'content': null,
+        }
+    }
+
+    await checkToken();
+    const [accessToken, refreshToken] = await getToken();
+    const response = fetch('http://carvedrem.kro.kr:8080/api/diary/' + mode, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(dest),
+    });
+    response.then(result => result.json()).then(res => {
+        console.log(res);
+        if (res.check != null && res.check == false) {
+            console.log(mode + " 삭제 실패");
+        } else {
+            console.log(mode + " 삭제 성공");
+        }
+    });
+}
+
 //이미지 박스
-const ImageBox = ({ pImageSource }) => {
+const ImageBox = ({ pImageSource, data }) => {
     const [imageSource, setImageSource] = pImageSource;
     const [modalVisible, setModalVisible] = useState(false);
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -301,9 +337,10 @@ const ImageBox = ({ pImageSource }) => {
         navigation.navigate('DiaryImageProduce', data)
     };
 
-    const handleDelete = () => {
+    const handleDelete = async (id) => {
         // 삭제 로직
         setDeleteModalVisible(false);
+        await deleteImgIpt('image', id);
         setImageSource(null);
     };
 
@@ -366,7 +403,7 @@ const ImageBox = ({ pImageSource }) => {
 
                         <Text style={styles.modalText}>꿈 사진을 삭제하시겠습니까? {'\n'}{'\n'} 한 번 삭제한 사진은 다시 복구가 불가능해요!</Text>
                         <View style={styles.modalButtonGroup}>
-                            <TouchableOpacity style={styles.modalButtonCheck} onPress={handleDelete}>
+                            <TouchableOpacity style={styles.modalButtonCheck} onPress={() => handleDelete(data.id)}>
                                 <Text style={styles.modalButtonText}>확인</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.modalButtonCancel} onPress={() => setDeleteModalVisible(false)}>
@@ -383,7 +420,7 @@ const ImageBox = ({ pImageSource }) => {
 
 
 //꾸미 분석 내용 
-const DreamInterpret = ({pText}) => {
+const DreamInterpret = ({pText, data}) => {
     const [text, setText] = pText;
     const [modalVisible, setModalVisible] = useState(false);
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -392,12 +429,13 @@ const DreamInterpret = ({pText}) => {
     const handleModify = () => {
         // 해몽 수정 로직
         setModalVisible(false);
-        navigation.navigate('DreamInterpret')
+        navigation.navigate('DreamInterpret', data)
         
     };
-    const handleDelete = () => {
+    const handleDelete = async (id) => {
         // 해몽 삭제 로직
         setDeleteModalVisible(false);
+        await deleteImgIpt('interpretation', id);
         setText(null);
     };
     
@@ -414,9 +452,7 @@ const DreamInterpret = ({pText}) => {
                     </View>
                 </View>
                 {text ? (
-                    <ScrollView style={styles.interpretCtn}>
-                        <Text style={styles.interpretText}>{text}</Text>
-                    </ScrollView>
+                    <Text style={styles.interpretText}>{text}</Text>
                 ) : (
                     <>
                         <Text style={styles.imageSubtitlePlaceholder}>꾸미 분석 내용이 존재하지 않아요</Text>
@@ -463,7 +499,7 @@ const DreamInterpret = ({pText}) => {
 
                         <Text style={styles.modalText}>꾸미 분석 내용을 삭제하시겠습니까? {'\n'}{'\n'} 한 번 삭제한 분석은 다시 복구가 불가능해요!</Text>
                         <View style={styles.modalButtonGroup}>
-                            <TouchableOpacity style={styles.modalButtonCheck} onPress={handleDelete}>
+                            <TouchableOpacity style={styles.modalButtonCheck} onPress={() => {handleDelete(data.id)}}>
                                 <Text style={styles.modalButtonText}>확인</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.modalButtonCancel} onPress={() => setDeleteModalVisible(false)}>
@@ -796,7 +832,6 @@ const styles = StyleSheet.create({
  
     imageBoxCtn: {
         width: 325, 
-        height: 280, 
         backgroundColor: 'white', 
         borderRadius: 10,       
         borderColor: '#89898B',
