@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TextInput, TouchableOpacity, ScrollView, Modal, StyleSheet, Dimensions} from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import EmotionPickerModal from '../DiaryWriteView/EmotionModal';
-import { checkToken, getToken } from '../../ManageToken';
+import { fetchDiaryData } from '../../api/fetchDiaryData';
 
 const screenWidth = Dimensions.get('window').width; 
 const screenHeight = Dimensions.get('window').height; 
@@ -16,36 +14,16 @@ const DiaryDetail = (props) => {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState(null);
 
-    async function fetchData(id) {
-        await checkToken();
-        token = await getToken();
-    
-        const response = await fetch('http://carvedrem.kro.kr:8080/api/diary/' + id, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token[0]}`,
-            },
-        });
-        
-        const ret = await response.json();
-
-        console.log(ret);
-    
-        if (ret.check == null || ret.check == true) {
-            setData(ret);
-            console.log("데이터 불러오기 성공");
-            setLoading(false);
-        } else {
-            console.log("데이터 불러오기 실패");
-        }
-    }
-
     const isFocused = useIsFocused();
 
     useEffect(() => {
+        const getData = async (id) => {
+            const tmp = await fetchDiaryData(id);
+            setData(tmp);
+            setLoading(false);
+        }
         if (isFocused) {
-            fetchData(props.route.params.id);
+            getData(props.route.params.id);
         }
     }, [isFocused])
 
@@ -55,7 +33,7 @@ const DiaryDetail = (props) => {
                 <View style={styles.topCtn}>
                     <TopBar navigation={navigation} title="0000-00-00"/>
                 </View>
-                <FullScreen/>
+                <FullScreen data={null}/>
             </View>
         );
     }
@@ -79,7 +57,7 @@ const FullScreen = ({data}) => {
                 <MainBoard data={data}/>
             </View>
             <View style={styles.saveCtn}>
-                    <SaveBtn/>
+                    <SaveBtn data={data}/>
             </View>
         </ScrollView>
     );
@@ -272,8 +250,6 @@ const DiaryEntry = ({content}) => {
 const ImageBox = ({ imageSource }) => {
     // const [imageSource, setImageSource] = useState("");
 
-    console.log(imageSource);
-
     return (
         <View style={styles.imageCtn}>
             {imageSource ? (
@@ -348,7 +324,7 @@ const TagManager = ({tags}) => {
         <View style={styles.tagCtn} >
             <Text style={styles.tags} >태그</Text>
 
-            <ScrollView horizontal style={styles.tagContainer}>
+            <ScrollView horizontal style={styles.tagContainer} showsHorizontalScrollIndicator={false}>
             {/* <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
                 <Text style={styles.addButtonText}>+ 추가하기</Text>
             </TouchableOpacity> */}
@@ -393,19 +369,23 @@ const TagManager = ({tags}) => {
 
 
 //꿈 이미지 생성하기, 꿈 해몽하기 버튼
-const SaveBtn = () => {
+const SaveBtn = ({data}) => {
     const navigation = useNavigation();
-    return(
-        <View>
-            <TouchableOpacity onPress={() => navigation.navigate('DiaryImageStack')} style={styles.confirmButton}>
-                <Text style={styles.confirmText}>꿈 이미지 생성하기</Text>
-            </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => navigation.navigate('DreamInterpret')} style={styles.confirmButton}>
-                <Text style={styles.confirmText}>꿈 해몽하기</Text>
-            </TouchableOpacity>
-        </View>
-    );
+    if (data) {
+        return(
+            <View>
+                <TouchableOpacity onPress={() => navigation.navigate('DiaryImageProduce', data)} style={styles.confirmButton}>
+                    <Text style={styles.confirmText}>꿈 이미지 생성하기</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => navigation.navigate('DreamInterpret', data)} style={styles.confirmButton}>
+                    <Text style={styles.confirmText}>꿈 해몽하기</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
+    
 }
 
 
@@ -531,7 +511,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
         padding: 10,
         marginBottom:20,
-        marginRight: 30
     },
     text: {
         fontSize: 15, 
@@ -542,6 +521,9 @@ const styles = StyleSheet.create({
     },
     timeCtn:{
         flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: 320,
+        marginHorizontal: 'auto',
         margin:5,
     },
     textInputWrapper: {
@@ -571,6 +553,8 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#333333',
         fontWeight: '500',
+        lineHeight: 14,
+        width: 300,
     },
 
 

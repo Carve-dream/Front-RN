@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text,Image, TextInput, TouchableOpacity, ScrollView, Modal, StyleSheet, Dimensions} from 'react-native';
+import { View, Text,Image, TextInput, TouchableOpacity, ScrollView, Modal, StyleSheet, Dimensions, TouchableWithoutFeedback, Keyboard} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -14,14 +14,16 @@ const DiaryWrite = () => {
     const navigation = useNavigation();
 
     return(
-        <View style={styles.container}>
-            <View style={styles.mainBoxCtn}>
-                <View style={styles.topCtn}>
-                    <TopBar navigation={navigation} title="꿈 일지 작성하기"  />
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={styles.container}>
+                <View style={styles.mainBoxCtn}>
+                    <View style={styles.topCtn}>
+                        <TopBar navigation={navigation} title="꿈 일지 작성하기"  />
+                    </View>
+                    <MainBoard/>
                 </View>
-                <MainBoard/>
             </View>
-        </View>
+        </TouchableWithoutFeedback>
     );
 };
 
@@ -101,12 +103,12 @@ const DiaryTop = (state) => {
 
     return (
         <View style={styles.diaryTopCtn}>
-            <View style={styles.dateCtn}>
+            <TouchableOpacity style={styles.dateCtn} onPress={showDatePicker}>
                     <Text style={styles.date} >{formatDate(date)}</Text>
-                     <TouchableOpacity title={formatDate(date)} onPress={showDatePicker}>
+                     <View title={formatDate(date)}>
                          <Text style={styles.toggleIcon}>▼</Text>
-                     </TouchableOpacity>
-            </View>
+                     </View>
+            </TouchableOpacity>
                 <DateTimePickerModal
                     isVisible={isDatePickerVisible}
                     mode="date"
@@ -212,27 +214,22 @@ const SleepTimePicker = (state) => {
 //일기 작성
 const DiaryEntry = (state) => {
 
-    const [isFocused, setIsFocused] = useState(false);
-
     const [diaryText, setDiaryText] = state.diaryTextState;
 
     return (
         <View>
-            <TouchableOpacity style={styles.textInputWrapper} activeOpacity={1} onPress={() => setIsFocused(true)}>
-                {!isFocused && !diaryText && (
-                    <View style={styles.placeholderContainer}>
-                        <Text style={styles.titlePlaceholder}>일기내용</Text>
-                        <Text style={styles.subtitlePlaceholder}>꿈 일기 내용을 적어주세요!</Text>
-                    </View>
-                )}
-                <TextInput
-                    style={styles.textInput}
-                    multiline
-                    onChangeText={text => setDiaryText(text)}
-                    value={diaryText}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(diaryText !== '')}
-                />
+            <TouchableOpacity style={styles.textInputWrapper} activeOpacity={1}>
+                <View style={styles.placeholderContainer}>
+                    <Text style={styles.titlePlaceholder}>일기내용</Text>
+                
+                    <TextInput
+                        style={styles.textInput}
+                        multiline
+                        placeholder="꿈 일기 내용을 적어주세요!"
+                        placeholderTextColor={'#333333'}
+                        onChangeText={text => setDiaryText(text)}
+                    />
+                </View>
             </TouchableOpacity>
         </View>
     );
@@ -260,7 +257,7 @@ const TagManager = (state) => {
 
     return (
         <View style={styles.tagCtn} >
-        <Text style={styles.tags} >태그</Text>
+            <Text style={styles.tags} >태그</Text>
 
             <ScrollView horizontal style={styles.tagContainer}>
             <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
@@ -295,6 +292,7 @@ const TagManager = (state) => {
                         onChangeText={setTagText}
                         autoFocus={true}
                         onSubmitEditing={addTag}
+                        placeholderTextColor={'black'}
                     />
                     <TouchableOpacity style={styles.button} onPress={addTag}>
                         <Text style={styles.buttonText}>확인</Text>
@@ -348,12 +346,14 @@ const requestSave = async (props) => {
             'tags': tags,
         }),
     });
-    return response.then(res => res.json()).then(data => {
+    response.then(res => res.json()).then(data => {
         console.log(data);
         if (data.check != null && data.check == false) {
             console.log("저장 실패");
+            return false
         } else {
             console.log("저장 성공");
+            return true;
         }
     })
 }
@@ -363,8 +363,9 @@ const SaveBtn = (props) => {
     const navigation = useNavigation();
 
     async function handleSave(p) {
-        await requestSave(p);
-        navigation.goBack();
+        if (await requestSave(p)) {
+            navigation.goBack();
+        }
     }
 
     return(
@@ -423,7 +424,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         alignItems: "center",
         marginTop: 15,
-        paddingLeft: 15,
+        paddingHorizontal: 15,
         fontSize: 15, 
         fontWeight: '700'
         
@@ -459,7 +460,7 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start'
     },
     dateCtn: {
-        width: 200, 
+        width: 150, 
         height: 35, 
         backgroundColor: 'white', 
         borderRadius: 10,       
@@ -516,7 +517,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
         padding: 10,
         marginBottom: 20,
-        marginRight: 30
     },
     text: {
         fontSize: 15, 
@@ -527,6 +527,9 @@ const styles = StyleSheet.create({
     },
     timeCtn:{
         flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: 320,
+        marginHorizontal: 'auto',
         margin:5,
     },
 
@@ -553,13 +556,15 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#434343',
         fontWeight: '600', 
-        marginBottom: 25,
-        marginTop: 10
+        marginBottom: 20,
+        marginTop: 10,
+        height: 20,
     },
     subtitlePlaceholder: {
         fontSize: 14,
         color: '#434343',
-        fontWeight: '400',
+        fontWeight: '500',
+        lineHeight: 14,
     },
     tags:{
         color: '#434343', 
@@ -569,10 +574,12 @@ const styles = StyleSheet.create({
         marginTop:8
     },
     textInput: {
-        height: '100%',
-        fontSize: 16,
-        color: 'black',
-        textAlignVertical: 'top'
+        fontSize: 14,
+        color: '#333333',
+        fontWeight: '500',
+        lineHeight: 14,
+        width: 300,
+        
     },
     tagCtn:{
         width: 325, 
@@ -614,27 +621,6 @@ const styles = StyleSheet.create({
         marginTop: 10,
         minHeight: 40,
         marginLeft: 25,
-    },
-    centeredView: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 22,
-    },
-    modalView: {
-        margin: 20,
-        backgroundColor: 'white',
-        borderRadius: 20,
-        padding: 35,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
     },
     Taginput: {
         borderBottomWidth: 1,
