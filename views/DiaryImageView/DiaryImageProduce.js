@@ -1,59 +1,65 @@
 // DiaryCard.js
-import React  ,{ useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image,TextInput, StyleSheet, TouchableOpacity, Dimensions,ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
+import { checkToken, getToken } from '../../ManageToken';
 
 
 const screenWidth = Dimensions.get('window').width; 
 const screenHeight = Dimensions.get('window').height; 
 
 
-const DiaryImageProduce = () => {
+const DiaryImageProduce = (data) => {
     const navigation = useNavigation();
+
+    const diary = data.route.params;
+
+    console.log(diary);
 
     return(
         <View style={styles.fullScreen}>
             <View style={styles.topCtn}>
                 <TopBar navigation={navigation} title="꿈 이미지 생성"/>
             </View>
-            <FullScreen/>
+            <FullScreen data={diary}/>
         </View>
     );
 };
 
+const FullScreen = ({data}) => {
 
+    const [diaryText, setDiaryText] = useState('');
 
+    const [img, setImg] = useState(data.image_url);
 
-
-
-const FullScreen = () => {
     return(
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         <View>
             <View style={styles.backCtn}>
-                <View style={styles.ImageBoxCtn}>
-                    <ImageBox/>
-                 </View>
+                
                 <View style={styles.card}>
-                 <TopView/>
-                    <View style={styles.infoContainer}>
-                        <Text style={styles.content}>나는 오늘 하늘을 나는 꿈을 꿨다.{'\n'}나는 오늘 하늘을 나는 꿈을 꿨다.{'\n'}나는 오늘 하늘을 나는 꿈을 꿨다.{'\n'}</Text>
-                    </View>
-                 <View style={styles.TagCtn}>
-                     <Tag/> 
-                     <Tag/>
-                     <Tag/>
-                 </View>
-                 </View>
+                    <TopView title={data.title} date={data.date}/>
+                    <ScrollView style={styles.infoContainer}>
+                        <Text style={styles.content}>{data.content}</Text>
+                    </ScrollView>
+                    <ScrollView horizontal={true} style={styles.TagCtn} showsHorizontalScrollIndicator={false}>
+                        {data.tags.map((element, index) => {
+                            return (
+                                <Tag data={element} key={index}/> 
+                            )
+                        })}
+                    </ScrollView>
+                </View>
                  
                  <View style={styles.DiaryEntryCtn}>
-                    <DiaryEntry/>
+                    <DiaryEntry state={[diaryText, setDiaryText]}/>
                  </View>
+                 <ImageBox source={img}/>
              </View>
         </View>
         <View style={styles.saveCtn}>
-                <SaveBtn/>
+                <SaveBtn id={data.id} text={diaryText} image={[img, setImg]}/>
         </View>
     </ScrollView>
     );
@@ -62,17 +68,20 @@ const FullScreen = () => {
 
 //AI 생성 이미지 박스
 const ImageBox = ({ source }) => {
-    const [imageSource, setImageSource] = useState(source);
+    // const [imageSource, setImageSource] = useState(source);
+
+    const imageSource = source;
 
     return (
-        <View style={styles.imageCtn}>
-            {imageSource ? (
-                <Image source={{ uri: imageSource }} style={styles.image} />
-            ) : (
-                <View style={styles.imageBoxCtn}>
-                   <Text style={styles.imageholder}>AI 생성이미지</Text>
-                </View>
-            )}
+        <View style={styles.imageBoxCtn}>
+            <Text style={styles.imageholder}>AI 생성이미지</Text>
+            <View style={styles.imageCtn}>
+                {imageSource ? (
+                    <Image src={imageSource} style={styles.image} />
+                ) : (
+                    <Text>이미지를 생성해보세요</Text>
+                )}
+            </View>
         </View>
     );
 };
@@ -80,11 +89,11 @@ const ImageBox = ({ source }) => {
 
 
 // 일기장 제목, 날짜
-const TopView = ({}) => {
+const TopView = ({title, date}) => {
     return (
         <View style={styles.topView}>
-            <Text style={styles.title}>오늘의 꿈 일기</Text>
-            <Text>2024.05.08</Text>
+            <Text style={styles.title}>{title}</Text>
+            <Text>{date}</Text>
         </View>
     );
 };
@@ -92,11 +101,11 @@ const TopView = ({}) => {
 
 
 //태그 컴포넌트
-const Tag = () => {
+const Tag = ({data}) => {
     return(
         <View>
             <View style={styles.tagBox} >
-                <Text style={styles.tagText}> #하늘 </Text>
+                <Text style={styles.tagText}> {data} </Text>
             </View>
         </View>
     );
@@ -104,42 +113,97 @@ const Tag = () => {
 
 
 //이미지 내용
-const DiaryEntry = () => {
-    const [diaryText, setDiaryText] = useState('');
+const DiaryEntry = ({state}) => {
+    
     const [isFocused, setIsFocused] = useState(false);
+    const [diaryText, setDiaryText] = state;
 
     return (
         <View>
-            <TouchableOpacity style={styles.textInputWrapper} activeOpacity={1} onPress={() => setIsFocused(true)}>
-                {!isFocused && !diaryText && (
-                    <View style={styles.placeholderContainer}>
-                        <Text style={styles.titlePlaceholder}>이미지 내용</Text>
-                        <Text style={styles.subtitlePlaceholder}>꿈 이미지 내용을 적어주세요</Text>
-                    </View>
-                )}
-                <TextInput
-                    style={styles.textInput}
-                    multiline
-                    onChangeText={text => setDiaryText(text)}
-                    value={diaryText}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(diaryText !== '')}
-                />
-            </TouchableOpacity>
+            <View style={styles.textInputWrapper}>
+                
+                <View style={styles.placeholderContainer}>
+                    <Text style={styles.titlePlaceholder}>이미지 내용</Text>
+                    <TextInput
+                        style={styles.textInput}
+                        multiline
+                        onChangeText={text => setDiaryText(text)}
+                        value={diaryText}
+                        placeholder='꿈 이미지 내용을 적어주세요'
+                        placeholderTextColor={'black'}
+                    />
+                </View>
+                
+            </View>
         </View>
     );
 };
 
 //새로운 이미지 생성, 이미지 생성(저장)버튼
-const SaveBtn = () => {
+const SaveBtn = ({id, text, image}) => {
     const navigation = useNavigation();
+
+    const [loading, setLoading] = useState(false);
+    const [img, setImg] = image;
+
+    const handleCreateImage = async () => {
+        setLoading(true);
+        await checkToken();
+        const [accessToken, refreshToken] = await getToken();
+        const response = fetch('http://carvedrem.kro.kr:8080/api/diary/image', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({ 
+                'content': text,
+            }),
+        });
+        response.then(result => result.json()).then(res => {
+            console.log(res);
+            if (res.check != null && res.check == false) {
+                console.log("이미지화 실패");
+            } else {
+                setImg(res.information.answer);
+                console.log("이미지화 성공");
+            }
+        });
+        setLoading(false);
+    }
+
+    const handleSave = async () => {
+        await checkToken();
+        const [accessToken, refreshToken] = await getToken();
+        const response = fetch('http://carvedrem.kro.kr:8080/api/diary/image', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({
+                'id': id,
+                'url': img,
+            }),
+        });
+        response.then(result => result.json()).then(res => {
+            console.log(res);
+            if (res.check != null && res.check == false) {
+                console.log("이미지 저장 실패");
+            } else {
+                console.log("이미지 저장 성공");
+                navigation.goBack();
+            }
+        });
+    }
+
     return(
         <View>
-            <TouchableOpacity onPress={() => navigation.navigate('DiaryImageCreate')} style={styles.confirmButton}>
+            <TouchableOpacity onPress={() => handleCreateImage()} style={styles.confirmButton}>
                 <Text style={styles.confirmText}>새로운 이미지 생성하기</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => navigation.navigate('DiaryList')} style={styles.confirmButton}>
+            <TouchableOpacity onPress={() => {handleSave()}} style={styles.confirmButton}>
                 <Text style={styles.confirmText}>이미지 저장하기</Text>
             </TouchableOpacity>
         </View>
@@ -180,7 +244,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
         elevation: 4,
-        marginTop: 15,
         minHeight: 550,
         minWidth: 370,
         alignItems: 'center',
@@ -194,13 +257,13 @@ const styles = StyleSheet.create({
         borderRadius: 10,       
         borderColor: '#89898B',
         borderWidth: 2,
-        padding:2
+        alignItems: 'center',
+        marginTop: 25,
     },
     infoContainer: {
-        flex:1,
-        minHeight: 60,
-        minWidth: 280,
-        textAlign:'left',
+        height: 50,
+        width: 300,
+        paddingHorizontal: 10,
     },
     title: {
         textAlign: 'center', 
@@ -213,11 +276,10 @@ const styles = StyleSheet.create({
         color: '#434343', 
         fontSize: 14, 
         fontWeight: '400',
-        marginTop: 10,
-        marginLeft: 20,
+        textAlign: 'left',
     },
     topView: {
-        width: 319,
+        width: 300,
         height: 50, 
         alignItems: 'flex-start', 
         flexDirection:'column',
@@ -243,10 +305,11 @@ const styles = StyleSheet.create({
     },
     TagCtn:{
         flex:1,
-        minHeight:30,
-        minWidth:290,
+        height: 'auto',
+        width: 300,
         flexDirection: 'row',
-        marginBottom : 30
+        marginBottom : 10,
+        paddingHorizontal: 10,
     },
     confirmButton: {
         width: 240,
@@ -278,7 +341,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 10,
         justifyContent: 'center',
-        marginBottom: 60,
+        marginBottom: 25,
     },
     placeholderContainer: {
         position: 'absolute',
@@ -291,26 +354,35 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#434343',
         fontWeight: '600', 
-        marginBottom: 25,
+        marginBottom: 15,
         marginTop: 10
     },
-    subtitlePlaceholder: {
+    textInput: {
         fontSize: 14,
         color: '#434343',
         fontWeight: '400',
+        width: 300,
+        height: 90,
     },
     DiaryEntryCtn: {
         marginTop:25
     },
     imageBoxCtn : {
         width: 323, 
-        height: 250, 
+        height: 300, 
         backgroundColor: 'white', 
         borderRadius: 10,       
         borderColor: '#89898B',
         borderWidth: 2,
-        paddingHorizontal: 10,
-        paddingVertical: 10,
+        marginBottom: 25,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    imageCtn: {
+        width: 270,
+        height: 270,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     imageholder: {
         fontSize: 14,
@@ -319,12 +391,10 @@ const styles = StyleSheet.create({
         textAlign: 'center',
 
     },
-    ImageBoxCtn: {
-        marginBottom: 25,
-        marginTop: 25,
-
+    image: {
+        width: 270,
+        height: 270,
     }
-    
 });
 
 export default DiaryImageProduce;

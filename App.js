@@ -13,7 +13,7 @@ import DiaryWriteView from './views/DiaryWriteView/DiaryWrite';
 import DiaryList from './views/DiaryListView/DiaryList';
 import DiaryDetail from './views/DiaryDetailView/DiaryDetail';
 import DiaryModify from './views/DiaryModifyView/DiaryModify';
-import DiaryImageCreate from './views/DiaryImageView/DiaryImageCreate';
+// import DiaryImageCreate from './views/DiaryImageView/DiaryImageCreate';
 import DiaryImageProduce from './views/DiaryImageView/DiaryImageProduce';
 import DreamInterpret from './views/DreamInterpretView/DreamInterpret';
 import SecondPageView from './views/StartPageView/SecondPageView';
@@ -52,7 +52,8 @@ function AppStack() {
       <Stack.Screen name="DiaryList" component={DiaryList} options={{ headerShown: false }}/>
       <Stack.Screen name="DiaryDetail" component={DiaryDetail} options={{headerShown: false}}/>
       <Stack.Screen name="DiaryModify" component={DiaryModify} options={{headerShown: false}}/>
-      <Stack.Screen name="DiaryImageStack" component={DiaryImageStack} options={{headerShown: false}}/>  
+      {/* <Stack.Screen name="DiaryImageStack" component={DiaryImageStack} options={{headerShown: false}}/>   */}
+      <Stack.Screen name="DiaryImageProduce" component={DiaryImageProduce}  options={{ headerShown: false }}/>
       <Stack.Screen name="DreamInterpret" component={DreamInterpret} options={{headerShown: false}}/>    
 
     </Stack.Navigator>
@@ -68,14 +69,14 @@ function AppStack() {
     );
   };
 
-  const DiaryImageStack = () => {
-    return(
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="DiaryImageCreate" component={DiaryImageCreate}  options={{ headerShown: false }}/>
-        <Stack.Screen name="DiaryImageProduce" component={DiaryImageProduce}  options={{ headerShown: false }}/>
-      </Stack.Navigator>
-    );
-  }
+  // const DiaryImageStack = () => {
+  //   return(
+  //     <Stack.Navigator screenOptions={{ headerShown: false }}>
+  //       <Stack.Screen name="DiaryImageCreate" component={DiaryImageCreate}  options={{ headerShown: false }}/>
+  //       <Stack.Screen name="DiaryImageProduce" component={DiaryImageProduce}  options={{ headerShown: false }}/>
+  //     </Stack.Navigator>
+  //   );
+  // }
 
   const CookieViewStack = () => {
     return(
