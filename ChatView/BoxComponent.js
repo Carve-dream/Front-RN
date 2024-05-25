@@ -1,7 +1,8 @@
 import React, { useState,useEffect, useCallback } from 'react';
 import { useNavigation, useFocusEffect  } from '@react-navigation/native';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { fetchUserData } from '../api/userData';
+import { checkToken, getToken } from '../ManageToken';
 
 //챗봇 - 꿈 일기 목록 조회 
 const BoxComponent = () => {
@@ -19,45 +20,62 @@ const BoxComponent = () => {
         }, [])
     );
 
+    const [loading, setLoading] = useState(false);
+    const [data, setData] = useState([]);
+
     useEffect(() => {
+        async function fetchData() {
+            setLoading(true);
+            await checkToken();
+            token = await getToken();
+        
+            const response = await fetch('http://carvedrem.kro.kr:8080/api/diary?page=0', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token[0]}`,
+                },
+            });
+            
+            const ret = await response.json();
+        
+            if (ret.check == null || ret.check == true) {
+                setData(ret.information);
+                console.log("데이터 불러오기 성공");
+                setLoading(false);
+            } else {
+                console.log("데이터 불러오기 실패");
+            }
+        }
+        setData([]);
         loadUserData();
+        fetchData();
     }, []);
 
     return (
         <View>
             <Text style={styles.text}>최근 꿈 일기 목록을 불러왔어요.{"\n"}분석하고 싶은 꿈 일기를 선택해주세요!</Text>
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
                 <Text>{userName} 님의 꿈 일기 목록</Text>
-                <List1 />
-                <List2 />
-                <List3 />
-            </View>
+                {data.map((element, index) => {
+                    return (
+                        <List key={index} title={element.title} id={element.id}/>
+                    )
+                })}
+            </ScrollView>
         </View>
     );
 };
 
 //일기 목록 불러오기 예시
-const List1 = () => {
-    return (
-        <View style={styles.listContainer}>
-            <Text>list 1</Text>
-        </View>
-    )
-}
+const List = ({key, title, id}) => {
 
-const List2 = () => {
-    return (
-        <View style={styles.listContainer}>
-            <Text>list 2</Text>
-        </View>
-    )
-}
+    const navigation = useNavigation();
 
-const List3 = () => {
     return (
-        <View style={styles.listContainer}>
-            <Text>list 3</Text>
-        </View>
+        <TouchableOpacity key={key} style={styles.listContainer} onPress={() => {navigation.navigate('DiaryDetail', {id: id})}}>
+            <Text>{title}</Text>
+        </TouchableOpacity>
     )
 }
 

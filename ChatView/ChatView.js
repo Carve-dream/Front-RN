@@ -111,7 +111,11 @@ const ChatView = ({ navigation }) => {
 
         if (question == '꿈일기 불러오기') {
           data.information.answer = <BoxComponent />;
-        } //꿈일기 목록 불러오기
+        } else if (question == '감정 분석하기') {
+          data.information.answer = "감정을 분석해 드릴게요."
+        } else if (question == '상담하기') {
+          data.information.answer = "상담이 필요하신가요?";
+        }
 
         // 상대방 응답 메시지 추가
         setMessages(messages => messages.filter(message => message.id !== loadingMessage.id)
