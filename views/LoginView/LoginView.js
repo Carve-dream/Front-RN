@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Image, Dimensions, StatusBar, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -29,6 +29,16 @@ const LoginView = () => {
         await AsyncStorage.getAllKeys().then(AsyncStorage.multiRemove); // 삭제 예정 (토큰과 자동로그인 정보 삭제하는 코드)
         navigation.navigate('SignUpInfo');
     };
+
+    useEffect(() => {
+        const checkFirst = async () => {
+            const first = await AsyncStorage.getItem('first');
+            if (!first) {
+                navigation.navigate("Start");
+            }
+        }
+        checkFirst();
+    })
 
     return (
         <View style={styles.container}>

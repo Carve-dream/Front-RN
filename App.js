@@ -13,7 +13,6 @@ import DiaryWriteView from './views/DiaryWriteView/DiaryWrite';
 import DiaryList from './views/DiaryListView/DiaryList';
 import DiaryDetail from './views/DiaryDetailView/DiaryDetail';
 import DiaryModify from './views/DiaryModifyView/DiaryModify';
-// import DiaryImageCreate from './views/DiaryImageView/DiaryImageCreate';
 import DiaryImageProduce from './views/DiaryImageView/DiaryImageProduce';
 import DreamInterpret from './views/DreamInterpretView/DreamInterpret';
 import SecondPageView from './views/StartPageView/SecondPageView';
@@ -33,9 +32,11 @@ const Stack = createStackNavigator();
 function AppStack() {
   return (
     <Stack.Navigator initialRouteName="Loading">
-      <Stack.Screen name="Loading" component={StartPageView} options={{ headerShown: false }} />
-      <Stack.Screen name="Second" component={SecondPageView} options={{ headerShown: false }} />
+
       <Stack.Screen name="LogIn" component={LogInView} options={{ headerShown: false }} />
+
+      <Stack.Screen name="Start" component={StartStack} options={{ headerShown: false}} />
+
       <Stack.Screen name="SignIn" component={SignIn} options={{ headerShown: false }} />
       <Stack.Screen name="SignUpInfo" component={SignUpInfo} options={{ headerShown: false }} />
       <Stack.Screen name="SignUpAcc" component={SignUpAcc} options={{ headerShown: false }} />
@@ -52,12 +53,20 @@ function AppStack() {
       <Stack.Screen name="DiaryList" component={DiaryList} options={{ headerShown: false }}/>
       <Stack.Screen name="DiaryDetail" component={DiaryDetail} options={{headerShown: false}}/>
       <Stack.Screen name="DiaryModify" component={DiaryModify} options={{headerShown: false}}/>
-      {/* <Stack.Screen name="DiaryImageStack" component={DiaryImageStack} options={{headerShown: false}}/>   */}
       <Stack.Screen name="DiaryImageProduce" component={DiaryImageProduce}  options={{ headerShown: false }}/>
       <Stack.Screen name="DreamInterpret" component={DreamInterpret} options={{headerShown: false}}/>    
 
     </Stack.Navigator>
     );
+  }
+
+  const StartStack = () => {
+    return (
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Loading" component={StartPageView} options={{ headerShown: false }} />
+        <Stack.Screen name="Second" component={SecondPageView} options={{ headerShown: false }} />
+      </Stack.Navigator>
+    )
   }
   
 

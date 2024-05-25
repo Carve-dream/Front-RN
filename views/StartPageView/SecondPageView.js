@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Image, Animated, StyleSheet, TouchableOpacity, Dimensions, ImageBackground } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -30,6 +31,11 @@ const SecondPageView = () => {
         ]).start();
     }, []);
 
+    const handlePress = async () => {
+        await AsyncStorage.setItem('first', 'true');
+        navigation.navigate('LogIn');
+    }
+
     return (
         <ImageBackground
             source={require('../../assets/images/cloud.png')}
@@ -37,7 +43,7 @@ const SecondPageView = () => {
         >
             <TouchableOpacity
                 style={styles.touchable}
-                onPress={() => navigation.navigate('LogIn')}
+                onPress={() => {handlePress()}}
                 activeOpacity={0.7}
             >
                 <LinearGradient
