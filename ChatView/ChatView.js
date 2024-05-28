@@ -6,7 +6,7 @@ import Message from './Message';
 import BoxComponent from './BoxComponent';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { checkToken, getToken } from '../ManageToken';
-import { useFocusEffect  } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { fetchUserData } from '../api/userData';
 
 const ChatView = ({ navigation }) => {
@@ -19,14 +19,14 @@ const ChatView = ({ navigation }) => {
   const [userName, setUserName] = useState('');
 
   const loadUserData = async () => {
-      const data = await fetchUserData();
-      setUserName(data.information.name);
+    const data = await fetchUserData();
+    setUserName(data.information.name);
   };
 
   useFocusEffect(
-      useCallback(() => {
-          loadUserData();
-      }, [])
+    useCallback(() => {
+      loadUserData();
+    }, [])
   );
 
   // useEffect(() => {
@@ -110,13 +110,32 @@ const ChatView = ({ navigation }) => {
         console.log(data.information.answer);
 
         if (question == '꿈일기 불러오기') {
-          data.information.answer = <BoxComponent />;
+          const diaryListMessage = {
+            id: Date.now().toString(),
+            text: "최근 꿈 일기 목록을 불러왔어요.\n분석하고 싶은 꿈 일기를 선택해주세요!",
+            sender: 'other',
+          };
+          
+          // boxComponent 메시지 추가
+          const boxComponentMessage = {
+            id: Date.now().toString(),
+            type: 'boxComponent', 
+            sender: 'other',
+          };
+        
+          // 꿈 일기 목록 메시지부터 출력 후 꿈 일기 리스트 출력
+          setMessages(prevMessages => [
+            ...prevMessages.filter(message => message.id !== loadingMessage.id), 
+            diaryListMessage, 
+            boxComponentMessage,
+          ]);
+          return;
         } else if (question == '감정 분석하기') {
           data.information.answer = "감정을 분석해 드릴게요."
         } else if (question == '상담하기') {
           data.information.answer = "상담이 필요하신가요?";
         }
-
+        
         // 상대방 응답 메시지 추가
         setMessages(messages => messages.filter(message => message.id !== loadingMessage.id)
           .concat({ id: Date.now().toString(), text: data.information.answer, sender: 'other' }));
@@ -151,8 +170,9 @@ const ChatView = ({ navigation }) => {
               return <Button item={item} sendMessage={sendMessage} />;
             } else if (item.sender === 'date') {
               return <Text style={styles.dataText}>{item.text}</Text>;
-            }
-            else {
+            } else if ( item.type === 'boxComponent'){
+              return  <BoxComponent sendMessage={sendMessage} />
+            } else {
               return <Message item={item} />;
             }
           }}
