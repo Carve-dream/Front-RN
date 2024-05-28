@@ -1,11 +1,14 @@
 import React from 'react';
-import { View, StyleSheet, Text, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, ScrollView, Dimensions } from 'react-native';
 import CustomTabBar from '../../CustomTabBar/CustomTabBar';
 import { LinearGradient } from 'expo-linear-gradient';
 import CalendarView from './CalendarView';
 import EmotionRecord from './EmotionRecord';
 import EmotionChart from './EmotionChart';
+import TopBar from '../../ChatView/TopBar';
 
+const screenWidth = Dimensions.get('window').width; 
+const screenHeight = Dimensions.get('window').height; 
 
 const EmotionMapView = (navigation) => {
     const weekRange = getWeekRange(); // 일주일 날짜 범위를 문자열로 가져옴
@@ -15,16 +18,12 @@ const EmotionMapView = (navigation) => {
             colors={['rgba(41, 32, 100, 0.80)', 'rgba(203, 157, 221, 0.80)', 'rgba(244, 191, 168, 0.80)', 'rgba(255, 255, 255, 0.80)']}
             style={styles.linearGradient}
         >
-            <ScrollView contentContainerStyle={styles.scrollView}>
-                <CustomTabBar />
-                <View style={styles.topCtn}>
-                    <View style={styles.topBar}>
-                        <View style={styles.headerContainer}>
-                            <Text style={styles.headerText}>감정지도</Text>
-                        </View>
-                    </View>
-                </View>
 
+            <View style={styles.topCtn}>
+                <TopBar navigation={navigation} title="감정지도"/>
+            </View>
+
+            <ScrollView contentContainerStyle={styles.scrollView}>
                 <View style={styles.boxCtn}>
                     <View style={styles.mainBox}>
                         <CalendarView />
@@ -66,13 +65,15 @@ const getWeekRange = () => {
 const styles = StyleSheet.create({
     linearGradient: {
         flex: 1,
+        position: 'relative',
+        width: screenWidth,
+        height: screenHeight,
     },
-    scrollView: {
-
+    scrollView:{
+        
     },
     topCtn: {
         marginTop: 55,
-        marginBottom: 20,
     },
     topBar: {
         alignItems: 'center',

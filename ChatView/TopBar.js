@@ -30,6 +30,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center', // 좌우 여백이 동일하도록 설정. menu기능 뺄 경우 center로 수정.
     padding: 10,
+    height: 60,
   },
   headerContainer: {
     alignItems: 'center',

@@ -1,8 +1,9 @@
 // DiaryCard.js
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Alert, Modal, TextInput } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { checkToken, getToken } from '../../ManageToken';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 const makeDiaryCard = (data, navigation, fetchData) => {
 
@@ -42,7 +43,7 @@ const makeDiaryList = (data, navigation, fetchData) => {
 
     return (
         <ScrollView style={styles.list}>
-            {data.information.map(element => {
+            {data.map(element => {
                 return makeDiaryCard(element, navigation, fetchData);
             })}
         </ScrollView>
@@ -51,56 +52,74 @@ const makeDiaryList = (data, navigation, fetchData) => {
     
 }
 
+const formatDate = (date) => {
+    let dd = date.getDate();
+    let mm = date.getMonth() + 1;
+    const yyyy = date.getFullYear();
+    if (dd < 10) dd = '0' + dd;
+    if (mm < 10) mm = '0' + mm;
+    return `${yyyy}-${mm}-${dd}`;
+};
+
 const DiaryCard = () => {
 
     const navigation = useNavigation();
 
     const [loading, setLoading] = useState(true);
-    const [data, setData] = useState(null);
+    const [data, setData] = useState([]);
+
+    const [date, setDate] = useState(formatDate(new Date));
 
     async function fetchData() {
         await checkToken();
         token = await getToken();
-    
-        const response = await fetch('http://carvedrem.kro.kr:8080/api/diary?page=0', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token[0]}`,
-            },
-        });
         
-        const ret = await response.json();
+        setLoading(true);
+
+        let arr = [];
     
-        if (ret.check == null || ret.check == true) {
-            setData(ret);
-            console.log("데이터 불러오기 성공");
-            setLoading(false);
-        } else {
-            console.log("데이터 불러오기 실패");
+        for (let index = 0; true; index++) {
+            
+            const response = await fetch('http://carvedrem.kro.kr:8080/api/diary?page=' + index, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token[0]}`,
+                },
+            });
+            
+            const ret = await response.json();
+        
+            if (ret.check == null || ret.check == true) {
+                if (ret.information.length == 0) {
+                    break;
+                }
+                ret.information.map((element) => {
+                    arr.unshift(element);
+                })
+                console.log("데이터 불러오기 성공");
+            } else {
+                console.log("데이터 불러오기 실패");
+                break;
+            }
         }
+        console.log(arr);
+        setData(arr);
+        setLoading(false);
     }
 
     const isFocused = useIsFocused();
 
     useEffect(() => {
         if (isFocused) {
+            setDate(formatDate(new Date()));
             fetchData();
         }
     }, [isFocused])
 
-    if (loading) {
-        return (
-            <View>
-            <DateView/>
-            {makeDiaryList(null)}
-            </View>
-        )
-    }
-
     return (
-        <View>
-        <DateView/>
+        <View style={{alignItems: 'center'}}>
+        <DateView sDate={[date, setDate]} sData={[data, setData]} sLoading={[loading, setLoading]}/>
         {makeDiaryList(data, navigation, fetchData)}
         </View>
     )
@@ -108,15 +127,123 @@ const DiaryCard = () => {
 };
 
 //날짜 및 검색 버튼 
-const DateView = () => {
+const DateView = ({sDate, sData, sLoading}) => {
+
+    const [data, setData] = sData;
+    const [loading, setLoading] = sLoading;
+
+    const [date, setDate] = sDate;
+
+    const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [tagText, setTagText] = useState('');
+
+    const handleConfirm = (d) => {
+        console.log("A date has been picked: ", d);
+        setDate(formatDate(d));
+
+        async function fetchData() {
+            await checkToken();
+            token = await getToken();
+        
+            const response = await fetch('http://carvedrem.kro.kr:8080/api/diary/searchByDate?date=' + formatDate(d), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token[0]}`,
+                },
+            });
+            
+            const ret = await response.json();
+        
+            if (ret.check == null || ret.check == true) {
+                setData(ret.information.reverse());
+                console.log("데이터 불러오기 성공");
+                setLoading(false);
+            } else {
+                console.log("데이터 불러오기 실패");
+            }
+        }
+
+        fetchData();
+        setDatePickerVisible(false);
+    };
+
+    const handleTagConfirm = async () => {
+
+        async function searchByTag(tag) {
+            await checkToken();
+            token = await getToken();
+        
+            const response = await fetch('http://carvedrem.kro.kr:8080/api/diary/search?tag=' + tag, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token[0]}`,
+                },
+            });
+            
+            const ret = await response.json();
+        
+            if (ret.check == null || ret.check == true) {
+                setData(ret.information.reverse());
+                console.log("데이터 불러오기 성공");
+                setLoading(false);
+            } else {
+                console.log("데이터 불러오기 실패");
+            }
+        }
+
+        if (tagText.trim() !== '') {
+            setModalVisible(false); // 모달 숨기기
+            console.log("searching by tag: " + tagText);
+            await searchByTag(tagText.trim());
+            setTagText(''); // 입력 필드 초기화
+        }
+    };
+
     return(
         <View style={styles.dateCtn}>
-            <View style={styles.date}>
-                <Text style={styles.datetext}>2024.04.15</Text>
-            </View>
-            <TouchableOpacity onPress={() => console.log('검색하기 버튼이 눌렸습니다.')}>
+            <TouchableOpacity style={styles.date} onPress={() => {setDatePickerVisible(true)}}>
+                <Text style={styles.datetext}>{date}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setModalVisible(true)}>
                  <Image source={require('../../assets/images/searchBtn.png')} style={styles.searchBtn} />
             </TouchableOpacity>
+            <DateTimePickerModal
+                isVisible={isDatePickerVisible}
+                date={new Date(date)}
+                mode="date"
+                onConfirm={handleConfirm}
+                onCancel={() => {setDatePickerVisible(false)}}
+                locale="ko_KR" // 한국어 설정
+            />
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                    <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+                        <Text style={styles.closeButtonText}>X</Text>
+                    </TouchableOpacity>
+                    <TextInput
+                        style={styles.Taginput}
+                        placeholder="#"
+                        value={tagText}
+                        onChangeText={setTagText}
+                        autoFocus={true}
+                        onSubmitEditing={handleTagConfirm}
+                        placeholderTextColor={'black'}
+                    />
+                    <TouchableOpacity style={styles.button} onPress={handleTagConfirm}>
+                        <Text style={styles.buttonText}>확인</Text>
+                    </TouchableOpacity>
+                </View>
+                </View>
+            </Modal>
         </View>
     );
 }
@@ -327,9 +454,8 @@ const styles = StyleSheet.create({
     },
     dateCtn: {
         flexDirection: 'row',
-        width: 400, 
         height: 30,
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
         marginTop: 5,
         marginBottom: 20,
@@ -343,7 +469,65 @@ const styles = StyleSheet.create({
     list: {
         height: 580,
     },
-    
+
+    textInput: {
+        fontSize: 14,
+        color: '#333333',
+        fontWeight: '500',
+        lineHeight: 14,
+        width: 300,
+        
+    },
+
+    centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 22,
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+
+    closeButton: {
+        alignSelf: 'flex-end',
+        padding: 5,
+        marginBottom: 20,
+    },
+    closeButtonText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#434343',
+    },
+    Taginput: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        width: 200,
+        marginBottom: 20,
+        fontSize: 16,
+        textAlign: 'center',
+    },
+    button: {
+        backgroundColor: '#EF82A1',
+        padding: 10,
+        borderRadius: 5,
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 16,
+    },
 });
 
 export default DiaryCard;
