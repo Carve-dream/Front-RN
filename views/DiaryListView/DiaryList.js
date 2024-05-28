@@ -28,7 +28,7 @@ const DiaryList = ({navigation}) => {
     return (
         <LinearGradient colors={['rgba(41, 32, 100, 0.80)', 'rgba(203, 157, 221, 0.80)', 'rgba(244, 191, 168, 0.80)', 'rgba(255, 255, 255, 0.80)']} style={styles.linearGradient}>
         <View style={styles.topCtn}>
-             <TopBar navigation={navigation} title="꿈일지 목록"  />
+             <TopBar navigation={navigation} title="꿈 일기 목록"  />
         </View>
         <DiaryCard/>
         </LinearGradient>
