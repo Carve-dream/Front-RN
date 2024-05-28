@@ -75,7 +75,6 @@ const CookieView = () => {
         </View>
 
         <View style={styles.textCtn}>
-          {/*사용자 이름 연결 */}
           <Text style={styles.uesrText} >{userName}님을 위한 오늘의 포춘쿠키 </Text>
           <CurrentDateDisplay/>
         </View>
@@ -91,7 +90,6 @@ const CookieView = () => {
             <ImageBackground
                 source={require('../../assets/images/foutuneResultText.png')}
                 style={styles.fortuneResult}>
-                    {/*포춘쿠키 결과 텍스트 연결 */}
                     <Text style={styles.fortuneText}>{fortune}</Text>
                     
             </ImageBackground>

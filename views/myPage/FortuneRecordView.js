@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
+import React, { useCallback,useState,useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, Text, StyleSheet,ScrollView, Image, Dimensions, StatusBar, TouchableOpacity, TextInput, SafeAreaView } from 'react-native';
 import TopBar from '../../ChatView/TopBar';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { checkToken, getToken } from '../../ManageToken';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
 //테스트 데이터
-const data = [
+/*const data = [
     { id: 1, date: "2024.05.12", text: "포춘쿠키 내용 1" },
     { id: 2, date: "2024.05.13", text: "포춘쿠키 내용 2" },
     { id: 3, date: "2024.05.13", text: "포춘쿠키 내용 3" },
     { id: 4, date: "2024.05.13", text: "포춘쿠키 내용 4" },
   ];
+
+*/
+
 
 const FortuneRecordView = () => {
     return (
@@ -27,6 +32,55 @@ const FortuneRecordView = () => {
 
 
 const FortuneListView = () => {
+
+    const loadUserData = async () => {
+        const data = await fetchUserData();
+        setUserName(data.information.name);
+    };
+    
+    useFocusEffect(
+        useCallback(() => {
+            loadUserData();
+        }, [])
+    );
+  
+    useEffect(() => {
+        loadUserData();
+    }, []);
+
+
+    const [fortunes, setFortunes] = useState([]);
+
+    useEffect(() => {
+        const fetchFortuneCookie = async () => {
+            await checkToken();
+            token = await getToken();
+            try {
+                  const response = await fetch('http://carvedrem.kro.kr:8080/api/fortune?page=0', {
+                  method: 'GET', 
+                  headers: {
+                    'Authorization': `Bearer ${token[0]}`,
+                    'Content-Type': 'application/json',
+                  },
+                });
+                const data = await response.json();
+                console.log("Received data:", data);
+
+                if (data && Array.isArray(data.information)) {
+                    setFortunes(data.information);
+                } else {
+                    console.error('Received data does not contain "information" key or it is not an array:', data);
+                    setFortunes([]); // 데이터 형식이 맞지 않을 경우 빈 배열로 초기화
+                }
+                
+            } catch (error) {
+                console.error('Error fetching fortune cookie:', error);
+            }
+        };
+
+        fetchFortuneCookie();
+    }, []);
+
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             <View style={styles.listCtn} >
@@ -34,10 +88,10 @@ const FortuneListView = () => {
                 <Text style={styles.UserName}>김꾸미 님의 포춘쿠키 기록</Text>
                 <DatePicker/>
             </View>
-            {data.map((item) => (
-                <View key={item.id} style={styles.itemContainer}>
-                    <Text style={styles.dateText}>{item.date}</Text>
-                    <Text style={styles.contentText}>{item.text}</Text>
+            {fortunes.map((fortune) => (
+                <View key={fortune.id} style={styles.itemContainer}>
+                    <Text style={styles.dateText}>{fortune.createAt.split('T')[0]}</Text>
+                    <Text style={styles.contentText}>{fortune.content}</Text>
                 </View>
             ))}
         </ScrollView>
