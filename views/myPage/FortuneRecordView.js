@@ -35,7 +35,9 @@ const FortuneRecordView = () => {
 const FortuneListView = () => {
 
     const [userName, setUserName] = useState(null);
-
+    const [date, setDate] = useState(new Date()); 
+    const [fortunes, setFortunes] = useState([]);
+    
     const loadUserData = async () => {
         const data = await fetchUserData();
         setUserName(data.information.name);
@@ -52,44 +54,44 @@ const FortuneListView = () => {
     }, []);
 
 
-    const [fortunes, setFortunes] = useState([]);
+   
 
-    useEffect(() => {
-        const fetchFortuneCookie = async () => {
-            await checkToken();
-            token = await getToken();
-            try {
-                  const response = await fetch('http://carvedrem.kro.kr:8080/api/fortune?page=0', {
-                  method: 'GET', 
-                  headers: {
+    const fetchFortuneCookie = async (year, month) => {
+        await checkToken();
+        const token = await getToken();
+        try {
+            const response = await fetch(`http://carvedrem.kro.kr:8080/api/fortune?page=0&year=${year}&month=${month}`, {
+                method: 'GET', 
+                headers: {
                     'Authorization': `Bearer ${token[0]}`,
                     'Content-Type': 'application/json',
-                  },
-                });
-                const data = await response.json();
-                console.log("Received data:", data);
+                },
+            });
+            const data = await response.json();
+            console.log("Received data:", data);
 
-                if (data && Array.isArray(data.information)) {
-                    setFortunes(data.information);
-                } else {
-                    console.error('Received data does not contain "information" key or it is not an array:', data);
-                    setFortunes([]); // 데이터 형식이 맞지 않을 경우 빈 배열로 초기화
-                }
-                
-            } catch (error) {
-                console.error('Error fetching fortune cookie:', error);
+            if (data && Array.isArray(data.information)) {
+                setFortunes(data.information);
+            } else {
+                console.error('Received data does not contain "information" key or it is not an array:', data);
+                setFortunes([]); // 데이터 형식이 맞지 않을 경우 빈 배열로 초기화
             }
-        };
+        } catch (error) {
+            console.error('Error fetching fortune cookie:', error);
+        }
+    };
 
-        fetchFortuneCookie();
-    }, []);
+    useEffect(() => {
+        loadUserData();
+        fetchFortuneCookie(date.getFullYear(), date.getMonth() + 1);
+    }, [date]);
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             <View style={styles.listCtn} >
                 <Image source={require('../../assets/images/fortune.png')} style={styles.fortuneImage}/>
                 <Text style={styles.UserName}>{userName} 님의 포춘쿠키 기록</Text>
-                <DatePicker/>
+                <DatePicker setDate={setDate} fetchFortuneCookie={fetchFortuneCookie}/>
             </View>
             {fortunes.map((fortune) => (
                 <View key={fortune.id} style={styles.itemContainer}>
@@ -102,8 +104,8 @@ const FortuneListView = () => {
 };
 
 
-const DatePicker = () => {
-    const [date, setDate] = useState(new Date());
+const DatePicker = ({ setDate, fetchFortuneCookie }) => {
+    const [date, setLocalDate] = useState(new Date());
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     //날짜 포멧팅 함수
     const formatDate = (date) => {
@@ -122,10 +124,15 @@ const DatePicker = () => {
         setDatePickerVisibility(false);
     };
 
-    const handleConfirm = (date) => {
-        console.log("A date has been picked: ", date);
-        setDate(date);
+    const handleConfirm = (selectedDate) => {
+        console.log("A date has been picked: ", selectedDate);
+        setLocalDate(selectedDate);
+        setDate(selectedDate);
         hideDatePicker();
+
+        const year = selectedDate.getFullYear();
+        const month = selectedDate.getMonth() + 1;
+        fetchFortuneCookie(year, month);
     };
     
     return (
