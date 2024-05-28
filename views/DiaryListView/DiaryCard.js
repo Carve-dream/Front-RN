@@ -66,7 +66,7 @@ const DiaryCard = () => {
     const navigation = useNavigation();
 
     const [loading, setLoading] = useState(true);
-    const [data, setData] = useState(null);
+    const [data, setData] = useState([]);
 
     const [date, setDate] = useState(formatDate(new Date));
 
