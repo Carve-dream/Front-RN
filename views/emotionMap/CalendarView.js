@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { CalendarList } from 'react-native-calendars';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { fetchDiaryData } from '../../api/fetchDiaryData';
+import { checkToken, getToken } from '../../ManageToken';
 
 
 const CalendarView = () => {
@@ -57,6 +59,41 @@ const CalendarView = () => {
         hideDatePicker();
     };
 
+    // 날짜별 일기 여부 표시
+    const [diaryDates, setDiaryDates] = useState({});
+    useEffect(() => {
+        async function fetchData() {
+            await checkToken();
+            token = await getToken();
+
+            const response = await fetch('http://carvedrem.kro.kr:8080/api/diary?page=0', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token[0]}`,
+                },
+            });
+
+            const data = await response.json();
+
+            if (data.check == null || data.check == true) {
+                const formattedData = data.information.reduce((acc, diary) => {
+                    acc[diary.date] = {
+                        marked: true, //작게 표시
+                        dotColor: '#EF82A1',
+                        //  selected: true, //크게 표시
+                        //  selectedColor: '#C1C7F8',
+                    };
+                    return acc;
+                }, {});
+                setDiaryDates(formattedData);
+            } else {
+                console.log("load diary dot error");
+            }
+        }
+        fetchData();
+    }, []);
+
 
     return (
         <View style={styles.container}>
@@ -66,6 +103,8 @@ const CalendarView = () => {
                 current={selectedDate}
                 onDayPress={(day) => { console.log('day changed', day) }}
                 onMonthChange={onMonthChange}
+
+                markedDates={diaryDates} // 일기가 있는 날짜 표시
 
                 hideExtraDays={true} // 이전 달, 다음 달 날짜 숨기기
                 horizontal={true} // 옆으로 슬라이드 해서 넘기기
