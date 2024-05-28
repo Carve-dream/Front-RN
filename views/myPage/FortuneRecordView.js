@@ -4,6 +4,7 @@ import { View, Text, StyleSheet,ScrollView, Image, Dimensions, StatusBar, Toucha
 import TopBar from '../../ChatView/TopBar';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { checkToken, getToken } from '../../ManageToken';
+import { fetchUserData } from '../../api/userData';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
@@ -32,6 +33,8 @@ const FortuneRecordView = () => {
 
 
 const FortuneListView = () => {
+
+    const [userName, setUserName] = useState(null);
 
     const loadUserData = async () => {
         const data = await fetchUserData();
@@ -85,7 +88,7 @@ const FortuneListView = () => {
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             <View style={styles.listCtn} >
                 <Image source={require('../../assets/images/fortune.png')} style={styles.fortuneImage}/>
-                <Text style={styles.UserName}>김꾸미 님의 포춘쿠키 기록</Text>
+                <Text style={styles.UserName}>{userName} 님의 포춘쿠키 기록</Text>
                 <DatePicker/>
             </View>
             {fortunes.map((fortune) => (
