@@ -1,8 +1,9 @@
-import React, { useState,useEffect, useCallback  } from 'react';
-import { Alert, View, Text, StyleSheet,ImageBackground, Image, Dimensions, StatusBar, TouchableOpacity, TextInput, SafeAreaView } from 'react-native';
-import { useNavigation, useFocusEffect  } from '@react-navigation/native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Alert, View, Text, StyleSheet, ImageBackground, Image, Dimensions, StatusBar, TouchableOpacity, TextInput, SafeAreaView } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
 import { fetchUserData, logoutUser, deleteUserAccount } from '../../api/fetchUserData';
+import { checkToken, getToken } from "../../ManageToken";
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -28,14 +29,42 @@ const MyPageView = ({ title }) => {
         setEmail(data.information.email);
     };
 
+    //최근 포춘쿠키 조회
+    const [latestFortune, setLatestFortune] = useState({ date: '', content: '' }); // 최신 포춘쿠키 상태
+    // 현재 날짜를 가져와서 year와 month를 설정
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1 더하기
+    const loadLatestFortune = async () => {
+        await checkToken();
+        const token = await getToken();
+        const response = await fetch('http://carvedrem.kro.kr:8080/api/fortune?year=' + year + '&month=' + month, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token[0]}`,
+            },
+        });
+        const data = await response.json();
+        if (data.check && data.information.length > 0) {
+            const latest = data.information[data.information.length - 1];
+            setLatestFortune({
+                date: latest.createAt.split('T')[0],
+                content: latest.content
+            });
+        }
+    };
+
     useFocusEffect(
         useCallback(() => {
             loadUserData();
+            loadLatestFortune();
         }, [])
     );
 
     useEffect(() => {
         loadUserData();
+        loadLatestFortune();
     }, []);
 
     const handleLogout = async () => { //로그아웃 후 로그인화면으로 전환
@@ -81,18 +110,18 @@ const MyPageView = ({ title }) => {
 
 
                 <View style={styles.fortuneBox}>
-                    <Image source={require('../../assets/images/fortune.png')} style={styles.fortuneImage}/>
+                    <Image source={require('../../assets/images/fortune.png')} style={styles.fortuneImage} />
                     <Text style={styles.fortuneUser}>{userName} 님의 포춘쿠키</Text>
 
                     <ImageBackground
-                        source = {require('../../assets/images/foutuneResultText.png') }
+                        source={require('../../assets/images/foutuneResultText.png')}
                         style={styles.fortuneResult}>
-                            <View style={styles.fortuneTextCtn}>
-                                 {/*포춘쿠키 해당 날짜 연결 */}
-                                <Text style={styles.fortuneText}>2024.04.15</Text>
-                                {/*포춘쿠키 결과 텍스트 연결 */}
-                                <Text style={styles.fortuneText}>마음을 편하게 먹고 조급해하지 마세요</Text>
-                            </View>
+                        <View style={styles.fortuneTextCtn}>
+                            {/*포춘쿠키 해당 날짜 연결 */}
+                            <Text style={styles.fortuneText}>{latestFortune.date}</Text>
+                            {/*포춘쿠키 결과 텍스트 연결 */}
+                            <Text style={styles.fortuneText} numberOfLines={2} ellipsizeMode='tail'>{latestFortune.content}</Text>
+                        </View>
                     </ImageBackground>
 
                     <TouchableOpacity onPress={handleFortunePress} style={styles.fortuneResultCtn}>
@@ -115,9 +144,9 @@ const MyPageView = ({ title }) => {
                         </TouchableOpacity>
 
                     </View>
-                    
+
                 </View>
-    
+
             </View>
         </SafeAreaView>
 
@@ -152,7 +181,7 @@ const styles = StyleSheet.create({
         color: 'white',
         textAlign: 'center',
     },
-    email:{
+    email: {
         fontSize: 15,
         color: 'white',
         textAlign: 'left',
@@ -164,37 +193,38 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         marginTop: 30,
         height: 360,
-        backgroundColor: '#C1C7F8', 
+        backgroundColor: '#C1C7F8',
         borderRadius: 15,
         flexDirection: 'column',
         alignItems: "center"
 
     },
     fortuneImage: {
-        width: 165, 
-        height: 99,
+        width: 165,
+        height: 110,
     },
     fortuneUser: {
-        color: '#333333', 
+        color: '#333333',
         fontSize: 18,
-        fontWeight: '600', 
+        fontWeight: '600',
     },
-    fortuneResult:{
-        width: 330, 
+    fortuneResult: {
+        width: 330,
         height: 130,
         marginTop: 10
     },
-    fortuneText:{
-        textAlign: 'center', 
-        color: '#333333', 
+    fortuneText: {
+        textAlign: 'center',
+        color: '#333333',
         fontSize: 14,
         fontWeight: '600',
-        marginBottom:20,
+        marginBottom: 10,
     },
-    fortuneTextCtn:{
+    fortuneTextCtn: {
         marginTop: 30,
+        marginHorizontal: 30,
     },
-    fortuneResultCtn : {
+    fortuneResultCtn: {
         marginTop: 23
     },
     setting: {
@@ -207,27 +237,27 @@ const styles = StyleSheet.create({
     },
     settingCtn: {
         flexDirection: 'column',
-        alignItems:'flex-start',
+        alignItems: 'flex-start',
         marginHorizontal: 38,
-        marginTop:15,
+        marginTop: 15,
     },
-    settingText : {
-        color: 'white', 
-        fontSize: 18, 
+    settingText: {
+        color: 'white',
+        fontSize: 18,
         fontWeight: '600',
         marginBottom: 5
     },
-    settingMenuText : {
-        color: 'white', 
-        fontSize: 16, 
+    settingMenuText: {
+        color: 'white',
+        fontSize: 16,
         fontWeight: '400',
-        marginTop:15     
+        marginTop: 15
     },
     settingMenuDelete: {
-        color: '#F34F45', 
-        fontSize: 16, 
+        color: '#F34F45',
+        fontSize: 16,
         fontWeight: '400',
-        marginTop:15   
+        marginTop: 15
     }
 
 });
