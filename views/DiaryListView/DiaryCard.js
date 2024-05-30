@@ -61,7 +61,7 @@ const formatDate = (date) => {
     return `${yyyy}-${mm}-${dd}`;
 };
 
-const DiaryCard = () => {
+const DiaryCard = ({defaultDate}) => {
 
     const navigation = useNavigation();
 
@@ -108,12 +108,43 @@ const DiaryCard = () => {
         setLoading(false);
     }
 
+    async function defaultFetchData(d) {
+        await checkToken();
+        token = await getToken();
+
+        setLoading(true);
+    
+        const response = await fetch('http://carvedrem.kro.kr:8080/api/diary/searchByDate?date=' + d, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token[0]}`,
+            },
+        });
+        
+        const ret = await response.json();
+    
+        if (ret.check == null || ret.check == true) {
+            setData(ret.information.reverse());
+            console.log("데이터 불러오기 성공");
+            setLoading(false);
+        } else {
+            console.log("데이터 불러오기 실패");
+        }
+    }
+
     const isFocused = useIsFocused();
 
     useEffect(() => {
         if (isFocused) {
-            setDate(formatDate(new Date()));
-            fetchData();
+            if (defaultDate) {
+                setDate(defaultDate);
+                defaultFetchData(defaultDate);
+            } else {
+                setDate(formatDate(new Date()));
+                fetchData();
+            }
+            
         }
     }, [isFocused])
 
@@ -145,6 +176,8 @@ const DateView = ({sDate, sData, sLoading}) => {
         async function fetchData() {
             await checkToken();
             token = await getToken();
+
+            setLoading(true);
         
             const response = await fetch('http://carvedrem.kro.kr:8080/api/diary/searchByDate?date=' + formatDate(d), {
                 method: 'GET',

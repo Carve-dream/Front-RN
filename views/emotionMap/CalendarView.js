@@ -4,6 +4,7 @@ import { CalendarList } from 'react-native-calendars';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { fetchDiaryData } from '../../api/fetchDiaryData';
 import { checkToken, getToken } from '../../ManageToken';
+import { useNavigation } from '@react-navigation/native';
 
 
 const CalendarView = () => {
@@ -11,6 +12,7 @@ const CalendarView = () => {
     const [selectedDate, setSelectedDate] = useState('2024-05-07');
     const [calendarHeight, setCalendarHeight] = useState(500); // 기본 달력 높이
 
+    const navigation = useNavigation();
 
     // 캘린더의 헤더를 2024.05 형태로 지정
     const renderCustomHeader = (date) => {
@@ -94,6 +96,10 @@ const CalendarView = () => {
         fetchData();
     }, []);
 
+    const handleDayPress = (day) => {
+        console.log('day changed', day);
+        navigation.navigate("꿈일기 목록", day);
+    }
 
     return (
         <View style={styles.container}>
@@ -101,7 +107,7 @@ const CalendarView = () => {
                 style={[styles.cal, { height: calendarHeight }]}
                 renderHeader={(date) => renderCustomHeader(date)}
                 current={selectedDate}
-                onDayPress={(day) => { console.log('day changed', day) }}
+                onDayPress={(day) => { handleDayPress(day) }}
                 onMonthChange={onMonthChange}
 
                 markedDates={diaryDates} // 일기가 있는 날짜 표시
