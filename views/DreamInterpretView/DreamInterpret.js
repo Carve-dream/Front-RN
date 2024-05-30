@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, Dimensions,ScrollV
 import { useNavigation } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
 import { checkToken, getToken } from '../../ManageToken';
+import Toast from 'react-native-toast-message';
 
 
 const screenWidth = Dimensions.get('window').width; 
@@ -57,7 +58,7 @@ const FullScreen = ({data}) => {
             setLoading(false);
         }
         interpret();
-    }, [data]);
+    }, [data.content]);
 
     return(
     <View style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -160,15 +161,21 @@ const SaveBtn = ({id, interpret}) => {
             console.log(res);
             if (res.check != null && res.check == false) {
                 console.log("해몽 저장 실패");
+                Toast.show({
+                    text1: "해몽을 저장할 수 없습니다.",
+                })
             } else {
                 console.log("해몽 저장 성공");
-                navigation.goBack();
+                Toast.show({
+                    text1: "해몽이 성공적으로 저장되었습니다.",
+                })
             }
         });
     }
 
     return(
         <View>
+            
             <TouchableOpacity onPress={() => navigation.navigate('ChatView')} style={styles.confirmButton}>
                 <Text style={styles.confirmText}>꾸미와 꿈에 대해 이야기하기</Text>
             </TouchableOpacity>
@@ -176,6 +183,7 @@ const SaveBtn = ({id, interpret}) => {
             <TouchableOpacity onPress={() => {handleSave()}} style={styles.confirmButton}>
                 <Text style={styles.confirmText}>저장하기</Text>
             </TouchableOpacity>
+            <Toast position='bottom' bottomOffset={-15}/>
         </View>
     );
 }
