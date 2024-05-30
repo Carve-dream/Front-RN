@@ -14,35 +14,48 @@ const EmotionRecord = () => {
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1 더하기
 
-    const fetchEmotions = async () => {
-        await checkToken();
-        const token = await getToken();
-        try {
-            const response = await fetch('http://carvedrem.kro.kr:8080/api/emotion?year=' + year + '&month=' + month, {
+    async function fetchEmotions() {
+        token = await getToken();
+
+        let arr = [];
+    
+        for (let index = 0; true; index++) {
+            
+            const response = await fetch('http://carvedrem.kro.kr:8080/api/diary?page=' + index, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token[0]}`,
                 },
             });
-            const json = await response.json();
-            console.log(json.information);
-
-            setEmotions(json.information); // 가져온 데이터를 상태에 저장
-        } catch (error) {
-            console.error(error);
+            
+            const ret = await response.json();
+        
+            if (ret.check == null || ret.check == true) {
+                if (ret.information.length == 0) {
+                    break;
+                }
+                ret.information.map((element) => {
+                    arr.unshift(element);
+                })
+                console.log("데이터 불러오기 성공");
+            } else {
+                console.log("데이터 불러오기 실패");
+                break;
+            }
         }
-    };
+        //array를 정렬해야 됨.
+        arr.sort((a, b) => {
+            return new Date(b.date) - new Date(a.date);
+        })
+        setEmotions(arr);
+    }
 
     useFocusEffect(
         useCallback(() => {
             fetchEmotions();
         }, [])
     );
-
-    useEffect(() => {
-        fetchEmotions();
-    }, []);
 
 
     // 감정과 해당 감정의 이미지를 매핑
@@ -60,7 +73,7 @@ const EmotionRecord = () => {
     
     return (
         <View style={styles.container}>
-            {Array.isArray(emotions) && emotions.slice(Math.max(emotions.length - 7, 0)).map((emotion, index) => (
+            {Array.isArray(emotions) && emotions.slice(0, 7).reverse().map((emotion, index) => (
                 <Image
                     key={index}
                     source={emotion.emotion ? emotionImages[emotion.emotion] : require('../../assets/images/ellipse-blank.png')} // 감정 미표시 - 별 이미지로 수정
