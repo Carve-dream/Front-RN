@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchDiaryById } from '../../features/diary/diarySlice';
 import DiaryCard from './DiaryCard';
 import TopBar from '../../ChatView/TopBar';
+import { useRoute } from '@react-navigation/native';
 
 const screenWidth = Dimensions.get('window').width; 
 const screenHeight = Dimensions.get('window').height; 
@@ -23,6 +24,19 @@ const DiaryList = ({navigation}) => {
     // }, [dispatch]);
 
     // console.log(status, diary, error);
+
+    const route = useRoute();
+
+    if (route.params !== undefined) {
+        return (
+            <LinearGradient colors={['rgba(41, 32, 100, 0.80)', 'rgba(203, 157, 221, 0.80)', 'rgba(244, 191, 168, 0.80)', 'rgba(255, 255, 255, 0.80)']} style={styles.linearGradient}>
+            <View style={styles.topCtn}>
+                 <TopBar navigation={navigation} title="꿈 일기 목록"  />
+            </View>
+            <DiaryCard defaultDate={route.params.dateString}/>
+            </LinearGradient>
+        );
+    }
 
 
     return (
