@@ -1,17 +1,35 @@
-import React from 'react';
+import React, { useCallback , useEffect , useState} from 'react';
 import { View, StyleSheet, Text, ScrollView, Dimensions } from 'react-native';
+import { useFocusEffect  } from '@react-navigation/native';
 import CustomTabBar from '../../CustomTabBar/CustomTabBar';
 import { LinearGradient } from 'expo-linear-gradient';
 import CalendarView from './CalendarView';
 import EmotionRecord from './EmotionRecord';
 import EmotionChart from './EmotionChart';
 import TopBar from '../../ChatView/TopBar';
+import { fetchUserData } from '../../api/fetchUserData';
 
 const screenWidth = Dimensions.get('window').width; 
 const screenHeight = Dimensions.get('window').height; 
 
 const EmotionMapView = (navigation) => {
     const weekRange = getWeekRange(); // 일주일 날짜 범위를 문자열로 가져옴
+    const [userName, setUserName] = useState('');
+
+    const loadUserData = async () => {
+        const data = await fetchUserData();
+        setUserName(data.information.name);
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            loadUserData();
+        }, [])
+    );
+
+    useEffect(() => {
+        loadUserData();
+    }, []);
 
     return (
         <LinearGradient
@@ -27,9 +45,9 @@ const EmotionMapView = (navigation) => {
                 <View style={styles.boxCtn}>
                     <View style={styles.mainBox}>
                         <CalendarView />
-                        <Text style={styles.eText}>일주간 감정 기록</Text>
+                        <Text style={styles.eText}>{userName}님의 최근 기록된 감정</Text>
                         <EmotionRecord />
-                        <Text style={styles.eText}>{weekRange}</Text>
+                        <Text style={styles.statText}>{weekRange}</Text>
                         <Text style={styles.eText}>감정 통계</Text>
                         <EmotionChart/>
                     </View>
@@ -115,6 +133,12 @@ const styles = StyleSheet.create({
         paddingTop: 13,
         fontWeight: 'bold',
         fontSize: 15,
+    },
+    statText: {
+        paddingTop: 13,
+        fontWeight: 'bold',
+        fontSize: 15,
+        marginTop: 10,
     }
 
 });

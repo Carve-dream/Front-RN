@@ -2,25 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import { Svg, Circle } from 'react-native-svg';
+import { checkToken, getToken } from "../../ManageToken";
 
 const EmotionChart = () => {
     const [data, setData] = useState([]);
+    const [showLegend, setShowLegend] = useState(true); // 범례를 보여줄지 결정하는 상태
+    // 현재 날짜를 가져와서 year와 month를 설정
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1 더하기
 
     useEffect(() => {
         const fetchData = async () => {
-            // 현재 날짜를 가져와서 year와 month를 설정
-            const currentDate = new Date();
-            const year = currentDate.getFullYear();
-            const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1 더하기
+            await checkToken();
+            const token = await getToken();
             try {
-                const response = await fetch('http://carvedrem.kro.kr:8080/api/emotion/graph?year='+year+'&month='+month, {
+                const response = await fetch('http://carvedrem.kro.kr:8080/api/emotion/graph?year=' + year + '&month=' + month, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token[0]}`,
                     },
                 });
-                const apiData = await response.json(); 
+                const apiData = await response.json();
                 console.log(apiData.information.THRILL);
                 if (apiData.information) {
                     // API 데이터를 차트 데이터 형식으로 변환
@@ -35,8 +39,18 @@ const EmotionChart = () => {
                         { name: '기뻐요', population: apiData.information.JOY || 0, color: '#B3F4BB' },
                         { name: '화나요', population: apiData.information.ANGER || 0, color: '#D2BDFF' },
                     ];
+
+                    const totalPopulation = chartData.reduce((acc, curr) => acc + curr.population, 0);
+                    if (totalPopulation === 0) {
+                        // 모든 데이터가 0이면 회색으로 전체를 둘러싼 데이터 추가
+                        chartData.splice(0, chartData.length, { name: 'No Data', population: 1, color: '#D3D3D3' });
+                        setShowLegend(false); // 범례를 숨김
+                    } else {
+                        setShowLegend(true); // 범례를 표시
+                    }
+
                     setData(chartData);
-                    
+
                 } else {
                     console.error('error api information');
                 }
@@ -73,19 +87,22 @@ const EmotionChart = () => {
             </Svg>
 
             {/*각 항목 텍스트*/}
-            <View style={styles.container}>
-                {data.map((item, index) => (
-                    item.population > 0 && (
-                        <View key={index} style={styles.legendItem}>
-                            <View style={[styles.colorBox, { backgroundColor: item.color }]} />
-                            <Text style={[styles.text, { color: item.legendFontColor }]}>
-                                {item.name}
-                            </Text>
-                        </View>
-                    )
+            {showLegend && (
+                <View style={styles.container}>
+                    {data.map((item, index) => (
+                        item.population > 0 && (
+                            <View key={index} style={styles.legendItem}>
+                                <View style={[styles.colorBox, { backgroundColor: item.color }]} />
+                                <Text style={[styles.text, { color: item.legendFontColor }]}>
+                                    {item.name}
+                                </Text>
+                            </View>
+                        )
 
-                ))}
-            </View>
+                    ))}
+                </View>
+            )}
+
 
         </View>
     );
@@ -103,7 +120,7 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'space-around',
+        justifyContent: 'space-round',
         width: '80%',
         marginTop: 10,
         marginBottom: 20,

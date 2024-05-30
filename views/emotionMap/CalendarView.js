@@ -113,7 +113,8 @@ const CalendarView = () => {
                 theme={{
                     backgroundColor: '#ffffff',
                     calendarBackground: '#ffffff',
-                    todayTextColor: '#5872C4',
+                    todayTextColor: 'white',
+                    todayBackgroundColor: '#C1C7F8',
                     dayTextColor: '#2d4150',
                     textDayFontWeight: 'bold', //날짜
                     textMonthFontWeight: 'bold', //달

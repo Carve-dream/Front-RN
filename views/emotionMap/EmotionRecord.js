@@ -1,22 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback,useState, useEffect } from 'react';
 import { Text, Image, View, StyleSheet } from 'react-native';
 import { checkToken, getToken } from "../../ManageToken";
+import { useNavigation, useFocusEffect  } from '@react-navigation/native';
+
 
 //'../../assets/images/ellipse-blank.png'
-
-// 일주일 간의 날짜를 생성하는 함수
-const generateWeekDays = () => {
-    const weekDays = [];
-    const today = new Date();
-    const todayDayOfWeek = today.getDay();
-    const daySinceSunday = todayDayOfWeek;
-    for (let i = 1; i <= 7; i++) {
-        const day = new Date(today);
-        day.setDate(day.getDate() - daySinceSunday + i);
-        weekDays.push(day.toISOString().split('T')[0]);  // YYYY-MM-DD 형식
-    }
-    return weekDays;
-};
 
 const EmotionRecord = () => {
     const [emotions, setEmotions] = useState([]);
@@ -26,33 +14,33 @@ const EmotionRecord = () => {
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1 더하기
 
+    const fetchEmotions = async () => {
+        await checkToken();
+        const token = await getToken();
+        try {
+            const response = await fetch('http://carvedrem.kro.kr:8080/api/emotion?year=' + year + '&month=' + month, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token[0]}`,
+                },
+            });
+            const json = await response.json();
+            console.log(json.information);
+
+            setEmotions(json.information); // 가져온 데이터를 상태에 저장
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchEmotions();
+        }, [])
+    );
+
     useEffect(() => {
-        const fetchEmotions = async () => {
-            await checkToken();
-            const token = await getToken();
-            try {
-                const response = await fetch('http://carvedrem.kro.kr:8080/api/emotion?year=' + year + '&month=' + month, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token[0]}`,
-                    },
-                });
-                const json = await response.json();
-                console.log(json.information);
-
-                const weekDays = generateWeekDays();
-                const weekEmotions = weekDays.map(date => {
-                    const foundEmotion = json.information.find(emotion => emotion.date === date);
-                    return foundEmotion || { date, emotion: null }; // 없는 날짜에는 emotion을 null로 설정
-                });
-
-                setEmotions(weekEmotions); // 가져온 데이터를 상태에 저장
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
         fetchEmotions();
     }, []);
 
@@ -69,13 +57,13 @@ const EmotionRecord = () => {
         THRILL: require('../../assets/emoji/happy.png'),
         MYSTERY: require('../../assets/emoji/mysterious.png'),
     };
-
+    
     return (
         <View style={styles.container}>
-            {Array.isArray(emotions) && emotions.map((emotion, index) => (
+            {Array.isArray(emotions) && emotions.slice(Math.max(emotions.length - 7, 0)).map((emotion, index) => (
                 <Image
                     key={index}
-                    source={emotion.emotion ? emotionImages[emotion.emotion] : require('../../assets/images/ellipse-blank.png')}
+                    source={emotion.emotion ? emotionImages[emotion.emotion] : require('../../assets/images/ellipse-blank.png')} // 감정 미표시 - 별 이미지로 수정
                     style={styles.image}
                 />
             ))}
