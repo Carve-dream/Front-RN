@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
         fontWeight: '400',
         width: 300,
         height: 'auto',
-        textAlign: 'center',
+        textAlign: 'left',
     },
     subtitleCtn: {
         width: 300,

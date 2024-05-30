@@ -608,7 +608,7 @@ const styles = StyleSheet.create({
         marginTop: 15,
         color: '#89898B',
         fontWeight: '600',
-        textAlign: 'center',
+        textAlign: 'left',
         width: 300,
     },
     image:{
