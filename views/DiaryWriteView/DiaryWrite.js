@@ -115,6 +115,7 @@ const DiaryTop = (state) => {
                     onConfirm={handleConfirm}
                     onCancel={hideDatePicker}
                     locale="ko_KR" // 한국어 설정
+                    date={date}
                 />
             <TextInput
                 value={title}
@@ -190,8 +191,9 @@ const SleepTimePicker = (state) => {
             onConfirm={handleConfirmBedTime}
             onCancel={hideBedTimePicker}
             headerTextIOS="취침 시작시간 선택"
-            locale="ko_KR" 
+            locale="ko_KR"
             is24Hour={true}
+            date={bedTime}
         />
 
         <TouchableOpacity style={styles.touchable} onPress={showWakeTimePicker}>
@@ -204,8 +206,9 @@ const SleepTimePicker = (state) => {
             onConfirm={handleConfirmWakeTime}
             onCancel={hideWakeTimePicker}
             headerTextIOS="일어난 시간 선택"
-            locale="ko_KR" 
+            locale="ko_KR"
             is24Hour={true}
+            date={wakeTime}
         />
     </View>
     );
@@ -323,6 +326,15 @@ const SaveBtn = ({data}) => {
             "설레요": "THRILL",
             "미스테리해요": "MYSTERY",
         };
+
+        const formatDate = (date) => {
+            let dd = date.getDate();
+            let mm = date.getMonth() + 1; 
+            const yyyy = date.getFullYear();
+            if (dd < 10) dd = '0' + dd;
+            if (mm < 10) mm = '0' + mm;
+            return `${yyyy}-${mm}-${dd}`;
+        };
     
         const title = props["title"];
         const diaryText = props["diaryText"];
@@ -346,7 +358,7 @@ const SaveBtn = ({data}) => {
                 'start_sleep': toTime(bedTime),
                 'end_sleep': toTime(wakeTime),
                 'emotion': selectedEmotion,
-                'date': date,
+                'date': formatDate(date),
                 'tags': tags,
             }),
         });
