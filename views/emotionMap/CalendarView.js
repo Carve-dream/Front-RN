@@ -39,9 +39,46 @@ const CalendarView = () => {
         );
     };
 
+    // 날짜별 일기 여부 표시
+    const [diaryDates, setDiaryDates] = useState({});
+
     // 달의 주 수에 따라 달력 높이 조정
     useEffect(() => {
         adjustCalendarHeight(selectedDate);
+        async function fetchData() {
+            checkToken();
+            token = await getToken();
+
+            const [year, month, day] = selectedDate.split('-');
+
+            const response = await fetch('http://carvedrem.kro.kr:8080/api/emotion?year=' + year + '&month=' + month, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token[0]}`,
+                },
+            });
+            
+            const ret = await response.json();
+        
+            if (ret.check == null || ret.check == true) {
+                console.log("데이터 불러오기 성공");
+            } else {
+                console.log("데이터 불러오기 실패");
+            }
+            const formattedData = ret.information.reduce((acc, diary) => {
+                acc[diary.date] = {
+                    marked: true, //작게 표시
+                    dotColor: '#EF82A1',
+                    //  selected: true, //크게 표시
+                    //  selectedColor: '#C1C7F8',
+                };
+                return acc;
+            }, {});
+            setDiaryDates(formattedData);
+        }
+        
+        fetchData();
     }, [selectedDate]);
 
     const adjustCalendarHeight = (date) => {
@@ -51,7 +88,7 @@ const CalendarView = () => {
         const totalDays = new Date(year, month + 1, 0).getDate();
         const weeks = Math.ceil((firstDay + totalDays) / 7);
         setCalendarHeight(weeks * 50 + 70); // 주당 높이 조정 + 헤더 높이
-        console.log(weeks)
+        // console.log(weeks)
     };
 
     // onMonthChange 핸들러. 달력 슬라이드 시 높이 조정
@@ -59,6 +96,7 @@ const CalendarView = () => {
         console.log('month changed', month);
         setSelectedDate(month.dateString);
         const { dateString } = month; // dateString을 사용하여 달력 높이 조정
+        setSelectedDate(dateString);
         adjustCalendarHeight(dateString);
     };
 
@@ -75,55 +113,6 @@ const CalendarView = () => {
         setSelectedDate(`${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`);
         hideDatePicker();
     };
-
-    // 날짜별 일기 여부 표시
-    const [diaryDates, setDiaryDates] = useState({});
-    useFocusEffect(useCallback(() => {
-        async function fetchData() {
-            await checkToken();
-            token = await getToken();
-    
-            let arr = [];
-        
-            for (let index = 0; true; index++) {
-                
-                const response = await fetch('http://carvedrem.kro.kr:8080/api/diary?page=' + index, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token[0]}`,
-                    },
-                });
-                
-                const ret = await response.json();
-            
-                if (ret.check == null || ret.check == true) {
-                    if (ret.information.length == 0) {
-                        break;
-                    }
-                    ret.information.map((element) => {
-                        arr.unshift(element);
-                    })
-                    console.log("데이터 불러오기 성공");
-                } else {
-                    console.log("데이터 불러오기 실패");
-                    break;
-                }
-            }
-            const formattedData = arr.reduce((acc, diary) => {
-                acc[diary.date] = {
-                    marked: true, //작게 표시
-                    dotColor: '#EF82A1',
-                    //  selected: true, //크게 표시
-                    //  selectedColor: '#C1C7F8',
-                };
-                return acc;
-            }, {});
-            setDiaryDates(formattedData);
-        }
-        
-        fetchData();
-    }, []));
 
     const handleDayPress = (day) => {
         console.log('day changed', day);

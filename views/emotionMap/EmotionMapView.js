@@ -8,6 +8,7 @@ import EmotionRecord from './EmotionRecord';
 import EmotionChart from './EmotionChart';
 import TopBar from '../../ChatView/TopBar';
 import { fetchUserData } from '../../api/fetchUserData';
+import { checkToken } from '../../ManageToken';
 
 const screenWidth = Dimensions.get('window').width; 
 const screenHeight = Dimensions.get('window').height; 
@@ -24,12 +25,9 @@ const EmotionMapView = (navigation) => {
     useFocusEffect(
         useCallback(() => {
             loadUserData();
+            checkToken();
         }, [])
     );
-
-    useEffect(() => {
-        loadUserData();
-    }, []);
 
     return (
         <LinearGradient

@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import { Svg, Circle } from 'react-native-svg';
 import { checkToken, getToken } from "../../ManageToken";
+import { useFocusEffect  } from '@react-navigation/native';
+
 
 const EmotionChart = () => {
     const [data, setData] = useState([]);
@@ -12,9 +14,8 @@ const EmotionChart = () => {
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1 더하기
 
-    useEffect(() => {
+    useFocusEffect(useCallback(() => {
         const fetchData = async () => {
-            await checkToken();
             const token = await getToken();
             try {
                 const response = await fetch('http://carvedrem.kro.kr:8080/api/emotion/graph?year=' + year + '&month=' + month, {
@@ -25,12 +26,12 @@ const EmotionChart = () => {
                     },
                 });
                 const apiData = await response.json();
-                console.log(apiData.information.THRILL);
+                
                 if (apiData.information) {
                     // API 데이터를 차트 데이터 형식으로 변환
                     const chartData = [
                         { name: '설레요', population: apiData.information.THRILL || 0, color: '#FA9189' },
-                        { name: '그리워요', population: apiData.information.YEARING || 0, color: '#FCAE7D' },
+                        { name: '그리워요', population: apiData.information.YEARNING || 0, color: '#FCAE7D' },
                         { name: '두려워요', population: apiData.information.FEAR || 0, color: '#FFE699' },
                         { name: '찝찝해요', population: apiData.information.AWKWARDNESS || 0, color: '#FAFFB5' },
                         { name: '미스테리해요', population: apiData.information.MYSTERY || 0, color: '#E3CBF7' },
@@ -60,7 +61,7 @@ const EmotionChart = () => {
         };
 
         fetchData();
-    }, []);
+    }, []));
 
     return (
         <View style={{ alignItems: 'center' }}>
