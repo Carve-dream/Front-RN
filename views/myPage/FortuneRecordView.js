@@ -137,18 +137,19 @@ const DatePicker = ({ setDate, fetchFortuneCookie }) => {
     
     return (
         <View style={styles.diaryTopCtn}>
-            <View style={styles.dateCtn}>
+            <TouchableOpacity style={styles.dateCtn} onPress={showDatePicker}>
                     <Text style={styles.date} >{formatDate(date)}</Text>
-                     <TouchableOpacity title={formatDate(date)} onPress={showDatePicker}>
+                     <View title={formatDate(date)}>
                          <Text style={styles.toggleIcon}>▼</Text>
-                     </TouchableOpacity>
-            </View>
+                     </View>
+            </TouchableOpacity>
                 <DateTimePickerModal
                     isVisible={isDatePickerVisible}
                     mode="date"
                     onConfirm={handleConfirm}
                     onCancel={hideDatePicker}
                     locale="ko_KR" // 한국어 설정
+                    date={date}
                 />
         </View>
     );
