@@ -132,14 +132,16 @@ const ChatView = ({ navigation }) => {
   const flatListRef = useRef();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
       >
         {/*상단바*/}
-        <TopBar navigation={navigation} title="꾸미와의 대화" />
+        <View style={styles.topCtn}>
+            <TopBar navigation={navigation} title="꾸미와의 대화" />
+        </View>
 
         {/* 채팅 창 */}
         <FlatList
@@ -166,7 +168,7 @@ const ChatView = ({ navigation }) => {
         <Input sendMessage={sendMessage} />
       </KeyboardAvoidingView>
 
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -194,6 +196,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'white',
   },
+  topCtn : {
+        marginTop: 55,
+        marginBottom: 20
+    },
 });
 
 export default ChatView;
