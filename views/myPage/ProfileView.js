@@ -42,7 +42,7 @@ const ProfileView = ({ title }) => {
 
     //유저 정보에 따라 프로필 사진, 이름, 생년월일, 성별, 이메일 주소, 가입 날짜 수정
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <View style={styles.container}>
                 <ProfileTopBar title="프로필" />
                 <StatusBar barStyle="light-content" />
@@ -91,7 +91,7 @@ const ProfileView = ({ title }) => {
                 </TouchableOpacity>
 
             </View>
-        </SafeAreaView>
+        </View>
 
     );
 };
