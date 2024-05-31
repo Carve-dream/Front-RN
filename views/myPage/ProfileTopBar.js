@@ -7,18 +7,20 @@ import { useNavigation } from '@react-navigation/native';
 const ProfileTopBar = ({ title }) => {
   const navigation = useNavigation();
   return (
-    <View style={styles.topBar}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Image source={require('../../assets/images/back.png')} style={styles.back} />
-      </TouchableOpacity>
+    <View style={styles.topCtn}>
+      <View style={styles.topBar}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Image source={require('../../assets/images/back.png')} style={styles.back} />
+        </TouchableOpacity>
 
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>{title}</Text>
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>{title}</Text>
+        </View>
+        {/* 수정 버튼 */}
+        <TouchableOpacity style={styles.menuButton}  onPress={() => navigation.navigate('ProfileEditView')}>
+          <Image source={require('../../assets/images/editIcon.png')} style={styles.edit} />
+        </TouchableOpacity>
       </View>
-      {/* 수정 버튼 */}
-      <TouchableOpacity style={styles.menuButton}  onPress={() => navigation.navigate('ProfileEditView')}>
-        <Image source={require('../../assets/images/editIcon.png')} style={styles.edit} />
-      </TouchableOpacity>
     </View>
   );
 };
@@ -50,6 +52,10 @@ const styles = StyleSheet.create({
     width: 23,
     height: 23,
     marginRight: 5,
+  },
+  topCtn : {
+    marginTop: 55,
+    marginBottom: 20
   },
 });
 

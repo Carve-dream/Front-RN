@@ -72,9 +72,11 @@ const BoxComponent = () => {
             <ScrollView style={styles.container}>
                 <Text>{userName} 님의 꿈 일기 목록</Text>
                 {data.map((element, index) => {
-                    return (
-                        <List key={index} title={element.title} id={element.id}/>
-                    )
+                    if (index < 10) {
+                        return (
+                            <List key={index} title={element.title} id={element.id}/>
+                        )
+                    }
                 })}
             </ScrollView>
         </View>
