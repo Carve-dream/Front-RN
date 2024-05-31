@@ -34,27 +34,31 @@ const FullScreen = ({data}) => {
     useEffect(() => {
         const interpret = async () => {
             setLoading(true);
-            await checkToken();
-            const [accessToken, refreshToken] = await getToken();
-            const response = fetch('http://carvedrem.kro.kr:8080/api/diary/interpretation', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify({ 
-                    'content': data.content,
-                }),
-            });
-            response.then(result => result.json()).then(res => {
-                console.log(res);
-                if (res.check != null && res.check == false) {
-                    console.log("해몽 실패");
-                } else {
-                    setText(res.information.answer);
-                    console.log("해몽 성공");
-                }
-            });
+            if (data.content == "") {
+                setText("해몽을 하려면 꿈 일기를 작성해야 해요.");
+            } else {
+                await checkToken();
+                const [accessToken, refreshToken] = await getToken();
+                const response = fetch('http://carvedrem.kro.kr:8080/api/diary/interpretation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({ 
+                        'content': data.content,
+                    }),
+                });
+                response.then(result => result.json()).then(res => {
+                    console.log(res);
+                    if (res.check != null && res.check == false) {
+                        console.log("해몽 실패");
+                    } else {
+                        setText(res.information.answer);
+                        console.log("해몽 성공");
+                    }
+                });
+            }
             setLoading(false);
         }
         interpret();
@@ -176,7 +180,7 @@ const SaveBtn = ({id, interpret}) => {
     return(
         <View>
             
-            <TouchableOpacity onPress={() => navigation.navigate('ChatView')} style={styles.confirmButton}>
+            <TouchableOpacity onPress={() => navigation.navigate('ChatView', id)} style={styles.confirmButton}>
                 <Text style={styles.confirmText}>꾸미와 꿈에 대해 이야기하기</Text>
             </TouchableOpacity>
 
