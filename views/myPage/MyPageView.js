@@ -68,8 +68,24 @@ const MyPageView = ({ title }) => {
     }, []);
 
     const handleLogout = async () => { //로그아웃 후 로그인화면으로 전환
-        await logoutUser();
-        navigation.navigate('LogIn');
+        
+        Alert.alert(
+            '로그아웃 하시겠습니까?',
+            '로그인 화면으로 돌아갑니다.',
+            [
+                {
+                    text: '취소',
+                    style: 'cancel',
+                },
+                {
+                    text: '확인',
+                    onPress: async () => {
+                        await logoutUser();
+                        navigation.navigate('LogIn');
+                    },
+                },
+            ]
+        );
     }
 
     const handleDeleteAccount = async () => { //탈퇴하기 후 로그인화면으로 전환
@@ -87,9 +103,9 @@ const MyPageView = ({ title }) => {
                         await deleteUserAccount();
                         navigation.navigate('LogIn');
                     },
+                    style: 'destructive',
                 },
-            ],
-            { cancelable: false }
+            ]
         );
     };
     return (
