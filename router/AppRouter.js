@@ -22,7 +22,7 @@ function TabNavigator() {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }} tabBar={(props) => <CustomTabBar {...props} />} initialRouteName="홈">
       <Tab.Screen name="홈" component={MainView} options={{ tabBarIcon: { active: require('../assets/images/homePush.png'), default: require('../assets/images/home.png') } }} />
-      <Tab.Screen name="꿈일기 목록" component={DiaryList} options={{ tabBarIcon: { active: require('../assets/images/notePush.png'), default: require('../assets/images/note.png') } }} />
+      <Tab.Screen name="꿈 일기 목록" component={DiaryList} options={{ tabBarIcon: { active: require('../assets/images/notePush.png'), default: require('../assets/images/note.png') } }} />
       <Tab.Screen 
         name="일기작성" 
         component={DiaryWriteView} // 이 컴포넌트는 실제로 렌더링되지 않습니다.
