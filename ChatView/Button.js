@@ -8,8 +8,8 @@ const Button = ({ item, sendMessage }) => {
     if (item.sender === 'buttons') {
         return (
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.button} onPress={() => sendMessage('꿈일기 불러오기')}>
-                    <Text style={styles.buttonText}>꿈일기 불러오기</Text>
+                <TouchableOpacity style={styles.button} onPress={() => sendMessage('꿈 일기 불러오기')}>
+                    <Text style={styles.buttonText}>꿈 일기 불러오기</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.button} onPress={() => sendMessage('감정 분석하기')}>
                     <Text style={styles.buttonText}>감정 분석하기</Text>
