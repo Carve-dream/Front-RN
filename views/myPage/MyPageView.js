@@ -93,9 +93,11 @@ const MyPageView = ({ title }) => {
         );
     };
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <View style={styles.container}>
-                <TopBar title="마이페이지" />
+                <View style={styles.topCtn}>
+                    <TopBar title="마이페이지" />
+                </View>
                 <StatusBar barStyle="light-content" />
 
                 <TouchableOpacity onPress={handleProfilePress} style={styles.button}>
@@ -148,7 +150,7 @@ const MyPageView = ({ title }) => {
                 </View>
 
             </View>
-        </SafeAreaView>
+        </View>
 
     );
 };
@@ -158,6 +160,10 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#464E82',
         height: 750,
+    },
+    topCtn : {
+        marginTop: 55,
+        marginBottom: 20
     },
     profileContainer: {
         flexDirection: 'row',
