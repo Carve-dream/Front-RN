@@ -36,7 +36,7 @@ const EmotionMapView = (navigation) => {
         >
 
             <View style={styles.topCtn}>
-                <TopBar navigation={navigation} title="감정지도"/>
+                <TopBar title="감정지도" closeButton={false}/>
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollView}>

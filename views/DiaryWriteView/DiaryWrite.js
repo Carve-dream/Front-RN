@@ -18,7 +18,7 @@ const DiaryWrite = () => {
             <View style={styles.container}>
                 <View style={styles.mainBoxCtn}>
                     <View style={styles.topCtn}>
-                        <TopBar navigation={navigation} title="꿈 일기 작성하기"  />
+                        <TopBar title="꿈 일기 작성하기"  />
                     </View>
                     <MainBoard/>
                 </View>

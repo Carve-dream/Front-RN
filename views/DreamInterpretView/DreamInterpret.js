@@ -18,7 +18,7 @@ const DreamInterpret = (data) => {
     return(
         <View style={styles.fullScreen}>
             <View style={styles.topCtn}>
-                <TopBar navigation={navigation} title="꿈 해몽 하기"/>
+                <TopBar title="꿈 해몽 하기"/>
             </View>
             <FullScreen data={diary}/>
         </View>

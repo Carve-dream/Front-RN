@@ -4,8 +4,13 @@ import { useNavigation } from '@react-navigation/native';
 
 
 //상단바
-const TopBar = ({ title }) => {
+const TopBar = ({ title, closeButton }) => {
   const navigation = useNavigation();
+
+  if (closeButton === undefined) {
+    closeButton = true;
+  }
+
   return (
     <View style={styles.topBar}>
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -16,9 +21,14 @@ const TopBar = ({ title }) => {
         <Text style={styles.headerText}>{title}</Text>
       </View>
       {/* 메뉴 버튼 */}
-      <TouchableOpacity style={styles.menuButton}  onPress={() => navigation.navigate('Main')}>
-        <Image source={require('../assets/images/close.png')} style={styles.close} />
-      </TouchableOpacity>
+      {closeButton ?
+        <TouchableOpacity style={styles.menuButton}  onPress={() => navigation.navigate('Main')}>
+          <Image source={require('../assets/images/close.png')} style={styles.close} />
+        </TouchableOpacity> :
+        <View style={styles.menuButton}  onPress={() => {}}>
+          <View style={styles.close} />
+        </View>
+      }
     </View>
   );
 };

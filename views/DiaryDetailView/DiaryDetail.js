@@ -31,7 +31,7 @@ const DiaryDetail = (props) => {
         return(
             <View style={styles.fullScreen}>
                 <View style={styles.topCtn}>
-                    <TopBar navigation={navigation} title="0000-00-00"/>
+                    <TopBar title="0000-00-00"/>
                 </View>
                 <FullScreen data={null}/>
             </View>
@@ -41,7 +41,7 @@ const DiaryDetail = (props) => {
     return(
         <View style={styles.fullScreen}>
             <View style={styles.topCtn}>
-                <TopBar navigation={navigation} title={data.information.date}/>
+                <TopBar title={data.information.date}/>
             </View>
             <FullScreen data={data.information}/>
         </View>
