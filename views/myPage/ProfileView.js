@@ -1,6 +1,6 @@
-import React, { useCallback , useEffect , useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, Dimensions, StatusBar, TouchableOpacity, TextInput, SafeAreaView } from 'react-native';
-import { useNavigation, useFocusEffect  } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import ProfileTopBar from './ProfileTopBar';
 import { fetchUserData } from '../../api/fetchUserData';
 
@@ -19,6 +19,7 @@ const ProfileView = ({ title }) => {
     const [birthDate, setBirth] = useState('');
     const [createdDate, setDate] = useState('');
     const [gender, setGender] = useState('');
+    const [imageUrl, setProfileImage] = useState(require('../../assets/images/basic-profile.png'));
 
     const loadUserData = async () => {
         const data = await fetchUserData();
@@ -27,6 +28,9 @@ const ProfileView = ({ title }) => {
         setBirth(data.information.birthDate);
         setDate(data.information.createdDate.split('T')[0]); // YYYY-MM-DD 형식으로 변환
         setGender(data.information.gender);
+        const imagePath = images[data.information.imageUrl] || require('../../assets/images/basic-profile.png');
+        setProfileImage(imagePath);
+        console.log(data.information.imageUrl);
     };
 
     useFocusEffect(
@@ -46,8 +50,9 @@ const ProfileView = ({ title }) => {
             <View style={styles.container}>
                 <ProfileTopBar title="프로필" />
                 <StatusBar barStyle="light-content" />
-                <View style={{ alignItems: 'center'}}>
-                    <Image source={require('../../assets/images/basic-profile.png')} style={styles.profileImage} />
+                <View style={{ alignItems: 'center' }}>
+                    <Image source={require('../../assets/images/profile-background.png')} style={styles.profileBack} />
+                    <Image source={imageUrl} style={styles.profileImage} />
                 </View>
                 <View>
                     <Text style={styles.text}>이름</Text>
@@ -62,7 +67,7 @@ const ProfileView = ({ title }) => {
 
                     <View style={{ flexDirection: 'row' }}>
                         <View style={styles.inputContainer}>
-                            <Text style={styles.birthInput}>{birthDate}</Text> 
+                            <Text style={styles.birthInput}>{birthDate}</Text>
                         </View>
 
                         <View style={[styles.genderButton, gender === 'MALE' && styles.selectedGender]}>
@@ -95,17 +100,33 @@ const ProfileView = ({ title }) => {
 
     );
 };
-
+const images = {
+    FEAR: require('../../assets/emoji/scared.png'),
+    YEARNING: require('../../assets/emoji/miss.png'),
+    JOY: require('../../assets/emoji/glad.png'),
+    ANGER: require('../../assets/emoji/angry.png'),
+    AWKWARDNESS: require('../../assets/emoji/uncomfortable.png'),
+    ABSURDITY: require('../../assets/emoji/confused.png'),
+    EXCITED: require('../../assets/emoji/excited.png'),
+    THRILL: require('../../assets/emoji/happy.png'),
+    MYSTERY: require('../../assets/emoji/mysterious.png'),
+};
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#464E82',
         height: 750,
     },
+    profileBack: {
+        width: 70,
+        height: 70,
+        marginTop: 50,
+    },
     profileImage: {
         width: 60,
         height: 60,
         marginTop: 50,
+        position: 'absolute',
     },
     textInfo: {
         color: 'white',

@@ -2,7 +2,7 @@ import { checkToken, getToken } from '../ManageToken';
 
 const BASE_URL = 'http://carvedrem.kro.kr:8080/';
 
-export const updateUserData = async (name, birth, gender) => {
+export const updateUserData = async (name, birth, gender, imageUrl) => {
     await checkToken();
     token = await getToken();
 
@@ -17,8 +17,10 @@ export const updateUserData = async (name, birth, gender) => {
                 name: name,
                 birthDate: birth,
                 gender: gender,
+                imageUrl: imageUrl,
             }),
         });
+
 
         if (!response.ok) {
             throw new Error('Something went wrong');

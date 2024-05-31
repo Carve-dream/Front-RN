@@ -22,11 +22,14 @@ const MyPageView = ({ title }) => {
 
     const [userName, setUserName] = useState('');
     const [email, setEmail] = useState('');
+    const [imageUrl, setProfileImage] = useState(require('../../assets/images/basic-profile.png'));
 
     const loadUserData = async () => {
         const data = await fetchUserData();
         setUserName(data.information.name);
         setEmail(data.information.email);
+        const imagePath = images[data.information.imageUrl] || require('../../assets/images/basic-profile.png');
+        setProfileImage(imagePath);
     };
 
     //최근 포춘쿠키 조회
@@ -68,7 +71,7 @@ const MyPageView = ({ title }) => {
     }, []);
 
     const handleLogout = async () => { //로그아웃 후 로그인화면으로 전환
-        
+
         Alert.alert(
             '로그아웃 하시겠습니까?',
             '로그인 화면으로 돌아갑니다.',
@@ -118,7 +121,11 @@ const MyPageView = ({ title }) => {
 
                 <TouchableOpacity onPress={handleProfilePress} style={styles.button}>
                     <View style={styles.profileContainer}>
-                        <Image source={require('../../assets/images/basic-profile.png')} style={styles.profileImage} />
+                        <View style={{ alignItems: 'center' ,position: 'relative', marginRight: 45, }}>
+                            <Image source={require('../../assets/images/profile-background.png')} style={styles.profileBack} />
+                            <Image source={imageUrl} style={styles.profileImage} />
+                        </View>
+
                         <View>
                             <Text style={styles.name}>{userName} 님의 프로필</Text>
                             <Text style={styles.email}>{email}</Text>
@@ -171,24 +178,42 @@ const MyPageView = ({ title }) => {
     );
 };
 
+const images = {
+    FEAR: require('../../assets/emoji/scared.png'),
+    YEARNING: require('../../assets/emoji/miss.png'),
+    JOY: require('../../assets/emoji/glad.png'),
+    ANGER: require('../../assets/emoji/angry.png'),
+    AWKWARDNESS: require('../../assets/emoji/uncomfortable.png'),
+    ABSURDITY: require('../../assets/emoji/confused.png'),
+    EXCITED: require('../../assets/emoji/excited.png'),
+    THRILL: require('../../assets/emoji/happy.png'),
+    MYSTERY: require('../../assets/emoji/mysterious.png'),
+};
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#464E82',
         height: 750,
     },
-    topCtn : {
+    topCtn: {
         marginTop: 55,
         marginBottom: 20
     },
     profileContainer: {
         flexDirection: 'row',
     },
+    profileBack: {
+        width: 60,
+        height: 60,
+        left: 50,
+        marginRight: 20,
+    },
     profileImage: {
         width: 50,
         height: 50,
-        marginLeft: 50,
-        marginRight: 20,
+        left: 55,      
+        position: 'absolute',
     },
     button: {
         backgroundColor: '#EF82A1',
