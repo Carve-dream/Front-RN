@@ -40,7 +40,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
   
   const icons = {
     '홈': require('../assets/images/home.png'),
-    '꿈일기 목록': require('../assets/images/note.png'),
+    '꿈 일기 목록': require('../assets/images/note.png'),
     '일기작성': require('../assets/images/plus.png'),
     '감정지도': require('../assets/images/chart.png'),
     '마이페이지': require('../assets/images/myPage.png')
@@ -48,7 +48,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
 
   const focusedIcons = {
     '홈': require('../assets/images/homePush.png'),
-    '꿈일기 목록': require('../assets/images/notePush.png'),
+    '꿈 일기 목록': require('../assets/images/notePush.png'),
     '일기작성': require('../assets/images/plus.png'),
     '감정지도': require('../assets/images/chartPush.png'),
     '마이페이지': require('../assets/images/myPage.png')

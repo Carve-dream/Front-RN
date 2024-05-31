@@ -140,7 +140,7 @@ const ChatView = ({ navigation }) => {
       >
         {/*상단바*/}
         <View style={styles.topCtn}>
-            <TopBar navigation={navigation} title="꾸미와의 대화" />
+            <TopBar title="꾸미와의 대화" />
         </View>
 
         {/* 채팅 창 */}

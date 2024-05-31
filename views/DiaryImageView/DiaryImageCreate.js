@@ -14,7 +14,7 @@ const DiaryImageCreate = () => {
     return(
         <View style={styles.fullScreen}>
             <View style={styles.topCtn}>
-                <TopBar navigation={navigation} title="꿈 이미지 생성"/>
+                <TopBar title="꿈 이미지 생성"/>
             </View>
             <FullScreen/>
         </View>
