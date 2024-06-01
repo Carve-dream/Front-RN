@@ -2,12 +2,14 @@ import React, { useCallback,useState, useEffect } from 'react';
 import { Text, Image, View, StyleSheet } from 'react-native';
 import { checkToken, getToken } from "../../ManageToken";
 import { useNavigation, useFocusEffect  } from '@react-navigation/native';
+import LoadingModal from '../LoadingModalView/LoadingModal';
 
 
 //'../../assets/images/ellipse-blank.png'
 
 const EmotionRecord = () => {
     const [emotions, setEmotions] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     // 현재 날짜를 가져와서 year와 month를 설정
     const currentDate = new Date();
@@ -15,6 +17,7 @@ const EmotionRecord = () => {
     const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1 더하기
 
     async function fetchEmotions() {
+        setLoading(true);
         token = await getToken();
 
         let arr = [];
@@ -49,6 +52,7 @@ const EmotionRecord = () => {
             return new Date(b.date) - new Date(a.date);
         })
         setEmotions(arr);
+        setLoading(false);
     }
 
     useFocusEffect(
@@ -73,6 +77,7 @@ const EmotionRecord = () => {
     
     return (
         <View style={styles.container}>
+            <LoadingModal isVisible={loading} />
             {Array.isArray(emotions) && emotions.slice(0, 7).reverse().map((emotion, index) => (
                 <Image
                     key={index}

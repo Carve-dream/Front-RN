@@ -4,6 +4,7 @@ import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Alert, Mod
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { checkToken, getToken } from '../../ManageToken';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import LoadingModal from '../LoadingModalView/LoadingModal';
 
 const makeDiaryCard = (data, navigation, fetchData) => {
 
@@ -65,7 +66,7 @@ const DiaryCard = ({defaultDate}) => {
 
     const navigation = useNavigation();
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
 
     const [date, setDate] = useState(formatDate(new Date));
@@ -150,8 +151,9 @@ const DiaryCard = ({defaultDate}) => {
 
     return (
         <View style={{alignItems: 'center'}}>
-        <DateView sDate={[date, setDate]} sData={[data, setData]} sLoading={[loading, setLoading]}/>
-        {makeDiaryList(data, navigation, fetchData)}
+            <LoadingModal isVisible={loading} />
+            <DateView sDate={[date, setDate]} sData={[data, setData]} sLoading={[loading, setLoading]}/>
+            {makeDiaryList(data, navigation, fetchData)}
         </View>
     )
     

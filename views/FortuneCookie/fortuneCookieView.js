@@ -5,6 +5,7 @@ import TopBar from '../../ChatView/TopBar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { checkToken, getToken } from '../../ManageToken';
 import { fetchUserData } from '../../api/userData';
+import LoadingModal from '../LoadingModalView/LoadingModal';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height; 
@@ -52,7 +53,10 @@ const CookieView = () => {
   const [isTouched, setIsTouched] = useState(false);
   const [fortune, setFortune] = useState("");
 
+  const [loading, setLoading] = useState(false);
+
   const handlePress = async () => {
+    setLoading(true);
     const fetch = await fetchFortuneCookie();
     console.log(fetch);
     if (fetch.information.content) {
@@ -62,6 +66,7 @@ const CookieView = () => {
       setFortune(fetch.information.answer);
     }
     setIsTouched(true);
+    setLoading(false);
     // navigation.navigate('fortuneResult', { fortune: fortune });
   };
 
@@ -78,6 +83,8 @@ const CookieView = () => {
           <Text style={styles.uesrText} >{userName}님을 위한 오늘의 포춘쿠키 </Text>
           <CurrentDateDisplay/>
         </View>
+
+        <LoadingModal isVisible={loading} text={"포춘쿠키\n열어보는 중..."}/>
 
         {!isTouched ? (
           <TouchableOpacity style={styles.BtnCtn} onPress={handlePress}>
