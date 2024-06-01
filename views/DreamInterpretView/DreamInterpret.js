@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
 import { checkToken, getToken } from '../../ManageToken';
 import Toast from 'react-native-toast-message';
+import LoadingModal from '../LoadingModalView/LoadingModal';
 
 
 const screenWidth = Dimensions.get('window').width; 
@@ -29,44 +30,47 @@ const DreamInterpret = (data) => {
 const FullScreen = ({data}) => {
 
     const [text, setText] = useState(data.interpretation);
-    const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        const interpret = async () => {
-            setLoading(true);
-            if (data.content == "") {
-                setText("해몽을 하려면 꿈 일기를 작성해야 해요.");
-            } else {
-                await checkToken();
-                const [accessToken, refreshToken] = await getToken();
-                const response = fetch('http://carvedrem.kro.kr:8080/api/diary/interpretation', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`,
-                    },
-                    body: JSON.stringify({ 
-                        'content': data.content,
-                    }),
-                });
-                response.then(result => result.json()).then(res => {
-                    console.log(res);
-                    if (res.check != null && res.check == false) {
-                        console.log("해몽 실패");
-                    } else {
-                        setText(res.information.answer);
-                        console.log("해몽 성공");
-                    }
-                });
-            }
-            setLoading(false);
-        }
-        interpret();
-    }, [data.content]);
+    // useEffect(() => {
+    //     const interpret = async () => {
+    //         setLoading(true);
+    //         try {
+    //             if (data.content == "") {
+    //                 setText("해몽을 하려면 꿈 일기를 작성해야 해요.");
+    //             } else {
+    //                 await checkToken();
+    //                 const [accessToken, refreshToken] = await getToken();
+    //                 const response = await fetch('http://carvedrem.kro.kr:8080/api/diary/interpretation', {
+    //                     method: 'POST',
+    //                     headers: {
+    //                         'Content-Type': 'application/json',
+    //                         'Authorization': `Bearer ${accessToken}`,
+    //                     },
+    //                     body: JSON.stringify({ 
+    //                         'content': data.content,
+    //                     }),
+    //                 });
+    //                 const res = await response.json();
+    //                 console.log(res);
+    //                 if (res.check != null && res.check === false) {
+    //                     console.log("해몽 실패");
+    //                 } else {
+    //                     setText(res.information.answer);
+    //                     console.log("해몽 성공");
+    //                 }
+    //             }
+    //         } catch (error) {
+    //             console.error("Error interpret diary:", error);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     }
+    //     interpret();
+    // }, [data.content]);
 
     return(
     <View style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <View>
+        <ScrollView>
             <View style={styles.backCtn}>
                 <View style={styles.card}>
                     <TopView title={data.title} date={data.date}/>
@@ -84,11 +88,11 @@ const FullScreen = ({data}) => {
                 <View style={styles.DiaryEntryCtn}>
                     <DiaryEntry interpret={[text, setText]}/>
                 </View>
-             </View>
-             <View style={styles.saveCtn}>
-                <SaveBtn id={data.id} interpret={[text, setText]}/>
             </View>
-        </View>
+             <View style={styles.saveCtn}>
+                <SaveBtn data={data} interpret={[text, setText]}/>
+            </View>
+        </ScrollView>
     </View>
     );
 }
@@ -142,10 +146,13 @@ const DiaryEntry = ({interpret}) => {
 
 
 //꿈 이미지 생성하기 버튼
-const SaveBtn = ({id, interpret}) => {
+const SaveBtn = ({data, interpret}) => {
     const navigation = useNavigation();
 
+    const [loading, setLoading] = useState(false);
+
     const [text, setText] = interpret;
+    const id = data.id;
 
     const handleSave = async () => {
         await checkToken();
@@ -177,11 +184,49 @@ const SaveBtn = ({id, interpret}) => {
         });
     }
 
+    const createInterpret = async () => {
+        setLoading(true);
+        try {
+            if (data.content == "") {
+                setText("해몽을 하려면 꿈 일기를 작성해야 해요.");
+            } else {
+                await checkToken();
+                const [accessToken, refreshToken] = await getToken();
+                const response = await fetch('http://carvedrem.kro.kr:8080/api/diary/interpretation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({ 
+                        'content': data.content,
+                    }),
+                });
+                const res = await response.json();
+                console.log(res);
+                if (res.check != null && res.check === false) {
+                    console.log("해몽 실패");
+                } else {
+                    setText(res.information.answer);
+                    console.log("해몽 성공");
+                }
+            }
+        } catch (error) {
+            console.error("Error interpret diary:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return(
-        <View>
-            
+        <View style={{marginBottom: 50}}>
+            <LoadingModal isVisible={loading} />
             <TouchableOpacity onPress={() => navigation.navigate('ChatView', id)} style={styles.confirmButton}>
                 <Text style={styles.confirmText}>꾸미와 꿈에 대해 이야기하기</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => {createInterpret()}} style={styles.confirmButton}>
+                <Text style={styles.confirmText}>해몽하기</Text>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => {handleSave()}} style={styles.confirmButton}>

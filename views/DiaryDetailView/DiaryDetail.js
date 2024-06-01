@@ -3,6 +3,7 @@ import { View, Text, Image, TextInput, TouchableOpacity, ScrollView, Modal, Styl
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
 import { fetchDiaryData } from '../../api/fetchDiaryData';
+import LoadingModal from '../LoadingModalView/LoadingModal';
 
 const screenWidth = Dimensions.get('window').width; 
 const screenHeight = Dimensions.get('window').height; 
@@ -18,6 +19,7 @@ const DiaryDetail = (props) => {
 
     useEffect(() => {
         const getData = async (id) => {
+            setLoading(true);
             const tmp = await fetchDiaryData(id);
             setData(tmp);
             setLoading(false);
@@ -30,6 +32,7 @@ const DiaryDetail = (props) => {
     if (loading) {
         return(
             <View style={styles.fullScreen}>
+                <LoadingModal isVisible={loading} />
                 <View style={styles.topCtn}>
                     <TopBar title="0000-00-00"/>
                 </View>
@@ -40,6 +43,7 @@ const DiaryDetail = (props) => {
 
     return(
         <View style={styles.fullScreen}>
+            <LoadingModal isVisible={loading} />
             <View style={styles.topCtn}>
                 <TopBar title={data.information.date}/>
             </View>

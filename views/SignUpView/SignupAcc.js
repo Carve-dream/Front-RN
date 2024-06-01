@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, Dimensions, StatusBar, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Validation from '../LoginView/validation';
+import LoadingModal from '../LoadingModalView/LoadingModal';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -23,7 +24,11 @@ const SignupAcc = (props) => {
 
     const { validateEmail, validatePassword } = Validation(); // 이메일 유효성 검사를 위한 커스텀 훅 사용
 
+    const [loading, setLoading] = useState(false);
+
     const handleComplete = async () =>{
+
+        setLoading(true);
         // 회원가입 로직 추가
         const response = await fetch('http://carvedrem.kro.kr:8080/auth/signup', {
             method: 'POST',
@@ -41,6 +46,7 @@ const SignupAcc = (props) => {
         })
         const data = await response.json();
         console.log(data);
+        setLoading(false);
         if (data.check == null) {
             navigation.navigate('SignUpComplete', name);
         }
@@ -59,8 +65,8 @@ const SignupAcc = (props) => {
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
 
-
             <View style={styles.container}>
+                <LoadingModal isVisible={loading}/>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Image source={require('../../assets/images/back-white.png')} style={styles.back} />
                 </TouchableOpacity>

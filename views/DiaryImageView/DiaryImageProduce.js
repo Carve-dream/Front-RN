@@ -4,6 +4,7 @@ import { View, Text, Image,TextInput, StyleSheet, TouchableOpacity, Dimensions,S
 import { useNavigation } from '@react-navigation/native';
 import TopBar from '../../ChatView/TopBar';
 import { checkToken, getToken } from '../../ManageToken';
+import LoadingModal from '../LoadingModalView/LoadingModal';
 
 
 const screenWidth = Dimensions.get('window').width; 
@@ -144,23 +145,25 @@ const SaveBtn = ({id, text, image}) => {
     const navigation = useNavigation();
 
     const [loading, setLoading] = useState(false);
+    const [loadingSave, setLoadingSave] = useState(false);
     const [img, setImg] = image;
 
     const handleCreateImage = async () => {
         setLoading(true);
         await checkToken();
         const [accessToken, refreshToken] = await getToken();
-        const response = fetch('http://carvedrem.kro.kr:8080/api/diary/image', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify({ 
-                'content': text,
-            }),
-        });
-        response.then(result => result.json()).then(res => {
+        try {
+            const response = await fetch('http://carvedrem.kro.kr:8080/api/diary/image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify({ 
+                    'content': text,
+                }),
+            });
+            const res = await response.json();
             console.log(res);
             if (res.check != null && res.check == false) {
                 console.log("이미지화 실패");
@@ -168,25 +171,30 @@ const SaveBtn = ({id, text, image}) => {
                 setImg(res.information.answer);
                 console.log("이미지화 성공");
             }
-        });
-        setLoading(false);
+        } catch (error) {
+            console.error("Error creating image:", error);
+        } finally {
+            setLoading(false);
+        }
     }
 
     const handleSave = async () => {
+        setLoadingSave(true);
         await checkToken();
         const [accessToken, refreshToken] = await getToken();
-        const response = fetch('http://carvedrem.kro.kr:8080/api/diary/image', {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify({
-                'id': id,
-                'url': img,
-            }),
-        });
-        response.then(result => result.json()).then(res => {
+        try {
+            const response = await fetch('http://carvedrem.kro.kr:8080/api/diary/image', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify({
+                    'id': id,
+                    'url': img,
+                }),
+            });
+            const res = await response.json();
             console.log(res);
             if (res.check != null && res.check == false) {
                 console.log("이미지 저장 실패");
@@ -194,11 +202,17 @@ const SaveBtn = ({id, text, image}) => {
                 console.log("이미지 저장 성공");
                 navigation.goBack();
             }
-        });
+        } catch (error) {
+            console.error("Error saving image:", error);
+        } finally {
+            setLoadingSave(false);
+        }
     }
 
     return(
         <View>
+            <LoadingModal isVisible={loading} text={"이미지를\n생성하는 중..."}/>
+            <LoadingModal isVisible={loadingSave} text={"이미지를\n저장하는 중..."}/>
             <TouchableOpacity onPress={() => handleCreateImage()} style={styles.confirmButton}>
                 <Text style={styles.confirmText}>새로운 이미지 생성하기</Text>
             </TouchableOpacity>
