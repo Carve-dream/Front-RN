@@ -80,7 +80,8 @@ const SignIn = () => {
     }
 
     // 회원가입 버튼 눌렀을 때 SignupInfo 화면으로 넘어감
-    const handleSignUpPress = () => {
+    const handleSignUpPress = async () => {
+        await AsyncStorage.getAllKeys().then(AsyncStorage.multiRemove); // 삭제 예정 (토큰과 자동로그인 정보 삭제하는 코드)
         console.log('sign up button');
         navigation.navigate('SignUpInfo');
     };

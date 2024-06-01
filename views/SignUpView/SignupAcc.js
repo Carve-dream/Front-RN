@@ -35,7 +35,8 @@ const SignupAcc = (props) => {
                 "email": email,
                 "password": password,
                 "gender": gender,
-                "birthDate": birth
+                "birthDate": birth,
+                "imageUrl": 'JOY',
             }),
         })
         const data = await response.json();
