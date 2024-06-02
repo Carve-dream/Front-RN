@@ -199,7 +199,7 @@ const SaveBtn = ({data, interpret}) => {
                         'Authorization': `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({ 
-                        'content': data.content,
+                        'content': data.content.replaceAll('\n', ' '),
                     }),
                 });
                 const res = await response.json();
@@ -220,7 +220,7 @@ const SaveBtn = ({data, interpret}) => {
 
     return(
         <View style={{marginBottom: 50}}>
-            <LoadingModal isVisible={loading} />
+            <LoadingModal isVisible={loading} text={"해몽하는중..."}/>
             <TouchableOpacity onPress={() => navigation.navigate('ChatView', id)} style={styles.confirmButton}>
                 <Text style={styles.confirmText}>꾸미와 꿈에 대해 이야기하기</Text>
             </TouchableOpacity>
