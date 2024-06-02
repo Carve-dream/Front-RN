@@ -81,7 +81,7 @@ const EmotionRecord = () => {
             {Array.isArray(emotions) && emotions.slice(0, 7).reverse().map((emotion, index) => (
                 <Image
                     key={index}
-                    source={emotion.emotion ? emotionImages[emotion.emotion] : require('../../assets/images/ellipse-blank.png')} // 감정 미표시 - 별 이미지로 수정
+                    source={emotion.emotion ? emotionImages[emotion.emotion] : require('../../assets/emoji/blank.png')} // 감정 미표시 - 별 이미지로 수정
                     style={styles.image}
                 />
             ))}
