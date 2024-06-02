@@ -227,7 +227,7 @@ const DiaryEntry = (state) => {
                 
                     <TextInput
                         style={styles.textInput}
-                        multiline
+                        multiline={true}
                         placeholder="꿈 일기 내용을 적어주세요!"
                         placeholderTextColor={'#333333'}
                         onChangeText={text => setDiaryText(text)}
@@ -584,7 +584,7 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         lineHeight: 14,
         width: 300,
-        
+        height: 80
     },
     tagCtn:{
         width: 325, 
