@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     profileImage: {
         width: 60,
         height: 60,
-        marginTop: 50,
+        marginTop: 53,
         position: 'absolute',
     },
     textInfo: {

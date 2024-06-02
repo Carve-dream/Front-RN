@@ -212,7 +212,8 @@ const styles = StyleSheet.create({
     profileImage: {
         width: 50,
         height: 50,
-        left: 55,      
+        left: 55,     
+        marginTop: 3, 
         position: 'absolute',
     },
     button: {

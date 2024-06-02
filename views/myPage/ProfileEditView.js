@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         width: 60,
         height: 60,
-        marginTop: 50,
+        marginTop: 53,
     },
     profileBack: {
         width: 70,
