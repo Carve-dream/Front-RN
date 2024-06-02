@@ -116,7 +116,7 @@ const CalendarView = () => {
 
     const handleDayPress = (day) => {
         console.log('day changed', day);
-        navigation.navigate("꿈일기 목록", day);
+        navigation.navigate("꿈 일기 목록", day);
     }
 
     return (
