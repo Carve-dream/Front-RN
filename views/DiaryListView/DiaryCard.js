@@ -209,8 +209,10 @@ const DateView = ({sDate, sData, sLoading}) => {
         async function searchByTag(tag) {
             await checkToken();
             token = await getToken();
+
+            console.log(encodeURI('#' + tag));
         
-            const response = await fetch('http://carvedrem.kro.kr:8080/api/diary/search?tag=' + tag, {
+            const response = await fetch('http://carvedrem.kro.kr:8080/api/diary/search?tag=%23' + encodeURI(tag), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -221,6 +223,7 @@ const DateView = ({sDate, sData, sLoading}) => {
             const ret = await response.json();
         
             if (ret.check == null || ret.check == true) {
+                console.log(ret);
                 setData(ret.information.reverse());
                 console.log("데이터 불러오기 성공");
                 setLoading(false);
