@@ -69,15 +69,17 @@ const BoxComponent = () => {
     return (
         <View>
             <Text style={styles.text}>최근 꿈 일기 목록을 불러왔어요.{"\n"}분석하고 싶은 꿈 일기를 선택해주세요!</Text>
-            <ScrollView style={styles.container}>
+            <ScrollView style={styles.container} >
                 <Text>{userName} 님의 꿈 일기 목록</Text>
-                {data.map((element, index) => {
-                    if (index < 10) {
-                        return (
-                            <List key={index} title={element.title} id={element.id}/>
-                        )
-                    }
-                })}
+                <View style={styles.listCtn}>
+                    {data.map((element, index) => {
+                        if (index < 10) {
+                            return (
+                                <List key={index} title={element.title} id={element.id}/>
+                            )
+                        }
+                    })}
+                </View>
             </ScrollView>
         </View>
     );
@@ -102,6 +104,7 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 5,
         marginTop: 10,
+        maxHeight: 175,
     },
     text: {
         fontSize: 14,
@@ -115,6 +118,9 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         marginTop: 10,
     },
+    listCtn: {
+        marginBottom: 25
+    }
 });
 
 export default BoxComponent;
