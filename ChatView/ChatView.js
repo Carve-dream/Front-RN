@@ -36,7 +36,7 @@ const ChatView = () => {
   const interpretByDiary = async (id) => {
     let diary = await fetchDiaryData(id);
     diary = diary.information;
-    await getInterpret(diary.title, diary.date, diary.content);
+    await getInterpret(diary.title, diary.date, diary.content.replaceAll('\n', ' '));
   }
 
   const getInterpret = async (title, date, content) => {

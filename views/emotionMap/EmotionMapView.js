@@ -45,7 +45,7 @@ const EmotionMapView = (navigation) => {
                         <CalendarView />
                         <Text style={styles.eText}>{userName}님의 최근 기록된 감정</Text>
                         <EmotionRecord />
-                        <Text style={styles.statText}>{weekRange}</Text>
+                        {/* <Text style={styles.statText}>{weekRange}</Text> */}
                         <Text style={styles.eText}>감정 통계</Text>
                         <EmotionChart/>
                     </View>
